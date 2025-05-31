@@ -5,80 +5,7 @@ import Ajv from 'ajv';
 import type { JSONSchemaType } from 'ajv';
 import addFormats from 'ajv-formats';
 
-// Define types based on the JSON schema for better type checking
-interface ProgramConfiguration {
-  programName: string;
-  programObjectives: string;
-  programScope?: string;
-  programIndicators?: string;
-  programGovernance?: string;
-  programFunding?: string;
-  programStages: string[];
-  programReporting?: string;
-  programDefaultOpportunityStatuses: string[];
-  programDefaultInitiativeTypes: string[];
-}
-
-interface Person {
-  personId: string;
-  personName: string;
-  personDescription?: string;
-  personRole: "Innovation Manager" | "Innovation Sponsor" | "Team Member" | "Collaborator" | "Observer";
-  personUrl?: string;
-  personImageUrl?: string;
-}
-
-interface Opportunity {
-  opportunityId: string;
-  opportunityName: string;
-  opportunityDescription?: string;
-  opportunityProblem: string;
-  opportunitySource?: "Customer Feedback" | "Market Trend" | "Internal Brainstorm" | "Competitor Analysis" | "Technology Scouting" | "Employee Idea" | "Other";
-  opportunityStakeholders?: string;
-  opportunityProposerId: string;
-  opportunityPriority?: number;
-  opportunityStatus: "Identified" | "Under Review" | "Prioritized" | "Archived";
-  opportunityDateIdentified: string; // date format
-  opportunityLastUpdated: string; // date-time format
-}
-
-interface Initiative {
-  initiativeId: string;
-  initiativeName: string;
-  initiativeType: "New Product Development" | "Process Improvement" | "Technology Exploration" | "Market Research" | "Partnership Development" | "Platform Enhancement" | "Sustainability Initiative";
-  initiativePhase: "Idea Definition" | "Concept Design" | "Prototype Development" | "Validation" | "Pilot Testing" | "Launched" | "Scaling" | "On Hold" | "Cancelled";
-  initiativeManagerId: string;
-  initiativeOpportunityId: string;
-  initiativeTargetUser?: string;
-  initiativeProblem?: string;
-  initiativeSolution?: string;
-  initiativeValueProposition?: string;
-  initiativeSolutionHypothesis?: string;
-  initiativeGoals?: string;
-  initiativeObjective?: string;
-  initiativeResults?: string;
-  initiativeLearnings?: string;
-  initiativeDecision?: "Persevere" | "Pivot" | "Discard" | "Validated for Handover";
-  initiativeDecisionJustification?: string;
-  initiativeNextSteps?: string;
-  initiativeBudget?: number;
-  initiativeResources?: string;
-  initiativeRisks?: string;
-  initiativeDateRegistered: string; // date format
-  initiativeStartDate?: string; // date format
-  initiativeEndDate?: string; // date format
-  initiativeLastUpdated: string; // date-time format
-  initiativeNotes?: string;
-}
-
-interface AppData {
-  program: ProgramConfiguration;
-  people: Person[];
-  opportunities: Opportunity[];
-  initiatives: Initiative[];
-}
-
-const schema = ref<JSONSchemaType<AppData> | null>(null);
+const schema = ref<JSONSchemaType<any> | null>(null);
 const data = ref<AppData | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null); // Ref for the file input element
 const ajv = new Ajv({ strict: false, formats: true }); // Configure Ajv and enable formats
@@ -127,7 +54,7 @@ onMounted(async () => {
            initialData[key] = null; // Or a more appropriate default
         }
       }
-      data.value = initialData as AppData; // Type assertion
+      data.value = initialData as any; // Type assertion
        console.log('Initial data structure:', data.value);
     }
 

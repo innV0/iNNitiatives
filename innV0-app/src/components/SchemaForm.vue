@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, ref, watch, inject } from 'vue';
+import { defineProps, ref, watch, inject, computed } from 'vue';
 
 // Define the props for the component
 const props = defineProps({
@@ -159,65 +159,104 @@ const getArrayItemSchema = (arraySchema: any): any => {
   return arraySchema.items; // Return inline schema
 };
 
+// Computed property to get properties sorted by nn-order and grouped by nn-group
+const sortedAndGroupedProperties = computed(() => {
+  if (!props.schema || !props.schema.properties) {
+    return {};
+  }
+
+  const properties = Object.entries(props.schema.properties);
+
+  // Group properties by nn-group
+  const grouped: { [key: string]: [string, any][] } = {};
+  let ungrouped: [string, any][] = [];
+
+  properties.forEach(([key, property]) => {
+    const group = property['nn-group'] || 'General'; // Default group
+    if (!grouped[group]) {
+      grouped[group] = [];
+    }
+    grouped[group].push([key, property]);
+  });
+
+  // Sort properties within each group by nn-order
+  for (const group in grouped) {
+    grouped[group].sort(([, a], [, b]) => {
+      const orderA = a['nn-order'] || 0;
+      const orderB = b['nn-order'] || 0;
+      return orderA - orderB;
+    });
+  }
+
+  return grouped;
+});
+
 </script>
 
 <template>
-  <div class="space-y-4">
-    <div v-for="(property, key) in schema.properties" :key="key as string">
-      <div v-if="isVisible(property)">
-        <label :for="key as string" class="block text-sm font-medium text-gray-700">{{ getPropertyTitle(key as string, property) }}</label>
-        <p v-if="getPropertyDescription(property)" class="mt-1 text-sm text-gray-500">{{ getPropertyDescription(property) }}</p>
+  <div class="space-y-6">
+    <div v-for="(properties, groupName) in sortedAndGroupedProperties" :key="groupName">
+      <h2 v-if="groupName !== 'General'" class="text-xl font-semibold mb-4">{{ groupName }}</h2>
+      <div class="space-y-4">
+        <div v-for="([key, property]) in properties" :key="key">
+          <div v-if="isVisible(property)">
+            <label :for="key as string" class="block text-sm font-medium text-gray-700">{{ getPropertyTitle(key as string, property) }}</label>
+            <p v-if="getPropertyDescription(property)" class="mt-1 text-sm text-gray-500">{{ getPropertyDescription(property) }}</p>
+            <p v-if="property['nn-tag']" class="mt-1 text-xs text-gray-500">Tags: {{ Array.isArray(property['nn-tag']) ? property['nn-tag'].join(', ') : property['nn-tag'] }}</p>
+            <p v-if="property['nn-source']" class="mt-1 text-xs text-gray-500">Source: {{ property['nn-source'] }}</p>
 
-        <div v-if="property.type === 'object'">
-          <!-- Recursively render nested objects -->
-          <SchemaForm :schema="property.$ref ? fullSchemaDefinitions[property.$ref.replace('#/definitions/', '')] : property" :data="formData[key]" :definitions="fullSchemaDefinitions" :propertyKey="key as string" />
-        </div>
-
-        <div v-else-if="property.type === 'array'">
-          <!-- Handle arrays -->
-          <div class="border p-4 rounded-md">
-            <h3 class="text-lg font-semibold mb-2">{{ getPropertyTitle(key as string, property) }}</h3>
-            <div v-for="(item, index) in formData[key]" :key="index" class="border-b pb-4 mb-4">
-              <!-- Recursively render array items -->
-              <SchemaForm :schema="getArrayItemSchema(property)" :data="item" :definitions="fullSchemaDefinitions" :propertyKey="`${key}[${index}]`" />
-              <button type="button" @click="removeArrayItem(key as string, index)" class="mt-2 text-red-600 hover:text-red-900 text-sm">Remove</button>
+            <div v-if="property.type === 'object'">
+              <!-- Recursively render nested objects -->
+              <SchemaForm :schema="property.$ref ? fullSchemaDefinitions[property.$ref.replace('#/definitions/', '')] : property" :data="formData[key]" :definitions="fullSchemaDefinitions" :propertyKey="key as string" />
             </div>
-            <button type="button" @click="addArrayItem(key as string, getArrayItemSchema(property))" class="mt-2 text-blue-600 hover:text-blue-900 text-sm">Add Item</button>
+
+            <div v-else-if="property.type === 'array'">
+              <!-- Handle arrays -->
+              <div class="border p-4 rounded-md">
+                <h3 class="text-lg font-semibold mb-2">{{ getPropertyTitle(key as string, property) }}</h3>
+                <div v-for="(item, index) in formData[key]" :key="index" class="border-b pb-4 mb-4">
+                  <!-- Recursively render array items -->
+                  <SchemaForm :schema="getArrayItemSchema(property)" :data="item" :definitions="fullSchemaDefinitions" :propertyKey="`${key}[${index}]`" />
+                  <button type="button" @click="removeArrayItem(key as string, index)" class="mt-2 text-red-600 hover:text-red-900 text-sm">Remove</button>
+                </div>
+                <button type="button" @click="addArrayItem(key as string, getArrayItemSchema(property))" class="mt-2 text-blue-600 hover:text-blue-900 text-sm">Add Item</button>
+              </div>
+            </div>
+
+            <div v-else-if="property.enum">
+              <!-- Handle enums (dropdown) -->
+              <select
+                :id="key as string"
+                :value="formData[key]"
+                @change="handleInput(key as string, ($event.target as HTMLSelectElement).value)"
+                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              >
+                <option v-for="option in property.enum" :key="option" :value="option">{{ option }}</option>
+              </select>
+            </div>
+
+            <div v-else>
+              <!-- Handle basic input types -->
+              <input
+                v-if="getInputType(property) !== 'textarea'"
+                :type="getInputType(property)"
+                :id="key as string"
+                :value="formData[key]"
+                @input="handleInput(key as string, ($event.target as HTMLInputElement).value)"
+                :readonly="property.readonly"
+                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              />
+               <textarea
+                v-else
+                :id="key as string"
+                :value="formData[key]"
+                @input="handleInput(key as string, ($event.target as HTMLTextAreaElement).value)"
+                :readonly="property.readonly"
+                rows="3"
+                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              ></textarea>
+            </div>
           </div>
-        </div>
-
-        <div v-else-if="property.enum">
-          <!-- Handle enums (dropdown) -->
-          <select
-            :id="key as string"
-            :value="formData[key]"
-            @change="handleInput(key as string, ($event.target as HTMLSelectElement).value)"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-          >
-            <option v-for="option in property.enum" :key="option" :value="option">{{ option }}</option>
-          </select>
-        </div>
-
-        <div v-else>
-          <!-- Handle basic input types -->
-          <input
-            v-if="getInputType(property) !== 'textarea'"
-            :type="getInputType(property)"
-            :id="key as string"
-            :value="formData[key]"
-            @input="handleInput(key as string, ($event.target as HTMLInputElement).value)"
-            :readonly="property.readonly"
-            class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-          />
-           <textarea
-            v-else
-            :id="key as string"
-            :value="formData[key]"
-            @input="handleInput(key as string, ($event.target as HTMLTextAreaElement).value)"
-            :readonly="property.readonly"
-            rows="3"
-            class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-          ></textarea>
         </div>
       </div>
     </div>
