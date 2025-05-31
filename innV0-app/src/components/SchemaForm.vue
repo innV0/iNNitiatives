@@ -1,0 +1,233 @@
+<script setup lang="ts">
+import { defineProps, ref, watch, inject } from 'vue';
+
+// Define the props for the component
+const props = defineProps({
+  // The schema object for the current level of the form
+  schema: {
+    type: Object,
+    required: true,
+  },
+  // The data object for the current level of the form
+  data: {
+    type: [Object, Array], // data can be an object or an array for array items
+    required: true,
+  },
+  // Optional: The full schema definitions, needed for resolving $ref
+  definitions: {
+    type: Object,
+    required: false,
+  },
+  // Optional: The key of the current property, used for labeling and identification
+  propertyKey: {
+    type: String,
+    required: false,
+  }
+});
+
+// Use inject to get the full schema definitions from a parent provider
+const fullSchemaDefinitions = inject('fullSchemaDefinitions', props.definitions);
+
+// Local reactive copy of data to emit changes
+const formData = ref<any>(props.data);
+
+// Watch for external changes to the data prop and update formData
+watch(() => props.data, (newData) => {
+  formData.value = newData;
+}, { deep: true });
+
+// Function to handle input changes and emit update
+const handleInput = (key: string | number, value: any) => {
+  if (formData.value && typeof formData.value === 'object') {
+     formData.value[key] = value;
+     // Emit an event to the parent component with the updated data
+     // This is a simplified approach; a more robust solution might use provide/inject or a dedicated state management library
+     // For this task, we'll assume a direct update is sufficient for now.
+     console.log(`Updating data for key "${key}":`, value);
+  }
+};
+
+// Function to handle adding a new item to an array
+const addArrayItem = (arrayKey: string, itemSchema: any) => {
+  if (formData.value && Array.isArray(formData.value[arrayKey])) {
+    const newItem = initializeObjectFromSchema(itemSchema);
+    formData.value[arrayKey].push(newItem);
+    console.log(`Added new item to array "${arrayKey}"`);
+  }
+};
+
+// Function to handle removing an item from an array
+const removeArrayItem = (arrayKey: string, index: number) => {
+   if (formData.value && Array.isArray(formData.value[arrayKey])) {
+    formData.value[arrayKey].splice(index, 1);
+    console.log(`Removed item at index ${index} from array "${arrayKey}"`);
+  }
+};
+
+
+// Function to determine the input type based on schema property type and format
+const getInputType = (property: any) => {
+  if (property.format === 'textarea') {
+    return 'textarea';
+  }
+  if (property.type === 'integer' || property.type === 'number') {
+    return 'number';
+  }
+  if (property.type === 'string' && property.format === 'date') {
+    return 'date';
+  }
+   if (property.type === 'string' && property.format === 'date-time') {
+    return 'datetime-local';
+  }
+  if (property.type === 'string' && property.format === 'uri') {
+    return 'url';
+  }
+  if (property.type === 'string') {
+    return 'text';
+  }
+  // Add more type mappings as needed (e.g., boolean, array, object)
+  return 'text'; // Default to text for now
+};
+
+// Function to get the title for a property
+const getPropertyTitle = (key: string, property: any) => {
+  return property.title || key;
+};
+
+// Function to get the description for a property
+const getPropertyDescription = (property: any) => {
+  return property.description;
+};
+
+// Function to check if a property should be visible based on nn-visible-if
+const isVisible = (property: any) => {
+  if (!property['nn-visible-if']) {
+    return true;
+  }
+  const condition = property['nn-visible-if'];
+  const fieldName = condition.field;
+  const allowedValues = condition.in;
+
+  // Check if the field exists in the current data and if its value is in the allowed values
+  // Need to access the parent data for this check if the current schema is for a nested object or array item
+  // For simplicity, this implementation assumes nn-visible-if refers to fields at the same level or parent level.
+  // A more robust solution would require passing down the full data tree or using a state management solution.
+   return formData.value && formData.value[fieldName] !== undefined && allowedValues.includes(formData.value[fieldName]);
+};
+
+// Helper function to recursively initialize objects based on schema definitions
+const initializeObjectFromSchema = (schemaObject: any): any => {
+  const initialData: any = {};
+  if (!schemaObject || !schemaObject.properties) {
+    return initialData; // Return empty object for invalid schema
+  }
+  for (const key in schemaObject.properties) {
+    const property = schemaObject.properties[key];
+      if (property.type === 'object') {
+        if (property.$ref) {
+          const definitionName = property.$ref.replace('#/definitions/', '');
+           if (fullSchemaDefinitions && fullSchemaDefinitions[definitionName]) {
+             initialData[key] = initializeObjectFromSchema(fullSchemaDefinitions[definitionName]);
+           } else {
+             initialData[key] = {};
+           }
+        } else {
+           initialData[key] = {};
+        }
+      } else if (property.type === 'array') {
+        initialData[key] = [];
+      } else if (property.default !== undefined) {
+        initialData[key] = property.default;
+      } else {
+        initialData[key] = null; // Or a more appropriate default based on type
+      }
+    }
+  return initialData;
+};
+
+// Function to get the item schema for an array
+const getArrayItemSchema = (arraySchema: any): any => {
+  if (!arraySchema || !arraySchema.items) {
+    return {}; // Return empty schema if items is missing
+  }
+
+  if (arraySchema.items.$ref) {
+    const definitionName = arraySchema.items.$ref.replace('#/definitions/', '');
+    return fullSchemaDefinitions?.value ? fullSchemaDefinitions.value[definitionName] || {} : {}; // Resolve $ref or return empty
+  }
+
+  return arraySchema.items; // Return inline schema
+};
+
+</script>
+
+<template>
+  <div class="space-y-4">
+    <div v-for="(property, key) in schema.properties" :key="key as string">
+      <div v-if="isVisible(property)">
+        <label :for="key as string" class="block text-sm font-medium text-gray-700">{{ getPropertyTitle(key as string, property) }}</label>
+        <p v-if="getPropertyDescription(property)" class="mt-1 text-sm text-gray-500">{{ getPropertyDescription(property) }}</p>
+
+        <div v-if="property.type === 'object'">
+          <!-- Recursively render nested objects -->
+          <SchemaForm :schema="property.$ref ? fullSchemaDefinitions[property.$ref.replace('#/definitions/', '')] : property" :data="formData[key]" :definitions="fullSchemaDefinitions" :propertyKey="key as string" />
+        </div>
+
+        <div v-else-if="property.type === 'array'">
+          <!-- Handle arrays -->
+          <div class="border p-4 rounded-md">
+            <h3 class="text-lg font-semibold mb-2">{{ getPropertyTitle(key as string, property) }}</h3>
+            <div v-for="(item, index) in formData[key]" :key="index" class="border-b pb-4 mb-4">
+              <!-- Recursively render array items -->
+              <SchemaForm :schema="getArrayItemSchema(property)" :data="item" :definitions="fullSchemaDefinitions" :propertyKey="`${key}[${index}]`" />
+              <button type="button" @click="removeArrayItem(key as string, index)" class="mt-2 text-red-600 hover:text-red-900 text-sm">Remove</button>
+            </div>
+            <button type="button" @click="addArrayItem(key as string, getArrayItemSchema(property))" class="mt-2 text-blue-600 hover:text-blue-900 text-sm">Add Item</button>
+          </div>
+        </div>
+
+        <div v-else-if="property.enum">
+          <!-- Handle enums (dropdown) -->
+          <select
+            :id="key as string"
+            :value="formData[key]"
+            @change="handleInput(key as string, ($event.target as HTMLSelectElement).value)"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          >
+            <option v-for="option in property.enum" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </div>
+
+        <div v-else>
+          <!-- Handle basic input types -->
+          <input
+            v-if="getInputType(property) !== 'textarea'"
+            :type="getInputType(property)"
+            :id="key as string"
+            :value="formData[key]"
+            @input="handleInput(key as string, ($event.target as HTMLInputElement).value)"
+            :readonly="property.readonly"
+            class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          />
+           <textarea
+            v-else
+            :id="key as string"
+            :value="formData[key]"
+            @input="handleInput(key as string, ($event.target as HTMLTextAreaElement).value)"
+            :readonly="property.readonly"
+            rows="3"
+            class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* Add any component-specific styles here if needed */
+</style>
+
+<style scoped>
+/* Add any component-specific styles here if needed */
+</style>

@@ -1,0 +1,41 @@
+{
+  "program": {
+    "programName": "Minimal Innovation Program",
+    "programObjectives": "Achieve minimal innovation.",
+    "programStages": ["Idea"],
+    "programDefaultOpportunityStatuses": ["New"],
+    "programDefaultInitiativeTypes": ["Project"]
+  },
+  "people": [
+    {
+      "personId": "person1",
+      "personName": "Test Person",
+      "personRole": "Team Member"
+    }
+  ],
+  "opportunities": [
+    {
+      "opportunityId": "opp1",
+      "opportunityName": "Minimal Opportunity",
+      "opportunityProblem": "Minimal problem.",
+      "opportunityProposerId": "person1",
+      "opportunityStatus": "Identified",
+      "opportunityDateIdentified": "2023-01-01",
+      "opportunityLastUpdated": "2023-01-01T10:00:00Z"
+    }
+  ],
+  "initiatives": [
+    {
+      "initiativeId": "init1",
+      "initiativeName": "Minimal Initiative",
+      "initiativeType": "New Product Development",
+      "initiativePhase": "Idea Definition",
+      "initiativeManagerId": "person1",
+      "initiativeOpportunityId": "opp1",
+      "initiativeDateRegistered": "2023-01-01",
+      "initiativeLastUpdated": "2023-01-01T10:00:00Z",
+      "initiativeSolutionHypothesis": "Minimal hypothesis.",
+      "initiativeDecision": "Persevere"
+    }
+  ]
+}
