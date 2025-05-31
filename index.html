@@ -32,12 +32,12 @@
           async function loadCoreData() {
             try {
               message.value = 'Fetching schema...';
-              const schemaResponse = await fetch('./schema.json');
+              const schemaResponse = await fetch('./public/schema.json');
               if (!schemaResponse.ok) throw new Error(`HTTP error loading schema.json! Status: ${schemaResponse.status}`);
               schema.value = await schemaResponse.json();
               message.value = 'Fetching sample data...';
 
-              const dataResponse = await fetch('./sample-data.json');
+              const dataResponse = await fetch('./public/sample-data.json');
               if (!dataResponse.ok) throw new Error(`HTTP error loading sample-data.json! Status: ${dataResponse.status}`);
               const loadedRawData = await dataResponse.json();
               rawData.value = loadedRawData;
