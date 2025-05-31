@@ -1,122 +1,211 @@
 <template>
   <div class="container mx-auto p-6">
-    <div v-if="dataStore.loading.value" class="text-gray-500 text-center p-4">Loading initiative details...</div>
-    <div v-else-if="dataStore.error.value" class="text-red-500 text-center p-4">Error loading data: {{ dataStore.error.value }}</div>
+    <div v-if="dataStore.loading.value && !initiativeData" class="text-center py-10 text-lg text-slate-500">Loading initiative details...</div>
+    <div v-else-if="dataStore.error.value" class="text-center py-10 text-lg text-red-600">Error loading data: {{ dataStore.error.value }}</div>
     <div v-else-if="initiativeSchema && initiativeData">
-      <h1 class="text-3xl font-bold mb-6 text-gray-800">{{ initiativeData.initiativeName || 'Initiative Details' }}</h1>
-
-      <!-- Back Button -->
-      <div class="mb-6">
-        <router-link to="/initiatives" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">< Back to Initiatives</router-link>
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800 mb-2">{{ initiativeData.initiativeName || 'Initiative Details' }}</h1>
+          <router-link
+            to="/initiatives"
+            class="text-sm text-sky-600 hover:text-sky-700 hover:underline">
+            &larr; Back to Initiatives List
+          </router-link>
+        </div>
+        <button
+          @click="goToEdit"
+          class="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out">
+          Edit Initiative
+        </button>
       </div>
 
-      <div class="space-y-8">
-        <!-- Dynamically render sections and properties based on schema -->
-        <div v-for="(properties, groupName) in sortedAndGroupedProperties" :key="groupName" class="border border-gray-200 rounded-lg p-6 bg-white shadow-lg">
-           <h2 v-if="groupName !== 'General Information'" class="text-xl font-semibold mb-4 text-gray-700">{{ groupName }}</h2>
-           <div class="space-y-3 text-gray-700">
-             <div v-for="([key, property]) in properties" :key="key" class="py-3 border-b border-gray-200 last:border-b-0">
-                <div v-if="shouldDisplayInDetail(property)">
-                   <span class="font-semibold text-gray-800">{{ property.title || key }}:</span>
-                   <template v-if="property.type === 'array'">
-                      <ul class="list-disc list-inside ml-4 text-gray-600">
-                         <li v-for="(item, index) in initiativeData[key]" :key="index">{{ item }}</li>
+      <!-- Type, Phase, and Budget Badges -->
+      <div class="mb-6 flex flex-wrap items-center gap-3">
+        <span
+          v-if="initiativeData.initiativeType"
+          class="px-3 py-1 text-sm font-semibold rounded-full"
+          :class="getTypeClass(initiativeData.initiativeType)">
+          Type: {{ initiativeData.initiativeType }}
+        </span>
+        <span
+          v-if="initiativeData.initiativePhase"
+          class="px-3 py-1 text-sm font-semibold rounded-full"
+          :class="getPhaseClass(initiativeData.initiativePhase)">
+          Phase: {{ initiativeData.initiativePhase }}
+        </span>
+        <span
+          v-if="initiativeData.initiativeBudget !== undefined && initiativeData.initiativeBudget !== null"
+          class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-700 border border-green-200">
+          Budget: {{ formatCurrency(initiativeData.initiativeBudget) }}
+        </span>
+      </div>
+
+      <div class="space-y-6">
+        <div
+          v-for="(properties, groupName) in sortedAndGroupedProperties"
+          :key="groupName"
+          class="bg-white shadow-md rounded-lg p-6">
+           <h2
+            v-if="groupName !== '_ungrouped'"
+            class="text-xl font-semibold text-slate-700 mb-4 border-b border-slate-200 pb-2">
+            {{ groupName }}
+           </h2>
+           <div class="space-y-4">
+             <div v-for="([key, property]) in properties" :key="key">
+                <div v-if="shouldDisplayInDetail(key, property)" class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-1">
+                  <div class="md:col-span-1 font-medium text-slate-600">{{ property.title || key }}:</div>
+                  <div class="md:col-span-2">
+                    <template v-if="property.type === 'array'">
+                      <ul v-if="initiativeData[key] && initiativeData[key].length > 0" class="list-disc list-inside text-slate-800">
+                        <li v-for="(item, index) in initiativeData[key]" :key="index">{{ item || 'N/A' }}</li>
                       </ul>
-                   </template>
-                   <template v-else-if="property.type === 'object'">
-                      <!-- Handle nested objects - could recursively render or display specific properties -->
-                      <span class="text-gray-500 ml-2">[Object]</span>
-                   </template>
+                      <span v-else class="text-slate-500 italic">N/A</span>
+                    </template>
                     <template v-else-if="property.format === 'uri' && property.type === 'string'">
-                       <a :href="initiativeData[key]" target="_blank" class="text-blue-600 hover:underline ml-2">{{ initiativeData[key] || 'N/A' }}</a>
-                   </template>
-                   <template v-else-if="property.format === 'textarea'">
-                       <p class="mt-1 text-gray-700 ml-2">{{ initiativeData[key] || 'N/A' }}</p>
-                   </template>
-                   <template v-else>
-                      <span class="ml-2 text-gray-700">{{ initiativeData[key] || 'N/A' }}</span>
-                   </template>
+                      <a :href="initiativeData[key]" target="_blank" class="text-sky-600 hover:underline break-all">{{ initiativeData[key] || 'N/A' }}</a>
+                    </template>
+                    <template v-else-if="property.format === 'date' || property.format === 'date-time'">
+                      <span class="text-slate-800">{{ formatDateTime(initiativeData[key], property.format) }}</span>
+                    </template>
+                    <template v-else-if="property.format === 'textarea'">
+                      <p class="text-slate-800 whitespace-pre-wrap">{{ initiativeData[key] || 'N/A' }}</p>
+                    </template>
+                    <template v-else-if="property.type === 'number' || property.type === 'integer'">
+                       <span class="text-slate-800">{{ initiativeData[key] === null || initiativeData[key] === undefined ? 'N/A' : initiativeData[key] }}</span>
+                    </template>
+                    <template v-else>
+                      <span class="text-slate-800">{{ initiativeData[key] === null || initiativeData[key] === undefined || initiativeData[key] === '' ? 'N/A' : initiativeData[key] }}</span>
+                    </template>
+
+                    <div v-if="property['nn-tag'] && Array.isArray(property['nn-tag'])" class="mt-1">
+                      <span
+                        v-for="tag_item in property['nn-tag']"
+                        :key="tag_item"
+                        class="inline-block bg-sky-100 text-sky-700 text-xs font-medium mr-2 mb-1 px-2.5 py-0.5 rounded-full">
+                        {{ tag_item }}
+                      </span>
+                    </div>
+                    <div v-else-if="property['nn-tag'] && typeof property['nn-tag'] === 'string'" class="mt-1">
+                        <span class="inline-block bg-sky-100 text-sky-700 text-xs font-medium mr-2 mb-1 px-2.5 py-0.5 rounded-full">
+                          {{ property['nn-tag'] }}
+                        </span>
+                    </div>
+                  </div>
                 </div>
              </div>
            </div>
         </div>
       </div>
-
-      <!-- Edit Button -->
-      <div class="mt-8">
-        <button @click="goToEdit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out">
-          Edit
-        </button>
-      </div>
-
     </div>
-    <div v-else class="text-gray-500 text-center p-4">
-      <p>Initiative not found or data not loaded.</p>
+    <div v-else class="text-center py-10 text-lg text-slate-500">
+      <p>Initiative not found or data could not be loaded.</p>
+      <router-link
+        to="/initiatives"
+        class="mt-4 inline-block text-sm text-sky-600 hover:text-sky-700 hover:underline">
+        &larr; Back to Initiatives List
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject } from 'vue';
+import { computed, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useDataStore } from '../dataStore'; // Import the data store
+import { useDataStore } from '../dataStore';
 
-// Inject the data store
 const dataStore = inject('dataStore', useDataStore());
-
 const route = useRoute();
 const router = useRouter();
 
-// Access initiative data and schema using data store and route params
 const initiativeData = computed(() => {
   const initiativeId = route.params.id as string;
-  // Find the initiative in the data store's initiatives array
-  return dataStore.getInitiativesData()?.find((i: any) => i.initiativeId === initiativeId) || null;
+  const initiatives = dataStore.getInitiativesData();
+  if (!initiatives) return null;
+  return initiatives.find((i: any) => i.initiativeId === initiativeId) || null;
 });
 
 const initiativeSchema = computed(() => dataStore.getInitiativeSchema());
 
-// Computed property to get properties sorted by nn-order and grouped by nn-group
 const sortedAndGroupedProperties = computed(() => {
-  if (!initiativeSchema.value || !initiativeSchema.value.properties) {
-    return {};
-  }
+  if (!initiativeSchema.value || !initiativeSchema.value.properties) return {};
 
   const properties = Object.entries(initiativeSchema.value.properties);
-
-  // Group properties by nn-group
   const grouped: { [key: string]: [string, any][] } = {};
+
   properties.forEach(([key, property]) => {
-    const group = property['nn-group'] || 'General Information'; // Default group for detail view
-    if (!grouped[group]) {
-      grouped[group] = [];
-    }
-    grouped[group].push([key, property]);
+    const groupName = property['nn-group'] || '_ungrouped';
+    if (!grouped[groupName]) grouped[groupName] = [];
+    grouped[groupName].push([key, property]);
   });
 
-  // Sort properties within each group by nn-order
-  for (const group in grouped) {
-    grouped[group].sort(([, a], [, b]) => {
-      const orderA = a['nn-order'] || 0;
-      const orderB = b['nn-order'] || 0;
+  for (const groupName in grouped) {
+    grouped[groupName].sort(([, a], [, b]) => {
+      const orderA = a['nn-order'] === undefined ? Infinity : a['nn-order'];
+      const orderB = b['nn-order'] === undefined ? Infinity : b['nn-order'];
       return orderA - orderB;
     });
   }
-
   return grouped;
 });
 
-// Helper function to determine if a property should be displayed in the detail view
-// This could be based on a custom schema property or other criteria
-const shouldDisplayInDetail = (property: any) => {
-   // For now, display all properties except the ID itself and potentially complex objects/arrays
-   return property.type !== 'object'; // Simple check, can be refined
+const shouldDisplayInDetail = (key: string, property: any) => {
+  const specialHandledKeys = ['initiativeId', 'initiativeType', 'initiativePhase', 'initiativeBudget'];
+  if (specialHandledKeys.includes(key)) {
+    return false;
+  }
+  return property.type !== 'object';
 };
-
 
 const goToEdit = () => {
   if (initiativeData.value) {
     router.push({ name: 'InitiativeEditView', params: { id: initiativeData.value.initiativeId } });
+  }
+};
+
+const getTypeClass = (type: string) => {
+  const colors = [
+    'bg-sky-100 text-sky-700 border border-sky-200', 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+    'bg-violet-100 text-violet-700 border border-violet-200', 'bg-amber-100 text-amber-700 border border-amber-200',
+    'bg-indigo-100 text-indigo-700 border border-indigo-200', 'bg-pink-100 text-pink-700 border border-pink-200',
+    'bg-lime-100 text-lime-700 border border-lime-200',
+  ];
+  let hash = 0;
+  for (let i = 0; i < type.length; i++) { hash = type.charCodeAt(i) + ((hash << 5) - hash); }
+  return colors[Math.abs(hash) % colors.length] || 'bg-slate-100 text-slate-600 border border-slate-200';
+};
+
+const getPhaseClass = (phase: string) => {
+   switch (phase) {
+    case 'Idea Definition': return 'bg-slate-100 text-slate-600 border border-slate-200';
+    case 'Concept Design': return 'bg-sky-100 text-sky-700 border border-sky-200';
+    case 'Prototype Development': return 'bg-violet-100 text-violet-700 border border-violet-200';
+    case 'Validation': return 'bg-amber-100 text-amber-700 border border-amber-200';
+    case 'Pilot Testing': return 'bg-lime-100 text-lime-700 border border-lime-200';
+    case 'Launched': return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
+    case 'Scaling': return 'bg-indigo-100 text-indigo-700 border border-indigo-200';
+    case 'On Hold': return 'bg-orange-100 text-orange-700 border border-orange-200';
+    case 'Cancelled': return 'bg-rose-100 text-rose-700 border border-rose-200';
+    default: return 'bg-slate-100 text-slate-500 border border-slate-200';
+  }
+};
+
+const formatCurrency = (value: number | undefined | null) => {
+  if (value === null || value === undefined) return 'N/A';
+  return `€${value.toLocaleString('de-DE')}`; // Example: Euro format
+};
+
+const formatDateTime = (dateString: string | undefined | null, formatType?: string) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString;
+
+    if (formatType === 'date') {
+      return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    return date.toLocaleString(undefined, { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    return dateString;
   }
 };
 

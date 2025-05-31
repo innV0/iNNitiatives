@@ -1,63 +1,97 @@
 <template>
   <div class="container mx-auto p-6">
-    <div v-if="dataStore.loading.value" class="text-gray-500 text-center p-4">Loading person details...</div>
-    <div v-else-if="dataStore.error.value" class="text-red-500 text-center p-4">Error loading data: {{ dataStore.error.value }}</div>
+    <div v-if="dataStore.loading.value && !personData" class="text-center py-10 text-lg text-slate-500">Loading person details...</div>
+    <div v-else-if="dataStore.error.value" class="text-center py-10 text-lg text-red-600">Error loading data: {{ dataStore.error.value }}</div>
     <div v-else-if="personSchema && personData">
-      <h1 class="text-3xl font-bold mb-6 text-gray-800">{{ personData.personName || 'Person Details' }}</h1>
-
-      <!-- Back Button -->
-      <div class="mb-6">
-        <router-link to="/people" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">< Back to People</router-link>
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-slate-800 mb-2">{{ personData.personName || 'Person Details' }}</h1>
+          <router-link
+            to="/people"
+            class="text-sm text-sky-600 hover:text-sky-700 hover:underline">
+            &larr; Back to People List
+          </router-link>
+        </div>
+        <button
+          @click="goToEdit"
+          class="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out">
+          Edit Person
+        </button>
       </div>
 
-      <div class="space-y-8">
-        <!-- Dynamically render sections and properties based on schema -->
-        <div v-for="(properties, groupName) in sortedAndGroupedProperties" :key="groupName" class="border border-gray-200 rounded-lg p-6 bg-white shadow-lg">
-           <h2 v-if="groupName !== 'General Information'" class="text-xl font-semibold mb-4 text-gray-700">{{ groupName }}</h2>
-           <div class="space-y-3 text-gray-700">
-             <div v-for="([key, property]) in properties" :key="key" class="py-3 border-b border-gray-200 last:border-b-0">
-                <div v-if="shouldDisplayInDetail(property)">
-                   <span class="font-semibold text-gray-800">{{ property.title || key }}:</span>
-                   <template v-if="property.type === 'array'">
-                      <ul class="list-disc list-inside ml-4 text-gray-600">
-                         <li v-for="(item, index) in personData[key]" :key="index">{{ item }}</li>
+      <!-- Person Image -->
+      <div v-if="personData.personImageUrl" class="mb-8 text-center">
+        <img
+          :src="personData.personImageUrl"
+          alt="Profile Picture"
+          class="w-32 h-32 rounded-full object-cover mx-auto shadow-md border-4 border-white">
+      </div>
+
+      <div class="space-y-6">
+        <div
+          v-for="(properties, groupName) in sortedAndGroupedProperties"
+          :key="groupName"
+          class="bg-white shadow-md rounded-lg p-6">
+           <h2
+            v-if="groupName !== '_ungrouped'"
+            class="text-xl font-semibold text-slate-700 mb-4 border-b border-slate-200 pb-2">
+            {{ groupName }}
+           </h2>
+           <div class="space-y-4">
+             <div v-for="([key, property]) in properties" :key="key">
+                <div v-if="shouldDisplayInDetail(key, property)" class="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-1">
+                  <div class="md:col-span-1 font-medium text-slate-600">{{ property.title || key }}:</div>
+                  <div class="md:col-span-2">
+                    <template v-if="property.type === 'array'">
+                      <ul v-if="personData[key] && personData[key].length > 0" class="list-disc list-inside text-slate-800">
+                        <li v-for="(item, index) in personData[key]" :key="index">{{ item || 'N/A' }}</li>
                       </ul>
-                   </template>
-                   <template v-else-if="property.type === 'object'">
-                      <!-- Handle nested objects - could recursively render or display specific properties -->
-                      <span class="text-gray-500 ml-2">[Object]</span>
-                   </template>
+                      <span v-else class="text-slate-500 italic">N/A</span>
+                    </template>
                     <template v-else-if="property.format === 'uri' && property.type === 'string'">
-                       <a :href="personData[key]" target="_blank" class="text-blue-600 hover:underline ml-2">{{ personData[key] || 'N/A' }}</a>
-                   </template>
-                   <template v-else-if="property.format === 'textarea'">
-                       <p class="mt-1 text-gray-700 ml-2">{{ personData[key] || 'N/A' }}</p>
-                   </template>
-                   <template v-else>
-                      <span class="ml-2 text-gray-700">{{ personData[key] || 'N/A' }}</span>
-                   </template>
+                      <a :href="personData[key]" target="_blank" class="text-sky-600 hover:underline break-all">{{ personData[key] || 'N/A' }}</a>
+                    </template>
+                    <template v-else-if="property.format === 'textarea'">
+                      <p class="text-slate-800 whitespace-pre-wrap">{{ personData[key] || 'N/A' }}</p>
+                    </template>
+                    <template v-else>
+                      <span class="text-slate-800">{{ personData[key] === null || personData[key] === undefined || personData[key] === '' ? 'N/A' : personData[key] }}</span>
+                    </template>
+
+                    <!-- Display nn-tags -->
+                    <div v-if="property['nn-tag'] && Array.isArray(property['nn-tag'])" class="mt-1">
+                      <span
+                        v-for="tag in property['nn-tag']"
+                        :key="tag"
+                        class="inline-block bg-sky-100 text-sky-700 text-xs font-medium mr-2 mb-1 px-2.5 py-0.5 rounded-full">
+                        {{ tag }}
+                      </span>
+                    </div>
+                     <div v-else-if="property['nn-tag'] && typeof property['nn-tag'] === 'string'" class="mt-1">
+                        <span class="inline-block bg-sky-100 text-sky-700 text-xs font-medium mr-2 mb-1 px-2.5 py-0.5 rounded-full">
+                          {{ property['nn-tag'] }}
+                        </span>
+                    </div>
+                  </div>
                 </div>
              </div>
            </div>
         </div>
       </div>
-
-      <!-- Edit Button -->
-      <div class="mt-8">
-        <button @click="goToEdit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out">
-          Edit
-        </button>
-      </div>
-
     </div>
-    <div v-else class="text-gray-500 text-center p-4">
-      <p>Person not found or data not loaded.</p>
+    <div v-else class="text-center py-10 text-lg text-slate-500">
+      <p>Person not found or data could not be loaded.</p>
+      <router-link
+        to="/people"
+        class="mt-4 inline-block text-sm text-sky-600 hover:text-sky-700 hover:underline">
+        &larr; Back to People List
+      </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, inject } from 'vue';
+import { computed, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDataStore } from '../dataStore'; // Import the data store
 
@@ -70,8 +104,9 @@ const router = useRouter();
 // Access person data and schema using data store and route params
 const personData = computed(() => {
   const personId = route.params.id as string;
-  // Find the person in the data store's people array
-  return dataStore.getPeopleData()?.find((p: any) => p.personId === personId) || null;
+  const people = dataStore.getPeopleData();
+  if (!people) return null;
+  return people.find((p: any) => p.personId === personId) || null;
 });
 
 const personSchema = computed(() => dataStore.getPersonSchema());
@@ -87,30 +122,36 @@ const sortedAndGroupedProperties = computed(() => {
   // Group properties by nn-group
   const grouped: { [key: string]: [string, any][] } = {};
   properties.forEach(([key, property]) => {
-    const group = property['nn-group'] || 'General Information'; // Default group for detail view
-    if (!grouped[group]) {
-      grouped[group] = [];
+    // Use '_ungrouped' if 'nn-group' is missing, to ensure all properties are captured.
+    const groupName = property['nn-group'] || '_ungrouped';
+    if (!grouped[groupName]) {
+      grouped[groupName] = [];
     }
-    grouped[group].push([key, property]);
+    grouped[groupName].push([key, property]);
   });
 
   // Sort properties within each group by nn-order
-  for (const group in grouped) {
-    grouped[group].sort(([, a], [, b]) => {
-      const orderA = a['nn-order'] || 0;
-      const orderB = b['nn-order'] || 0;
+  for (const groupName in grouped) {
+    grouped[groupName].sort(([, a], [, b]) => {
+      const orderA = a['nn-order'] === undefined ? Infinity : a['nn-order'];
+      const orderB = b['nn-order'] === undefined ? Infinity : b['nn-order'];
       return orderA - orderB;
     });
   }
+
+  // Optional: Sort the groups themselves if needed, e.g., alphabetically or by a predefined order
+  // For now, the order of groups will be based on when they were first encountered.
 
   return grouped;
 });
 
 // Helper function to determine if a property should be displayed in the detail view
-// This could be based on a custom schema property or other criteria
-const shouldDisplayInDetail = (property: any) => {
-   // For now, display all properties except the ID itself and potentially complex objects/arrays
-   return property.type !== 'object'; // Simple check, can be refined
+const shouldDisplayInDetail = (key: string, property: any) => {
+  if (key === 'personId' || key === 'personImageUrl') { // personImageUrl is handled separately
+    return false;
+  }
+  // Exclude complex objects for now, simple arrays are fine
+  return property.type !== 'object';
 };
 
 

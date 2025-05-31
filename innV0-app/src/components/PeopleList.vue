@@ -1,31 +1,50 @@
 <template>
-  <div class="space-y-4">
-    <div v-for="person in data" :key="person.personId" class="bg-white border border-gray-200 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 ease-in-out p-6 flex items-center">
-      <!-- Profile Picture/Avatar -->
-      <img v-if="person.personImageUrl" :src="person.personImageUrl" alt="Profile Picture" class="w-16 h-16 rounded-full mr-6 object-cover border-2 border-gray-200">
-      <div v-else class="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center mr-6 text-gray-500 font-semibold text-xl border-2 border-gray-200">
-        {{ person.personName ? person.personName.charAt(0).toUpperCase() : '?' }}
-      </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div
+      v-for="person in data"
+      :key="person.personId"
+      class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-200 ease-in-out flex flex-col">
 
-      <div class="flex-grow">
-        <!-- Person Name -->
-        <h3 class="text-xl font-semibold text-gray-900 mb-1">{{ person.personName || 'N/A' }}</h3>
-        <!-- Person Role -->
-        <p class="text-indigo-600 text-sm font-medium mb-2">{{ person.personRole || 'N/A' }}</p>
+      <div class="p-6 flex-grow">
+        <div class="flex items-start">
+          <!-- Profile Picture/Avatar -->
+          <div class="mr-4 flex-shrink-0">
+            <img
+              v-if="person.personImageUrl"
+              :src="person.personImageUrl"
+              alt="Profile Picture"
+              class="w-16 h-16 rounded-full object-cover border-2 border-slate-200">
+            <div
+              v-else
+              class="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-semibold text-2xl border-2 border-slate-300">
+              {{ person.personName ? person.personName.charAt(0).toUpperCase() : '?' }}
+            </div>
+          </div>
+
+          <div class="flex-grow">
+            <!-- Person Name -->
+            <h3 class="text-xl font-semibold text-slate-800 mb-1">{{ person.personName || 'N/A' }}</h3>
+            <!-- Person Role -->
+            <p class="text-sky-600 text-sm font-medium mb-2">{{ person.personRole || 'N/A' }}</p>
+          </div>
+        </div>
+
         <!-- Person Description -->
-        <p class="text-gray-600 text-sm leading-relaxed">{{ person.personDescription || 'No description available.' }}</p>
-
-        <!-- Dynamically render other properties if needed -->
-        <!-- This would require a more sophisticated approach to decide which properties to show -->
-        <!-- For now, we focus on the main ones as per description -->
-
+        <p class="text-slate-600 text-sm leading-relaxed mt-3">
+          {{ person.personDescription ? (person.personDescription.length > 150 ? person.personDescription.substring(0, 147) + '...' : person.personDescription) : 'No description available.' }}
+        </p>
       </div>
+
       <!-- Interactive elements -->
-      <div class="flex flex-col space-y-2 ml-4">
-        <button @click="viewPerson(person.personId)" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md text-xs transition duration-150 ease-in-out">
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end space-x-2">
+        <button
+          @click="viewPerson(person.personId)"
+          class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 px-3 rounded-md text-xs transition duration-150 ease-in-out">
           View
         </button>
-        <button @click="editPerson(person.personId)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md text-xs transition duration-150 ease-in-out">
+        <button
+          @click="editPerson(person.personId)"
+          class="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-3 rounded-md text-xs transition duration-150 ease-in-out">
           Edit
         </button>
       </div>
