@@ -1,21 +1,21 @@
 <template>
-  <div class="p-4">
-    <div v-if="dataStore.loading.value">Loading initiative details...</div>
-    <div v-else-if="dataStore.error.value">Error loading data: {{ dataStore.error.value }}</div>
+  <div class="container mx-auto p-6">
+    <div v-if="dataStore.loading.value" class="text-gray-500 text-center p-4">Loading initiative details...</div>
+    <div v-else-if="dataStore.error.value" class="text-red-500 text-center p-4">Error loading data: {{ dataStore.error.value }}</div>
     <div v-else-if="initiativeSchema && initiativeData">
-      <h1 class="text-2xl font-bold mb-6 text-gray-800">{{ initiativeData.initiativeName || 'Initiative Details' }}</h1>
+      <h1 class="text-3xl font-bold mb-6 text-gray-800">{{ initiativeData.initiativeName || 'Initiative Details' }}</h1>
 
-      <!-- Back Button/Breadcrumbs -->
+      <!-- Back Button -->
       <div class="mb-6">
-        <router-link to="/initiatives" class="text-gray-600 hover:text-gray-800 hover:underline transition duration-150 ease-in-out">< Back to Initiatives</router-link>
+        <router-link to="/initiatives" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">< Back to Initiatives</router-link>
       </div>
 
       <div class="space-y-8">
         <!-- Dynamically render sections and properties based on schema -->
-        <div v-for="(properties, groupName) in sortedAndGroupedProperties" :key="groupName" class="border border-gray-300 rounded-md p-4 bg-white shadow-sm">
+        <div v-for="(properties, groupName) in sortedAndGroupedProperties" :key="groupName" class="border border-gray-200 rounded-lg p-6 bg-white shadow-lg">
            <h2 v-if="groupName !== 'General Information'" class="text-xl font-semibold mb-4 text-gray-700">{{ groupName }}</h2>
            <div class="space-y-3 text-gray-700">
-             <div v-for="([key, property]) in properties" :key="key">
+             <div v-for="([key, property]) in properties" :key="key" class="py-3 border-b border-gray-200 last:border-b-0">
                 <div v-if="shouldDisplayInDetail(property)">
                    <span class="font-semibold text-gray-800">{{ property.title || key }}:</span>
                    <template v-if="property.type === 'array'">
@@ -25,16 +25,16 @@
                    </template>
                    <template v-else-if="property.type === 'object'">
                       <!-- Handle nested objects - could recursively render or display specific properties -->
-                      <span class="text-gray-500">[Object]</span>
+                      <span class="text-gray-500 ml-2">[Object]</span>
                    </template>
                     <template v-else-if="property.format === 'uri' && property.type === 'string'">
-                       <a :href="initiativeData[key]" target="_blank" class="text-blue-600 hover:underline">{{ initiativeData[key] || 'N/A' }}</a>
+                       <a :href="initiativeData[key]" target="_blank" class="text-blue-600 hover:underline ml-2">{{ initiativeData[key] || 'N/A' }}</a>
                    </template>
                    <template v-else-if="property.format === 'textarea'">
-                       <p class="mt-1 text-gray-700">{{ initiativeData[key] || 'N/A' }}</p>
+                       <p class="mt-1 text-gray-700 ml-2">{{ initiativeData[key] || 'N/A' }}</p>
                    </template>
                    <template v-else>
-                      {{ initiativeData[key] || 'N/A' }}
+                      <span class="ml-2 text-gray-700">{{ initiativeData[key] || 'N/A' }}</span>
                    </template>
                 </div>
              </div>
@@ -44,13 +44,13 @@
 
       <!-- Edit Button -->
       <div class="mt-8">
-        <button @click="goToEdit" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-sm transition duration-150 ease-in-out">
+        <button @click="goToEdit" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out">
           Edit
         </button>
       </div>
 
     </div>
-    <div v-else>
+    <div v-else class="text-gray-500 text-center p-4">
       <p>Initiative not found or data not loaded.</p>
     </div>
   </div>
@@ -121,7 +121,3 @@ const goToEdit = () => {
 };
 
 </script>
-
-<style scoped>
-/* Component-specific styles */
-</style>

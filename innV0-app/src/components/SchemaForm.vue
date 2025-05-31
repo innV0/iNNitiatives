@@ -43,7 +43,7 @@ const handleInput = (key: string | number, value: any) => {
      // Emit an event to the parent component with the updated data
      // This is a simplified approach; a more robust solution might use provide/inject or a dedicated state management library
      // For this task, we'll assume a direct update is sufficient for now.
-     console.log(`Updating data for key "${key}":`, value);
+     // console.log(`Updating data for key "${key}":`, value); // Removed for final review
   }
 };
 
@@ -52,7 +52,7 @@ const addArrayItem = (arrayKey: string, itemSchema: any) => {
   if (formData.value && Array.isArray(formData.value[arrayKey])) {
     const newItem = initializeObjectFromSchema(itemSchema);
     formData.value[arrayKey].push(newItem);
-    console.log(`Added new item to array "${arrayKey}"`);
+    // console.log(`Added new item to array "${arrayKey}"`); // Removed for final review
   }
 };
 
@@ -60,7 +60,7 @@ const addArrayItem = (arrayKey: string, itemSchema: any) => {
 const removeArrayItem = (arrayKey: string, index: number) => {
    if (formData.value && Array.isArray(formData.value[arrayKey])) {
     formData.value[arrayKey].splice(index, 1);
-    console.log(`Removed item at index ${index} from array "${arrayKey}"`);
+    // console.log(`Removed item at index ${index} from array "${arrayKey}"`); // Removed for final review
   }
 };
 
@@ -200,27 +200,30 @@ const sortedAndGroupedProperties = computed(() => {
       <div class="space-y-4">
         <div v-for="([key, property]) in properties" :key="key">
           <div v-if="isVisible(property)">
-            <label :for="key as string" class="block text-sm font-medium text-gray-700">{{ getPropertyTitle(key as string, property) }}</label>
-            <p v-if="getPropertyDescription(property)" class="mt-1 text-sm text-gray-500">{{ getPropertyDescription(property) }}</p>
+            <label :for="key as string" class="block text-sm font-medium text-gray-700 mb-1">{{ getPropertyTitle(key as string, property) }}</label>
+            <p v-if="getPropertyDescription(property)" class="text-xs text-gray-500 mt-1">{{ getPropertyDescription(property) }}</p>
             <p v-if="property['nn-tag']" class="mt-1 text-xs text-gray-500">Tags: {{ Array.isArray(property['nn-tag']) ? property['nn-tag'].join(', ') : property['nn-tag'] }}</p>
             <p v-if="property['nn-source']" class="mt-1 text-xs text-gray-500">Source: {{ property['nn-source'] }}</p>
 
             <div v-if="property.type === 'object'">
               <!-- Recursively render nested objects -->
-              <SchemaForm :schema="property.$ref ? fullSchemaDefinitions[property.$ref.replace('#/definitions/', '')] : property" :data="formData[key]" :definitions="fullSchemaDefinitions" :propertyKey="key as string" />
+              <fieldset class="border border-gray-300 p-4 rounded-md space-y-4 mt-2">
+                <legend class="text-sm font-medium text-gray-700 px-1">{{ getPropertyTitle(key as string, property) }}</legend>
+                <SchemaForm :schema="property.$ref ? fullSchemaDefinitions[property.$ref.replace('#/definitions/', '')] : property" :data="formData[key]" :definitions="fullSchemaDefinitions" :propertyKey="key as string" />
+              </fieldset>
             </div>
 
             <div v-else-if="property.type === 'array'">
               <!-- Handle arrays -->
-              <div class="border p-4 rounded-md">
-                <h3 class="text-lg font-semibold mb-2">{{ getPropertyTitle(key as string, property) }}</h3>
-                <div v-for="(item, index) in formData[key]" :key="index" class="border-b pb-4 mb-4">
+              <fieldset class="border border-gray-300 p-4 rounded-md space-y-4 mt-2">
+                <legend class="text-lg font-semibold mb-2 px-1">{{ getPropertyTitle(key as string, property) }}</legend>
+                <div v-for="(item, index) in formData[key]" :key="index" class="border-b border-gray-200 pb-4 mb-4 last:border-b-0 last:pb-0 last:mb-0">
                   <!-- Recursively render array items -->
                   <SchemaForm :schema="getArrayItemSchema(property)" :data="item" :definitions="fullSchemaDefinitions" :propertyKey="`${key}[${index}]`" />
-                  <button type="button" @click="removeArrayItem(key as string, index)" class="mt-2 text-red-600 hover:text-red-900 text-sm">Remove</button>
+                  <button type="button" @click="removeArrayItem(key as string, index)" class="mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-md text-xs transition duration-150 ease-in-out">Remove</button>
                 </div>
-                <button type="button" @click="addArrayItem(key as string, getArrayItemSchema(property))" class="mt-2 text-blue-600 hover:text-blue-900 text-sm">Add Item</button>
-              </div>
+                <button type="button" @click="addArrayItem(key as string, getArrayItemSchema(property))" class="mt-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-md text-xs transition duration-150 ease-in-out">Add Item</button>
+              </fieldset>
             </div>
 
             <div v-else-if="property.enum">
@@ -229,7 +232,8 @@ const sortedAndGroupedProperties = computed(() => {
                 :id="key as string"
                 :value="formData[key]"
                 @change="handleInput(key as string, ($event.target as HTMLSelectElement).value)"
-                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
+                :disabled="property.readonly"
               >
                 <option v-for="option in property.enum" :key="option" :value="option">{{ option }}</option>
               </select>
@@ -243,17 +247,17 @@ const sortedAndGroupedProperties = computed(() => {
                 :id="key as string"
                 :value="formData[key]"
                 @input="handleInput(key as string, ($event.target as HTMLInputElement).value)"
-                :readonly="property.readonly"
-                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                :disabled="property.readonly"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
               />
                <textarea
                 v-else
                 :id="key as string"
                 :value="formData[key]"
                 @input="handleInput(key as string, ($event.target as HTMLTextAreaElement).value)"
-                :readonly="property.readonly"
+                :disabled="property.readonly"
                 rows="3"
-                class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
               ></textarea>
             </div>
           </div>
@@ -263,10 +267,3 @@ const sortedAndGroupedProperties = computed(() => {
   </div>
 </template>
 
-<style scoped>
-/* Add any component-specific styles here if needed */
-</style>
-
-<style scoped>
-/* Add any component-specific styles here if needed */
-</style>

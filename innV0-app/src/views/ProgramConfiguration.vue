@@ -93,13 +93,13 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <div class="p-4">
-    <h1 class="text-2xl font-bold mb-6 text-gray-800">Program Configuration</h1>
+  <div class="container mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Program Configuration</h1>
 
     <!-- Import/Export buttons - might need to handle full data in App.vue -->
     <div class="mb-6">
       <input type="file" ref="fileInput" @change="handleFileSelect" accept=".json" class="hidden" />
-      <button @click="$refs.fileInput.click()" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded text-sm mr-2 transition duration-150 ease-in-out">
+      <button @click="$refs.fileInput.click()" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md text-sm mr-2 transition duration-150 ease-in-out">
         Import Program Data
       </button>
       <!-- Export button is less straightforward here as it should export full data -->
@@ -109,26 +109,22 @@ const handleCancel = () => {
     </div>
 
 
-    <div v-if="dataStore.loading.value">Loading program configuration...</div>
-    <div v-else-if="dataStore.error.value">Error loading data: {{ dataStore.error.value }}</div>
+    <div v-if="dataStore.loading.value" class="text-gray-500 text-center p-4">Loading program configuration...</div>
+    <div v-else-if="dataStore.error.value" class="text-red-500 text-center p-4">Error loading data: {{ dataStore.error.value }}</div>
     <div v-else-if="programSchema && programData">
       <SchemaForm :schema="programSchema" :data="programData" />
     </div>
-     <div v-else>
+     <div v-else class="text-gray-500 text-center p-4">
        No program configuration data available.
      </div>
 
-    <div class="mt-8 flex justify-end">
-      <button @click="handleCancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded text-sm mr-2 transition duration-150 ease-in-out">
+    <div class="mt-8 flex justify-end space-x-2">
+      <button @click="handleCancel" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">
         Cancel
       </button>
-      <button @click="handleSave" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-sm transition duration-150 ease-in-out">
+      <button @click="handleSave" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">
         Save
       </button>
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Component-specific styles */
-</style>

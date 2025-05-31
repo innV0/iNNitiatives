@@ -58,37 +58,31 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <div class="p-4">
-    <div v-if="dataStore.loading.value">Loading person data...</div>
-    <div v-else-if="dataStore.error.value">Error loading data: {{ dataStore.error.value }}</div>
+  <div class="container mx-auto p-6">
+    <div v-if="dataStore.loading.value" class="text-gray-500 text-center p-4">Loading person data...</div>
+    <div v-else-if="dataStore.error.value" class="text-red-500 text-center p-4">Error loading data: {{ dataStore.error.value }}</div>
     <div v-else-if="personSchema && personData">
-       <h1 class="text-2xl font-bold mb-6 text-gray-800">Edit Person</h1>
+       <h1 class="text-3xl font-bold mb-6 text-gray-800">Edit {{ personData.personName || 'Person' }}</h1>
 
-     <!-- Back Button/Breadcrumbs -->
+     <!-- Back Button -->
       <div class="mb-6">
-        <router-link :to="{ name: 'PersonDetailView', params: { id: $route.params.id } }" class="text-gray-600 hover:text-gray-800 hover:underline transition duration-150 ease-in-out">< Back to Detail View</router-link>
+        <router-link :to="{ name: 'PersonDetailView', params: { id: $route.params.id } }" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">< Back to Detail View</router-link>
       </div>
 
-
-    <div v-if="personSchema && personData">
-       <!-- Using SchemaForm for editing -->
+      <!-- SchemaForm handles the actual form rendering -->
       <SchemaForm :schema="personSchema" :data="personData" />
-    </div>
-     <div v-else>
-       Loading person data...
-     </div>
 
-    <div class="mt-8 flex justify-end">
-      <button @click="handleCancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded text-sm mr-2 transition duration-150 ease-in-out">
-        Cancel
-      </button>
-      <button @click="handleSave" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-sm transition duration-150 ease-in-out">
-        Save
-      </button>
+      <div class="mt-8 flex justify-end space-x-2">
+        <button @click="handleCancel" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">
+          Cancel
+        </button>
+        <button @click="handleSave" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">
+          Save
+        </button>
+      </div>
+    </div>
+    <div v-else class="text-gray-500 text-center p-4">
+      Person data not available or schema not loaded.
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Component-specific styles */
-</style>

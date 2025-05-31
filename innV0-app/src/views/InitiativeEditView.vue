@@ -34,7 +34,7 @@ const validate = computed(() => initiativeSchema.value ? ajv.compile(initiativeS
 
 // Handle Save button click
 const handleSave = () => {
-  console.log('Save button clicked. Data:', initiativeData.value);
+  // console.log('Save button clicked. Data:', initiativeData.value); // Removed for final review
   // Implement save logic here (e.g., send updated data to API)
   alert('Save functionality for Initiative Edit not yet implemented.');
   // After saving, potentially navigate back to detail view
@@ -45,7 +45,7 @@ const handleSave = () => {
 
 // Handle Cancel button click
 const handleCancel = () => {
-  console.log('Cancel button clicked.');
+  // console.log('Cancel button clicked.'); // Removed for final review
   // Implement cancel logic here (e.g., navigate back without saving)
    if (initiativeData.value) {
      router.push({ name: 'InitiativeDetailView', params: { id: initiativeData.value.initiativeId } });
@@ -58,37 +58,31 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <div class="p-4">
-    <div v-if="dataStore.loading.value">Loading initiative data...</div>
-    <div v-else-if="dataStore.error.value">Error loading data: {{ dataStore.error.value }}</div>
+  <div class="container mx-auto p-6">
+    <div v-if="dataStore.loading.value" class="text-gray-500 text-center p-4">Loading initiative data...</div>
+    <div v-else-if="dataStore.error.value" class="text-red-500 text-center p-4">Error loading data: {{ dataStore.error.value }}</div>
     <div v-else-if="initiativeSchema && initiativeData">
-       <h1 class="text-2xl font-bold mb-6 text-gray-800">Edit Initiative</h1>
+       <h1 class="text-3xl font-bold mb-6 text-gray-800">Edit {{ initiativeData.initiativeName || 'Initiative' }}</h1>
 
-     <!-- Back Button/Breadcrumbs -->
+     <!-- Back Button -->
       <div class="mb-6">
-        <router-link :to="{ name: 'InitiativeDetailView', params: { id: $route.params.id } }" class="text-gray-600 hover:text-gray-800 hover:underline transition duration-150 ease-in-out">< Back to Detail View</router-link>
+        <router-link :to="{ name: 'InitiativeDetailView', params: { id: $route.params.id } }" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">< Back to Detail View</router-link>
       </div>
 
-
-    <div v-if="initiativeSchema && initiativeData">
-       <!-- Using SchemaForm for editing -->
+      <!-- SchemaForm handles the actual form rendering -->
       <SchemaForm :schema="initiativeSchema" :data="initiativeData" />
-    </div>
-     <div v-else>
-       Loading initiative data...
-     </div>
 
-    <div class="mt-8 flex justify-end">
-      <button @click="handleCancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded text-sm mr-2 transition duration-150 ease-in-out">
-        Cancel
-      </button>
-      <button @click="handleSave" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded text-sm transition duration-150 ease-in-out">
-        Save
-      </button>
+      <div class="mt-8 flex justify-end space-x-2">
+        <button @click="handleCancel" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">
+          Cancel
+        </button>
+        <button @click="handleSave" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">
+          Save
+        </button>
+      </div>
+    </div>
+    <div v-else class="text-gray-500 text-center p-4">
+      Initiative data not available or schema not loaded.
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Component-specific styles */
-</style>
