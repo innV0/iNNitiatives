@@ -48,4 +48,54 @@ export const useDataStore = () => {
     getInitiativeSchema: () => schema.value?.definitions?.initiative,
     getFullSchemaDefinitions: () => schema.value?.definitions,
   };
+
+  const getSchemaProperty = (definitionName: string, propertyName: string) => {
+    const definition = schema.value?.definitions?.[definitionName];
+    if (definition && definition.properties) {
+      return definition.properties[propertyName];
+    }
+    return undefined; // Or null, depending on desired return for not found
+  };
+
+  const getSchemaProperties = (definitionName: string) => {
+    const definition = schema.value?.definitions?.[definitionName];
+    if (!definition || !definition.properties) {
+      return [];
+    }
+    const properties = definition.properties;
+    return Object.keys(properties)
+      .map(key => ({
+        name: key,
+        ...properties[key]
+      }))
+      .sort((a, b) => {
+        const orderA = a['nn-order'] !== undefined ? a['nn-order'] : Infinity;
+        const orderB = b['nn-order'] !== undefined ? b['nn-order'] : Infinity;
+        return orderA - orderB;
+      });
+  };
+
+  const getGroupedSchemaProperties = (definitionName: string) => {
+    const sortedProperties = getSchemaProperties(definitionName); // Direct call
+    if (!sortedProperties.length) {
+      return {};
+    }
+
+    const grouped: { [key: string]: any[] } = {};
+    sortedProperties.forEach(prop => {
+      const groupName = prop['nn-group'] || '_ungrouped';
+      if (!grouped[groupName]) {
+        grouped[groupName] = [];
+      }
+      grouped[groupName].push(prop);
+    });
+    return grouped;
+  };
+
+  return {
+    ...existingGetters, // Keep existing getters
+    getSchemaProperty,
+    getSchemaProperties,
+    getGroupedSchemaProperties,
+  };
 };

@@ -1,26 +1,54 @@
 <script setup lang="ts">
-import { ref, onMounted, provide, computed, inject } from 'vue';
-import SchemaForm from '../components/SchemaForm.vue';
-import Ajv from 'ajv';
-import type { JSONSchemaType } from 'ajv';
-import addFormats from 'ajv-formats';
+import { ref, computed, inject, watch } from 'vue';
+import { JsonForms } from '@jsonforms/vue';
+import type { UISchemaElement } from '@jsonforms/core';
 import { useDataStore } from '../dataStore'; // Import the data store
 
 // Inject the data store
 const dataStore = inject('dataStore', useDataStore());
 
-const programData = computed(() => dataStore.getProgramData());
 const programSchema = computed(() => dataStore.getProgramSchema());
-const fullSchemaDefinitions = computed(() => dataStore.getFullSchemaDefinitions());
+// We need a writable ref for the form data, initialized with the store's data
+const currentProgramData = ref<any>(null);
 
-// Provide the full schema definitions reactively (needed by SchemaForm)
-provide('fullSchemaDefinitions', fullSchemaDefinitions);
+// Watch for initial data loading from the store
+watch(
+  () => dataStore.getProgramData(),
+  (newData) => {
+    if (newData) {
+      currentProgramData.value = JSON.parse(JSON.stringify(newData)); // Deep copy
+    }
+  },
+  { immediate: true }
+);
 
-// Initialize Ajv and validation function (can potentially be moved to data store)
-const ajv = new Ajv({ strict: false, formats: true });
-addFormats(ajv);
-const validate = computed(() => dataStore.schema.value ? ajv.compile(dataStore.schema.value) : null);
+// Manually generated UI Schema based on programConfiguration properties and nn-order
+const generatedUiSchema = computed<UISchemaElement | null>(() => {
+  if (!programSchema.value || !programSchema.value.properties) {
+    return null;
+  }
 
+  const properties = programSchema.value.properties;
+  const elements = Object.keys(properties)
+    .map(key => ({ key, nnOrder: properties[key]['nn-order'] }))
+    .sort((a, b) => (a.nnOrder || Infinity) - (b.nnOrder || Infinity))
+    .map(prop => ({
+      type: 'Control',
+      scope: `#/properties/${prop.key}`
+    }));
+
+  return {
+    type: 'VerticalLayout',
+    elements: elements
+  };
+});
+
+const formErrors = ref<any[]>([]);
+
+const onFormChange = (event: any) => {
+  currentProgramData.value = event.data;
+  formErrors.value = event.errors || [];
+};
 
 // File input ref for import functionality
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -34,95 +62,111 @@ const handleFileSelect = (event: Event) => {
 
     reader.onload = (e) => {
       try {
-        const importedData = JSON.parse(e.target?.result as string);
-
-        // Validate the imported data against the full schema
-        if (validate.value && validate.value(importedData)) {
-          // Assuming imported data has a 'program' property
-          if (importedData.program) {
-             // Update the program data in the store (requires store to be mutable or have an action)
-             // For now, we'll just log and alert as the store is readonly
-             console.log('Program data imported successfully and is valid:', importedData.program);
-             alert('Program data imported successfully! (Note: Data store is currently read-only)');
-             // In a real app, you would call a store action here: dataStore.updateProgramData(importedData.program);
+        const importedJson = JSON.parse(e.target?.result as string);
+        // Assuming the imported JSON directly contains the program data structure
+        // or has a specific key like 'program'. For this example, let's assume it's 'program'.
+        if (importedJson.program) {
+          // Basic validation: check if it's an object
+          if (typeof importedJson.program === 'object' && importedJson.program !== null) {
+            currentProgramData.value = JSON.parse(JSON.stringify(importedJson.program)); // Deep copy
+            alert('Program data imported successfully! Review and save.');
+            formErrors.value = []; // Clear previous errors
           } else {
-             console.error('Imported data does not contain a program property.');
-             alert('Error importing file. The data does not contain program configuration.');
+            alert('Error importing file. The "program" property in the data is not a valid object.');
           }
-        } else {
-          console.error('Imported data is invalid:', validate.value?.errors);
-          alert('Error importing file. The data does not match the expected schema.');
+        } else if (typeof importedJson === 'object' && importedJson !== null && Object.keys(importedJson).length > 0 && (importedJson.programName || importedJson.programObjectives)) {
+          // Fallback: if the root is the program data itself
+           currentProgramData.value = JSON.parse(JSON.stringify(importedJson)); // Deep copy
+           alert('Program data imported successfully (assuming root is program data)! Review and save.');
+           formErrors.value = []; // Clear previous errors
+        }
+        else {
+          alert('Error importing file. The data does not contain a "program" property or a recognizable program structure.');
         }
       } catch (error) {
         console.error('Error parsing imported file:', error);
         alert('Error importing file. Please ensure it is a valid JSON file.');
       }
     };
-
     reader.readAsText(file);
   }
 };
 
-// Function to handle data export (might need to handle full data in App.vue)
-const handleExportData = () => {
-  if (programData.value) {
-     // For export, we might need the full data structure, not just programData
-     // This functionality might need to be moved or adapted to App.vue
-     alert('Full data export functionality not yet implemented in this view.');
-     console.warn('Attempted to export only program data from Program Configuration view.');
-  } else {
-    alert('No program data to export.');
-  }
-};
-
-
 // Handle Save button click
 const handleSave = () => {
-  console.log('Save button clicked. Program Data:', programData.value);
-  // Implement save logic here (e.g., send updated program data to API)
-  alert('Save functionality for Program Configuration not yet implemented.');
+  if (formErrors.value.length > 0) {
+    alert('Cannot save, form has errors. Please correct them.');
+    console.log('Form Errors:', formErrors.value);
+    return;
+  }
+  console.log('Save button clicked. Program Data:', currentProgramData.value);
+  // Implement save logic here (e.g., send updated program data to API or update store)
+  // For now, we can update the store if a method exists, or just log
+  // Example: dataStore.updateProgramData(currentProgramData.value); (if such action exists)
+  alert('Program data is ready for saving (actual save to backend/file is out of scope). Check console for data.');
 };
 
 // Handle Cancel button click
 const handleCancel = () => {
   console.log('Cancel button clicked.');
-  // Implement cancel logic here (e.g., revert changes or navigate away)
-  alert('Cancel functionality for Program Configuration not yet implemented.');
+  // Revert changes by re-fetching from the store
+  const originalProgramData = dataStore.getProgramData();
+  if (originalProgramData) {
+    currentProgramData.value = JSON.parse(JSON.stringify(originalProgramData)); // Deep copy
+  }
+  formErrors.value = []; // Clear errors
+  alert('Changes have been reverted to the last saved state.');
 };
 
 </script>
 
 <template>
   <div class="container mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Program Configuration</h1>
+    <h1 class="text-3xl font-bold mb-6 text-slate-800">Program Configuration</h1>
 
-    <!-- Import/Export buttons - might need to handle full data in App.vue -->
-    <div class="mb-6">
+    <div class="mb-6 flex space-x-2">
       <input type="file" ref="fileInput" @change="handleFileSelect" accept=".json" class="hidden" />
-      <button @click="$refs.fileInput.click()" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md text-sm mr-2 transition duration-150 ease-in-out">
+      <button
+        @click="fileInput && fileInput.click()"
+        class="bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 px-3 rounded-md text-sm transition duration-150 ease-in-out">
         Import Program Data
       </button>
-      <!-- Export button is less straightforward here as it should export full data -->
-      <!-- <button @click="handleExportData" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-        Export Data
-      </button> -->
+      <!-- Export button is commented out as per instructions -->
     </div>
 
-
-    <div v-if="dataStore.loading.value" class="text-gray-500 text-center p-4">Loading program configuration...</div>
-    <div v-else-if="dataStore.error.value" class="text-red-500 text-center p-4">Error loading data: {{ dataStore.error.value }}</div>
-    <div v-else-if="programSchema && programData">
-      <SchemaForm :schema="programSchema" :data="programData" />
+    <div v-if="dataStore.loading.value && !currentProgramData" class="text-slate-500 text-center p-4">Loading program configuration...</div>
+    <div v-else-if="dataStore.error.value" class="text-red-600 text-center p-4">Error loading data: {{ dataStore.error.value }}</div>
+    <div v-else-if="programSchema && currentProgramData && generatedUiSchema">
+      <JsonForms
+        :schema="programSchema"
+        :uischema="generatedUiSchema"
+        :data="currentProgramData"
+        @change="onFormChange"
+      />
+      <div v-if="formErrors.length > 0" class="mt-4 p-4 bg-red-100 text-red-700 border border-red-300 rounded-md">
+        <h3 class="font-bold mb-2">Validation Errors:</h3>
+        <ul>
+          <li v-for="(error, index) in formErrors" :key="index">
+            {{ error.instancePath ? error.instancePath.substring(1) : 'Form' }}: {{ error.message }}
+          </li>
+        </ul>
+      </div>
     </div>
-     <div v-else class="text-gray-500 text-center p-4">
-       No program configuration data available.
-     </div>
+    <div v-else class="text-slate-500 text-center p-4">
+       No program configuration data or schema available to render the form.
+    </div>
 
-    <div class="mt-8 flex justify-end space-x-2">
-      <button @click="handleCancel" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">
+    <div class="mt-8 flex justify-end space-x-3">
+      <button
+        @click="handleCancel"
+        class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out">
         Cancel
       </button>
-      <button @click="handleSave" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm">
+      <button
+        @click="handleSave"
+        :disabled="formErrors.length > 0"
+        class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md text-sm transition duration-150 ease-in-out"
+        :class="{ 'opacity-50 cursor-not-allowed': formErrors.length > 0 }">
         Save
       </button>
     </div>
