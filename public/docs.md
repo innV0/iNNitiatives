@@ -1,3 +1,13 @@
+Entendido. Quieres cambiar el formato de los encabezados de cada campo individual para que sea:
+
+```markdown
+### fieldName
+**Field Title**
+```
+
+Voy a aplicar este cambio a toda la documentación.
+
+```markdown
 # iNNitiatives Data Schema Documentation (innV0)
 
 This document provides a highly detailed explanation of the `innV0` data schema, the data network designed for the iNNitiatives application. Its purpose is to offer users an exhaustive understanding of how to structure and input data related to their innovation programs. The Ghostbusters organization, as depicted in the provided sample data, will serve as a consistent example throughout this documentation to illustrate practical application of each field.
@@ -931,3 +941,6 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   **Knowledge Management**: Helps capture some of the tacit or unstructured knowledge that often surrounds projects and can be lost if not documented somewhere.
     *   **Decision Logs**: While `initiativeDecisionJustification` is for formal decisions, minor rationale or context for smaller choices might be noted here.
 *   **Ghostbusters Example**: `Ramona has requested redundant safety interlocks. Louis is already calculating the depreciation schedule. There's a pool on whether the first field test will involve a Class IV or just a very angry badger.` (for INN_SUPER_TRAP_DEV)
+
+---
+```
