@@ -805,23 +805,6 @@
                     </div>
                 </div>
             </section>
-
-            <!-- DOCS Tab -->
-            <section v-if="activeTab === 'docs'" class="space-y-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-900">Documentation</h2>
-                        <p class="text-gray-600 mt-1">View the full application documentation in a new tab.</p>
-                    </div>
-                    <button @click="openDocsInNewTab" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                        <i data-lucide="book-open" class="w-4 h-4"></i>
-                        <span>Open Documentation in New Tab</span>
-                    </button>
-                </div>
-                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                    <p class="text-gray-700">Click the button above to view the full documentation in a new browser tab.</p>
-                </div>
-            </section>
         </main>
 
         <!-- Modal for Editing/Adding -->
@@ -1001,21 +984,8 @@
                         <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
-        <div class="view-item-modal-content p-6 prose max-w-none" v-html="renderedHelpContent">
+                <div class="view-item-modal-content" v-html="renderedHelpContent">
                 </div>
-            </div>
-        </div>
-
-        <!-- Modal for Full Documentation -->
-        <div v-if="showDocsModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
-            <div class="relative mx-auto border border-gray-300 w-full max-w-4xl shadow-2xl rounded-xl bg-white"> <!-- max-w-4xl for wider content -->
-                <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                    <h3 class="text-xl font-semibold text-gray-900">{{ docsModalTitle }}</h3>
-                    <button @click="closeDocsModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <i data-lucide="x" class="w-6 h-6"></i>
-                    </button>
-                </div>
-                <div class="view-item-modal-content p-6 prose max-w-none" v-html="renderedDocsContent"></div> <!-- Added prose for tailwind typography -->
             </div>
         </div>
     </div>
@@ -1256,8 +1226,7 @@
                         { id: 'program', name: 'Program', icon: 'settings' },
                         { id: 'people', name: 'People', icon: 'users' },
                         { id: 'opportunities', name: 'Opportunities', icon: 'lightbulb' },
-                        { id: 'initiatives', name: 'iNNitiatives', icon: 'zap' },
-                        { id: 'docs', name: 'DOCS', icon: 'book-open' }
+                        { id: 'initiatives', name: 'iNNitiatives', icon: 'zap' }
                     ],
                     appData: {
                         program: { programName: APP_SCHEMA.definitions.programConfiguration.properties.programName.default || "My Innovation Program" },
@@ -1294,7 +1263,7 @@
                     showHelpModal: false,
                     helpModalTitle: '',
                     renderedHelpContent: '',
-                    documentation: {}, // Store parsed documentation here
+                    documentation: {} // Store parsed documentation here
                 }
             },
             // --- COMPUTED PROPERTIES ---
@@ -2010,97 +1979,59 @@
                         this.showNotification('Error', 'Failed to load documentation.', 'error');
                     }
                 },
-parseDocumentation(markdown) {
-    const lines = markdown.split('\n'); // Use escaped newline
-    let activeEntityKey = null; 
-    let currentField = null;
-    let descriptionLines = [];
-    this.documentation = {};
+                parseDocumentation(markdown) {
+                    const lines = markdown.split('\n');
+                    let currentEntity = null;
+                    let currentField = null;
+                    let descriptionLines = [];
+                    this.documentation = {};
 
-    const entityKeyMap = {
-        'program': 'program',
-        'people': 'person',
-        'opportunities': 'opportunity',
-        'initiatives': 'initiative'
-    };
+                    for (const line of lines) {
+                        const entityMatch = line.match(/^##\s+(.+)\s+\(`(\w+)`\)/);
+                        const fieldMatch = line.match(/^###\s+`(\w+)`/);
 
-    for (const line of lines) {
-        const entityMatch = line.match(/^##\s+(.+)\s+\(`(\w+)`\)/);
-        const fieldMatch = line.match(/^###\s+(\w+)/);
-
-        if (entityMatch) {
-            // Finalize previous field of the previous entity (if any)
-            if (activeEntityKey && currentField && descriptionLines.length > 0 && this.documentation[activeEntityKey]) {
-                this.documentation[activeEntityKey][currentField] = descriptionLines.join('\n').trim();
-            }
-
-            const rawEntityKey = entityMatch[2];
-            activeEntityKey = entityKeyMap[rawEntityKey] || rawEntityKey; 
-            
-            if (!this.documentation[activeEntityKey]) {
-                this.documentation[activeEntityKey] = {};
-            }
-            currentField = null; 
-            descriptionLines = [];
-        } else if (fieldMatch) {
-            // Finalize previous field of the current active entity (if any)
-            if (activeEntityKey && currentField && descriptionLines.length > 0 && this.documentation[activeEntityKey]) {
-                this.documentation[activeEntityKey][currentField] = descriptionLines.join('\n').trim();
-            }
-            currentField = fieldMatch[1]; 
-            descriptionLines = [];
-        } else if (activeEntityKey && currentField) { 
-            descriptionLines.push(line);
-        }
-    }
-
-    // Finalize the very last field
-    if (activeEntityKey && currentField && descriptionLines.length > 0 && this.documentation[activeEntityKey]) {
-        this.documentation[activeEntityKey][currentField] = descriptionLines.join('\n').trim();
-    }
-    
-    // DEV_TEST log (already in place from previous step, ensure it's the same)
-    console.log("DEV_TEST: Parsed Documentation Structure (Singular Keys):", Object.keys(this.documentation).reduce((acc, entityKey) => {
-        if (this.documentation[entityKey]) {
-            acc[entityKey] = { fieldCount: Object.keys(this.documentation[entityKey]).length, fieldsSample: Object.keys(this.documentation[entityKey]).slice(0, 3) };
-        } else {
-            acc[entityKey] = { fieldCount: 0, fieldsSample: [] }; // Should not happen if logic is correct
-        }
-        return acc;
-    }, {}));
-},
-                showHelp(fieldKey, entityType) {
-                    console.log(`DEBUG: showHelp called for fieldKey='${fieldKey}', entityType='${entityType}'`); // DEBUG Log 0
-
-                    const entitySchemaKey = entityType;
-                    let markdownContent = null;
-
-                    if (this.documentation && this.documentation[entitySchemaKey] && this.documentation[entitySchemaKey][fieldKey]) {
-                        markdownContent = this.documentation[entitySchemaKey][fieldKey];
+                        if (entityMatch) {
+                            if (currentField && descriptionLines.length > 0) {
+                                this.documentation[currentEntity][currentField] = descriptionLines.join('\n').trim();
+                            }
+                            currentEntity = entityMatch[2];
+                            this.documentation[currentEntity] = {};
+                            currentField = null;
+                            descriptionLines = [];
+                        } else if (fieldMatch) {
+                             if (currentField && descriptionLines.length > 0) {
+                                this.documentation[currentEntity][currentField] = descriptionLines.join('\n').trim();
+                            }
+                            currentField = fieldMatch[1];
+                            descriptionLines = [];
+                        } else if (currentField !== null) {
+                            descriptionLines.push(line);
+                        }
                     }
 
+                    // Capture the last field's description
+                    if (currentField && descriptionLines.length > 0) {
+                         this.documentation[currentEntity][currentField] = descriptionLines.join('\n').trim();
+                    }
+                     console.log("Parsed Documentation:", this.documentation); // Log for debugging
+                },
+                showHelp(fieldKey, entityType) {
+                    const entityKey = entityType === 'initiative' ? 'initiative' : entityType === 'opportunity' ? 'opportunity' : entityType === 'person' ? 'person' : 'program';
+                    const markdownContent = this.documentation[entityKey] ? this.documentation[entityKey][fieldKey] : null;
+
+                    console.log(`Attempting to show help for field: ${fieldKey}, entity: ${entityType}`);
+                    console.log("Documentation object:", this.documentation);
+                    console.log("Markdown content found:", markdownContent);
+
                     if (markdownContent) {
-                        console.warn(`DEV_TEST: SUCCESS - Markdown found for ${entitySchemaKey}.${fieldKey}. Content (start):`, markdownContent.substring(0, 70)); // DEV_TEST Success Log
                         this.helpModalTitle = `Help: ${appUtils.formatFieldName(fieldKey)}`;
+                        // Render Markdown and sanitize HTML
                         const renderedHtml = marked.parse(markdownContent);
                         this.renderedHelpContent = DOMPurify.sanitize(renderedHtml);
                         this.showHelpModal = true;
-                        // console.log(`DEBUG: Set showHelpModal = true for ${fieldKey}. Title: ${this.helpModalTitle}`); 
-                        this.$nextTick(() => { 
-                            lucide.createIcons(); 
-                            // console.log("DEBUG: Lucide icons refreshed after help modal shown."); 
-                        });
+                         this.$nextTick(() => { lucide.createIcons(); });
                     } else {
-                        console.error(`DEV_TEST: FAILURE - Markdown NOT found for ${entitySchemaKey}.${fieldKey}`); // DEV_TEST Failure Log
-                        // Log details if not found
-                        if (!this.documentation) {
-                            console.error("DEBUG: this.documentation object is null or undefined.");
-                        } else if (!this.documentation[entitySchemaKey]) {
-                            console.error(`DEBUG: Documentation for entity '${entitySchemaKey}' not found. Available entities:`, Object.keys(this.documentation));
-                        } else {
-                            console.error(`DEBUG: Documentation for field '${fieldKey}' in entity '${entitySchemaKey}' not found. Available fields:`, Object.keys(this.documentation[entitySchemaKey]));
-                        }
-                        this.showNotification('Info', `Documentation not available for field '${fieldKey}' in section '${entitySchemaKey}'.`, 'info');
+                        this.showNotification('Info', 'Documentation not available for this field.', 'info');
                     }
                 },
                 closeHelpModal() {
@@ -2108,68 +2039,6 @@ parseDocumentation(markdown) {
                     this.helpModalTitle = '';
                     this.renderedHelpContent = '';
                 },
-async openDocsInNewTab() {
-    console.log("DEBUG: openDocsInNewTab called.");
-    try {
-        const response = await fetch('./docs.md');
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const markdown = await response.text();
-        console.log("DEBUG: Fetched Markdown for new tab (first 300 chars):", markdown.substring(0, 300));
-
-        if (typeof marked === 'undefined' || typeof marked.parse !== 'function') {
-            console.error("DEBUG: marked.js or marked.parse is not available for new tab!");
-            this.showNotification('Error', 'Markdown parser is not available.', 'error');
-            return;
-        }
-        const htmlContent = marked.parse(markdown);
-        console.log("DEBUG: HTML after marked.parse for new tab (first 300 chars):", htmlContent.substring(0, 300));
-
-        if (typeof DOMPurify === 'undefined' || typeof DOMPurify.sanitize !== 'function') {
-            console.error("DEBUG: DOMPurify or DOMPurify.sanitize is not available for new tab!");
-            this.showNotification('Error', 'HTML sanitizer is not available.', 'error');
-            // Consider what to do if sanitizer is missing for new tab content
-        }
-        // Sanitize, even if it's for a new tab, as a good practice if the content could ever be dynamic.
-        const sanitizedHtml = DOMPurify.sanitize(htmlContent); 
-        console.log("DEBUG: Sanitized HTML for new tab (first 300 chars):", sanitizedHtml.substring(0, 300));
-        
-        const newTab = window.open();
-        if (newTab) {
-            newTab.document.open();
-            newTab.document.write(`
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Documentation</title>
-                    <script src="https://cdn.tailwindcss.com"></script> <!-- Optional: for styling new tab -->
-                    <style>
-                        body { margin: 2rem; font-family: sans-serif; }
-                        .prose { max-width: 80ch; margin-left: auto; margin-right: auto; } /* Basic prose styling */
-                        /* Add other styles from tailwind.config or main CSS if needed, or link to them if possible */
-                    </style>
-                </head>
-                <body>
-                    <div class="prose"> <!-- Apply prose class for readability -->
-                        ${sanitizedHtml}
-                    </div>
-                </body>
-                </html>
-            `);
-            newTab.document.close();
-            console.log("DEBUG: Documentation content written to new tab.");
-        } else {
-            console.error("DEBUG: Failed to open new tab. Pop-up blocker?");
-            this.showNotification('Error', 'Could not open new tab. Please check your pop-up blocker.', 'error');
-        }
-    } catch (error) {
-        console.error("DEBUG: Error in openDocsInNewTab:", error);
-        this.showNotification('Error', 'Could not load documentation for new tab.', 'error');
-    }
-},
                 // Modal stacking logic
                 openModal(type, item = null) {
                     if (type === 'editProgram') {
