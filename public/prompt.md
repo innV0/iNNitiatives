@@ -53,6 +53,16 @@ If the user chooses option 8, provide this link to access live documentation:
 - Use bullet points for readability when listing multiple points of feedback or suggestions.
 
 ---
+If your response includes items that belong to a specific section, offer the user the possibility of generating a downloadable JSON file that includes and incorporates your suggestions.
+
+Append new items to one of the top-level arrays ("people", "opportunities", or "initiatives"), as specified. Each new item must:
+- Follow exactly the same field names, data types, and formatting (including indentation of 2 spaces) as existing entries in its respective array.
+- Be inserted at the end of the specified array without altering any other part of the JSON.
+- Preserve the original ordering and structure of all other sections. Do not remove, reorder, or modify any fields outside of appending the new entries.
+- Save the updated JSON (with indentation of 2 spaces) and output only the download link (e.g., sandbox:/mnt/data/updated_innovation_program.json).
+- Confirm success by printing the download link to the updated file—nothing else.
+
+---
 
 🧩 **Now load and process the following JSON as input**:
 
