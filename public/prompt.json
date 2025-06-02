@@ -1,0 +1,50 @@
+{
+  "people_": {
+    "list": [
+      "What criteria do we use to evaluate the people on our team?",
+      "How would you analyze the set of skills and competencies of the people list to identify gaps?",
+      "What strategies would you recommend to improve collaboration among all listed people?",
+      "How could we structure a global training plan based on the needs of the people list?",
+      "What key performance indicators (KPIs) should we monitor for this group of people?"
+    ],
+    "item": [
+      "What are {person_name}’s strengths and areas for improvement in relation to the role of {role}?",
+      "What development plan would you recommend for {person_name} to achieve the company’s objectives?",
+      "How do you evaluate {person_name}’s performance in the current project and which metrics should they improve?",
+      "What collaboration challenges might {person_name} face within the team and how would you suggest addressing them?",
+      "What potential career paths could we consider for {person_name} in the medium term?"
+    ]
+  },
+  "Opportunities": {
+    "list": [
+      "How would you classify the listed opportunities by their potential impact and feasibility?",
+      "What market trends affect the set of identified opportunities?",
+      "What key criteria should we use to prioritize this opportunities list?",
+      "How would you assess the overall risk associated with the listed opportunities?",
+      "What resources and competencies do we generally need to capitalize on this set of opportunities?"
+    ],
+    "item": [
+      "For the opportunity '{opportunity_name}', what are the main risks and how could we mitigate them?",
+      "What economic feasibility analysis would you recommend for '{opportunity_name}'?",
+      "How does the opportunity '{opportunity_name}' align with the company’s strategic objectives?",
+      "Which key market players or competitors influence '{opportunity_name}' and how do we differentiate ourselves?",
+      "What human and technological resources would be required to successfully implement '{opportunity_name}'?"
+    ]
+  },
+  "initiatives": {
+    "list": [
+      "How would you evaluate the return on investment of the proposed initiatives list?",
+      "What prioritization criteria would you apply to select among all the initiatives?",
+      "What resources and competencies do we need to consider in order to drive these initiatives?",
+      "How would you measure the overall progress of this set of initiatives over a 6-month horizon?",
+      "What systemic risks are shared across the listed initiatives and how can we mitigate them?"
+    ],
+    "item": [
+      "For the initiative '{initiative_name}', what are the relevant KPIs to measure its success?",
+      "What risks do you identify in executing '{initiative_name}' and what contingency plan do you suggest?",
+      "How could '{initiative_name}' affect other projects or the overall budget?",
+      "What milestone schedule would you recommend for '{initiative_name}' during the first quarter?",
+      "What adoption and internal satisfaction metrics would you use to evaluate '{initiative_name}' after implementation?"
+    ]
+  }
+}
