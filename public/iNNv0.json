@@ -35,7 +35,7 @@
       "Event Organization",
       "Service Offering Expansion"
     ],
-    "businessDescription": "This business operates as a Fractional Innovation Officer service, specializing in driving business growth through the strategic application of Artificial Intelligence. We partner with companies to embed innovation capabilities and AI-driven strategies without the overhead of a full-time executive hire. Our core offerings include developing bespoke AI innovation roadmaps aligned with specific business objectives, optimizing existing Research and Development processes for enhanced efficiency and output, and cultivating a forward-thinking culture of continuous improvement within client organizations. We provide end-to-end support, from initial technology scouting and integration of cutting-edge AI tools to comprehensive client training and workshops designed to upskill internal teams. Furthermore, we actively engage in thought leadership through content creation and speaking engagements to share insights and best practices in AI and fractional innovation. Our flexible consulting services are tailored to meet the unique needs and challenges of each client, ensuring maximum competitive advantage and sustainable market leadership. We aim to be the trusted partner for businesses seeking to navigate the complexities of AI adoption and unlock new avenues for growth and innovation."
+    "businessDescription": "This business operates as a Fractional Innovation Officer service, specializing in driving business growth through the strategic application of Artificial Intelligence. We partner with companies to embed innovation capabilities and AI-driven strategies without the overhead of a full-time executive hire. Our core offerings include developing bespoke AI innovation roadmaps aligned with specific business objectives, optimizing existing Research and Development processes for enhanced efficiency and output, and cultivating a forward-thinking culture of continuous improvement within client organizations. We provide end-to-end support, from initial technology scouting and integration of cutting-edge AI tools to comprehensive client training and workshops designed to upskill internal teams. Furthermore, we actively engage in thought leadership through content creation and speaking engagements to share insights and best practices in AI and fractional innovation. Our flexible consulting services are tailored to meet the unique needs and challenges of each client, ensuring maximum competitive advantage and sustainable market leadership. We aim to be the trusted partner for businesses seeking to navigate the complexities of AI adoption and unlock new avenues for growth and innovation.\n\n[Second paragraph: Describe business operations and market context]\n\n[Third paragraph: Explain innovation challenges and strategic priorities]"
   },
   "people": [
     {
@@ -44,7 +44,7 @@
       "personDescription": "Especialista en inteligencia artificial e innovación. Único empleado de la empresa, responsable de todas las operaciones, desarrollo de estrategias, ejecución de proyectos y gestión de clientes. Impulsa la visión tecnológica de la empresa y la implementación de soluciones avanzadas, aplicando la IA a todos los procesos de innovación y de negocio.",
       "personRole": "Fractional Innovation Officer / AI & Innovation Specialist",
       "personUrl": "https://linkedin.com/in/lucas-cervera-ai-innovation",
-      "personImageUrl": "https://i.pravatar.cc/150?u=PERSON_LUCAS_CERVERA"
+      "personImageUrl": "https://lucascervera.com/assets/lucas_video.webp"
     }
   ],
   "opportunities": [
@@ -138,29 +138,6 @@
       "opportunityStatus": "Prioritized",
       "opportunityDateIdentified": "2025-05-15",
       "opportunityLastUpdated": "2025-05-31T11:00:00Z"
-    },
-    {
-      "opportunityId": "OPP_INNOVATION_EVENTS",
-      "opportunityName": "Organize Innovation Events (Hackathons, Idea Contests)",
-      "opportunityDescription": "Develop and execute a service offering for organizing corporate hackathons, innovation challenges, and idea contests for clients, fostering internal innovation and talent development.",
-      "opportunityProblem": "Clients often struggle to foster internal innovation culture and generate new ideas effectively, lacking the expertise and resources to run impactful innovation events.",
-      "initiativeValueProposition": "Enable clients to generate new ideas, foster a culture of innovation, identify internal talent, and solve specific business challenges. Creates a new revenue stream and enhances our reputation as a holistic innovation partner.",
-      "initiativeSolutionHypothesis": "Providing structured innovation event organization services will help clients stimulate internal creativity and generate tangible solutions, leading to increased demand for our expertise.",
-      "initiativeGoals": "1. Develop a service blueprint for event organization by end of Q3 2025.\n2. Create a marketing proposal template for innovation events by end of Q3 2025.\n3. Secure 1 pilot client for an innovation event by Q4 2025.\n4. Document lessons learned from the pilot event to refine the offering.",
-      "initiativeObjective": "To successfully offer and execute corporate innovation events that result in actionable ideas for clients.",
-      "initiativeResults": "Initial brainstorming on event types and potential client needs has begun. Research into successful corporate innovation events is underway.",
-      "initiativeLearnings": "The key will be demonstrating clear ROI for clients from these events. Integration of AI in idea generation or analysis might be a unique selling point.",
-      "initiativeDecision": "Persevere",
-      "initiativeDecisionJustification": "This initiative leverages our innovation expertise and meets a clear client need for fostering internal creativity.",
-      "initiativeNextSteps": "1. Define different event formats (e.g., 1-day hackathon, multi-week idea challenge) and their corresponding deliverables.\n2. Develop a pricing model for event organization based on complexity and duration.\n3. Create a 'Why Host an Innovation Event?' marketing pitch.\n4. Identify potential partners for event platforms or logistical support (if needed).",
-      "initiativeBudget": 1000,
-      "initiativeResources": "Lucas Cervera (Event Designer, Facilitator, AI Integration Specialist)\nAccess to innovation event platforms/software (trial versions initially)",
-      "initiativeRisks": "1. Difficulty in attracting participants for client events.\n2. Ensuring the generated ideas are truly innovative and actionable.\n3. Logistical challenges in managing events remotely or on-site.\n4. Lucas accidentally turning a hackathon into a robot fight club.",
-      "initiativeDateRegistered": "2025-05-30",
-      "initiativeStartDate": "2025-07-01",
-      "initiativeEndDate": "2026-06-30",
-      "initiativeLastUpdated": "2025-06-01T18:00:00Z",
-      "initiativeNotes": "Highlight the role of AI in enhancing idea generation, evaluation, or even participant matching within these events. Focus on clear objectives for each event."
     }
   ],
   "initiatives": [
@@ -184,7 +161,7 @@
       "initiativeDecisionJustification": "This initiative is core to our service offering and scaling capabilities. Initial research supports the value proposition.",
       "initiativeNextSteps": "1. Define detailed phases and activities for the AI Innovation Audit.\n2. Research and select appropriate AI tools for data analysis during the audit.\n3. Draft initial versions of audit questionnaires and assessment templates.\n4. Develop a timeline for the prototype development of the diagnostic tool.",
       "initiativeBudget": 5000,
-      "initiativeResources": "Lucas Cervera (Lead Architect, AI Developer, Content Creator)\nAccess to market research databases\nAI development environment",
+      "initiativeResources": "Lucas Cervera (Lead Architect, AI Developer, Content Creator)\nAccess to innovation event platforms/software (trial versions initially)",
       "initiativeRisks": "1. Difficulty in making the audit framework flexible enough for diverse industries.\n2. Over-reliance on AI in the diagnostic tool potentially missing nuances.\n3. Client resistance to a structured audit process.\n4. Lucas getting lost in the rabbit hole of AI model fine-tuning.",
       "initiativeDateRegistered": "2025-03-01",
       "initiativeStartDate": "2025-04-01",
@@ -232,7 +209,7 @@
       "initiativeSolution": "Develop a multi-format content series (e.g., 3-4 blog posts, 1 whitepaper, 2 webinars/online workshops) focusing on practical applications of AI in innovation, benefits of fractional innovation, and success stories from client projects. Leverage social media and industry platforms for distribution.",
       "initiativeValueProposition": "Increase website traffic by 20%, generate 10-15 qualified leads per quarter, enhance brand authority, and position Lucas Cervera as a go-to expert in the field. Ultimately, reduce client acquisition costs.",
       "initiativeSolutionHypothesis": "Consistent, high-quality thought leadership content will attract new clients and establish brand authority in AI-driven fractional innovation.",
-      "initiativeGoals": "1. Outline topics and content calendar for the first 3 months by end of Q2 2025.\n2. Publish 2 blog posts and draft 1 whitepaper by mid-Q3 2025.\n3. Develop and deliver 1 webinar/online workshop by end of Q3 2025.\n4. Achieve a 10% increase in LinkedIn followers and website visits by Q4 2025.",
+      "initiativeGoals": "1. Outline topics and content calendar for the first 3 months by end of Q2 2025.\n2. Create a marketing proposal template for innovation events by end of Q3 2025.\n3. Secure 1 pilot client for an innovation event by Q4 2025.\n4. Document lessons learned from the pilot event to refine the offering.",
       "initiativeObjective": "To increase online visibility and generate inbound leads by demonstrating expertise and providing valuable insights on AI and innovation.",
       "initiativeResults": "Initial brainstorming for content topics is complete. Research into popular keywords and trending topics in AI innovation is ongoing.",
       "initiativeLearnings": "Content needs to be highly actionable and provide clear value to the target audience. Case studies (even anonymized) will be very powerful.",
