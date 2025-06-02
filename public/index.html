@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iNNitiatives - Enhanced Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/iconfont/lucide.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <!-- Marked.js for Markdown rendering -->
@@ -996,9 +997,9 @@
         const { createApp } = Vue; // Vue import
 
         // Initialize Lucide icons first
-        document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
-        });
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     lucide.createIcons();
+        // }); // This is commented out as Vue's mounted/updated hooks handle icons.
 
         // --- APPLICATION SCHEMA ---
         const APP_SCHEMA = {
@@ -2116,6 +2117,356 @@
         // document.addEventListener('DOMContentLoaded', function() {
         //     lucide.createIcons();
         // }); // This is commented out as Vue's mounted/updated hooks handle icons.
+    </script>
+
+    <div id="aiModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center p-4">
+      <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">AI Assistant</h2>
+          <button id="closeModalButton" class="text-gray-700 hover:text-gray-900">&times;</button>
+        </div>
+        <div class="mb-4">
+          <label for="promptTextarea" class="block text-sm font-medium text-gray-700 mb-1">Prompt:</label>
+          <textarea id="promptTextarea" rows="10" class="w-full p-2 border border-gray-300 rounded-md shadow-sm"></textarea>
+        </div>
+        <div class="mb-4">
+          <h3 class="text-lg font-semibold mb-1">Application JSON:</h3>
+          <pre id="appJsonDisplay" class="bg-gray-100 p-3 rounded-md overflow-x-auto max-h-60 border border-gray-200"></pre>
+        </div>
+        <div class="mb-4">
+          <h3 class="text-lg font-semibold mb-1">Contextual Questions:</h3>
+          <div id="contextualQuestionsDisplay" class="bg-gray-100 p-3 rounded-md max-h-40 overflow-y-auto border border-gray-200"></div>
+        </div>
+        <div class="flex justify-around items-center pt-4 border-t mt-4">
+          <a id="chatGptLink" href="#" target="_blank" class="text-blue-600 hover:text-blue-800 font-semibold">ChatGPT</a>
+          <a id="geminiLink" href="#" target="_blank" class="text-blue-600 hover:text-blue-800 font-semibold">Gemini</a>
+          <a id="claudeLink" href="#" target="_blank" class="text-blue-600 hover:text-blue-800 font-semibold">Claude</a>
+        </div>
+      </div>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script> <!-- Lucide icons script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Get modal elements
+      const aiModal = document.getElementById('aiModal');
+      const closeModalButton = document.getElementById('closeModalButton');
+      const promptTextarea = document.getElementById('promptTextarea');
+      const appJsonDisplay = document.getElementById('appJsonDisplay');
+      const contextualQuestionsDisplay = document.getElementById('contextualQuestionsDisplay');
+      // AI Links (will be set later)
+      const chatGptLink = document.getElementById('chatGptLink');
+      const geminiLink = document.getElementById('geminiLink');
+      const claudeLink = document.getElementById('claudeLink');
+
+      // Function to create controls div (View, Edit, Delete, AI)
+      function createControlsDiv(contextId, itemText = null, isForItem = false) {
+        const controlsContainer = document.createElement('div');
+        controlsContainer.classList.add('inline-flex', 'items-center', 'control-buttons-group');
+        // Removed 'bg-white', 'p-0.5', 'rounded-lg', 'shadow' for individual button styling to take precedence or be more granular. Add back if a grouped look is desired.
+
+        const commonButtonClasses = ['font-medium', 'rounded-sm', 'ml-1', 'text-xs', 'shadow-sm', 'hover:shadow-md', 'transition-all', 'duration-150', 'ease-in-out', 'align-middle'];
+        const iconSizeClass = isForItem ? 'w-3 h-3' : 'w-4 h-4'; // Smaller icons for items
+        const buttonPadding = isForItem ? 'py-0.5 px-1' : 'py-1 px-1.5'; // Smaller padding for items
+
+        // View Button
+        const viewButton = document.createElement('button');
+        viewButton.innerHTML = `<i data-lucide="eye" class="inline-block ${iconSizeClass} mr-0.5 align-middle"></i> View`;
+        viewButton.title = 'View details';
+        viewButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700', ...commonButtonClasses, buttonPadding);
+        viewButton.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            alert('View action for: ' + contextId + (itemText ? ' - ' + itemText : '')); 
+        });
+        controlsContainer.appendChild(viewButton);
+
+        // Edit Button
+        const editButton = document.createElement('button');
+        editButton.innerHTML = `<i data-lucide="file-edit" class="inline-block ${iconSizeClass} mr-0.5 align-middle"></i> Edit`;
+        editButton.title = 'Edit item';
+        editButton.classList.add('bg-gray-200', 'hover:bg-gray-300', 'text-gray-700', ...commonButtonClasses, buttonPadding);
+        editButton.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            alert('Edit action for: ' + contextId + (itemText ? ' - ' + itemText : '')); 
+        });
+        controlsContainer.appendChild(editButton);
+
+        // Delete Button
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = `<i data-lucide="trash-2" class="inline-block ${iconSizeClass} mr-0.5 align-middle"></i> Delete`;
+        deleteButton.title = 'Delete item';
+        deleteButton.classList.add('bg-red-200', 'hover:bg-red-300', 'text-red-700', ...commonButtonClasses, buttonPadding);
+        deleteButton.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            alert('Delete action for: ' + contextId + (itemText ? ' - ' + itemText : '')); 
+        });
+        controlsContainer.appendChild(deleteButton);
+        
+        // AI Button (existing logic adapted)
+        const aiButton = document.createElement('button');
+        aiButton.innerHTML = `<i data-lucide="bot" class="inline-block ${iconSizeClass} mr-0.5 align-middle"></i> AI`;
+        aiButton.classList.add('bg-gradient-to-r', 'from-purple-500', 'to-pink-500', 'hover:from-purple-600', 'hover:to-pink-600', 'text-white', 'font-semibold', ...commonButtonClasses, buttonPadding);
+         if (isForItem) { // Specific AI button size adjustment if needed beyond common padding
+            // aiButton.classList.add('py-0.5', 'px-1'); // Already handled by buttonPadding
+        }
+        aiButton.dataset.contextId = contextId;
+        if (itemText) {
+          aiButton.dataset.itemText = itemText;
+        }
+
+        aiButton.addEventListener('click', (e) => {
+          e.stopPropagation(); // Good practice, though modal opening is main action
+          const currentContextId = button.dataset.contextId;
+          const currentItemText = button.dataset.itemText || null;
+
+          aiModal.dataset.currentContextId = currentContextId;
+          if (currentItemText) {
+            aiModal.dataset.currentItemText = currentItemText;
+          } else {
+            delete aiModal.dataset.currentItemText;
+          }
+          
+          promptTextarea.value = 'Loading prompt...';
+          appJsonDisplay.textContent = 'Loading JSON...';
+          contextualQuestionsDisplay.innerHTML = '<p>Loading questions...</p>';
+
+          // Fetch prompt.md
+          fetch('public/prompt.md')
+            .then(response => {
+              if (!response.ok) throw new Error('Network response was not ok for prompt.md');
+              return response.text();
+            })
+            .then(text => {
+              promptTextarea.value = text; // Base prompt
+              promptTextarea.value += '\n\n--- CONTEXT ---\n';
+              if (currentItemText) {
+                promptTextarea.value += 'Current context: Item "' + currentItemText + '" in Section "' + currentContextId + '"\n';
+              } else {
+                promptTextarea.value += 'Current context: Section "' + currentContextId + '"\n';
+              }
+
+              // Chain loading of iNNv0.json after prompt.md
+              return fetch('public/iNNv0.json');
+            })
+            .then(response => {
+              if (!response.ok) throw new Error('Network response was not ok for iNNv0.json');
+              return response.json();
+            })
+            .then(jsonData => {
+              appJsonDisplay.textContent = JSON.stringify(jsonData, null, 2);
+              promptTextarea.value += '\n--- APPLICATION JSON ---\n';
+              promptTextarea.value += JSON.stringify(jsonData, null, 2) + '\n';
+
+              // Chain loading of prompt.json after iNNv0.json
+              return fetch('public/prompt.json');
+            })
+            .then(response => {
+              if (!response.ok) throw new Error('Network response was not ok for prompt.json');
+              return response.json();
+            })
+            .then(promptsData => {
+              let questionsHtml = '<p>No specific questions for this context.</p>';
+              const contextIdForPrompt = aiModal.dataset.currentContextId;
+              const itemTextForPrompt = aiModal.dataset.currentItemText;
+              let promptKey = null;
+
+              if (['benefits', 'usecases', 'why'].includes(contextIdForPrompt)) {
+                promptKey = 'Opportunities';
+              } else if (contextIdForPrompt === 'who') {
+                promptKey = 'people_';
+              } else if (contextIdForPrompt === 'included') { 
+                 promptKey = 'initiatives';
+              }
+
+              if (promptKey && promptsData[promptKey]) {
+                let questions = [];
+                if (itemTextForPrompt && promptsData[promptKey].item) { 
+                  questions = promptsData[promptKey].item;
+                  promptTextarea.value += '\n--- ITEM-SPECIFIC CONTEXTUAL QUESTIONS ---\n';
+                } else if (promptsData[promptKey].list) { 
+                  questions = promptsData[promptKey].list;
+                  promptTextarea.value += '\n--- CONTEXTUAL QUESTIONS (for section list) ---\n';
+                }
+
+                if (questions.length > 0) {
+                  questionsHtml = '<ul>';
+                  questions.forEach(q => {
+                    let finalQuestion = q;
+                    if (itemTextForPrompt) {
+                      finalQuestion = q.replace(/{person_name}|{opportunity_name}|{initiative_name}/gi, itemTextForPrompt.replace(/\.\.\.$/, ''));
+                    }
+                    questionsHtml += `<li class="mb-1 p-1 bg-gray-200 rounded text-sm">${finalQuestion}</li>`;
+                    promptTextarea.value += '- ' + finalQuestion + '\n';
+                  });
+                  questionsHtml += '</ul>';
+                } else {
+                   promptTextarea.value += '\n(No specific questions found for this exact context type)\n';
+                }
+              }
+              contextualQuestionsDisplay.innerHTML = questionsHtml;
+            })
+            .catch(error => {
+              // Update all relevant fields on error
+              const errorMessage = 'Error loading dynamic content: ' + error.message;
+              promptTextarea.value = errorMessage; // Show error in textarea as it's the main content area
+              appJsonDisplay.textContent = 'Error.';
+              contextualQuestionsDisplay.innerHTML = '<p>Error.</p>';
+              console.error('Error in fetch chain:', error);
+            });
+
+          // Set AI platform links
+          chatGptLink.href = 'https://chat.openai.com';
+          geminiLink.href = 'https://gemini.google.com';
+          claudeLink.href = 'https://claude.ai';
+
+          aiModal.classList.remove('hidden');
+          // Call createIcons if new icons were added to the modal dynamically (not the case here yet)
+          // if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+        });
+        return button;
+      }
+
+      // Identify sections and add AI buttons
+      const sections = document.querySelectorAll('section[id]');
+      sections.forEach(section => {
+        const sectionId = section.getAttribute('id');
+        if (!sectionId) return;
+
+        const controls = createControlsDiv(sectionId, null, false); // isForItem = false
+        const header = section.querySelector('h1, h2, h3, h4, h5, h6');
+        if (header) {
+          if (!header.classList.contains('flex')) header.classList.add('flex');
+          if (!header.classList.contains('justify-between')) header.classList.add('justify-between');
+          if (!header.classList.contains('items-center')) header.classList.add('items-center');
+          
+          let titleSpan = header.querySelector('.section-title-span');
+          if (!titleSpan && header.childNodes.length > 0 && Array.from(header.childNodes).some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0)) {
+            titleSpan = document.createElement('span');
+            titleSpan.classList.add('section-title-span');
+            // Move only text nodes that are direct children of the header into the span
+            let currentChild = header.firstChild;
+            while(currentChild) {
+                if (currentChild.nodeType === Node.TEXT_NODE && currentChild.textContent.trim().length > 0) {
+                    let nextNode = currentChild.nextSibling; // Save next sibling before moving currentChild
+                    titleSpan.appendChild(currentChild);
+                    currentChild = nextNode;
+                } else {
+                    currentChild = currentChild.nextSibling;
+                }
+            }
+            // If titleSpan has content, prepend it. This handles cases where text might be mixed with other elements.
+            if (titleSpan.hasChildNodes()) {
+                 header.insertBefore(titleSpan, header.firstChild);
+            }
+          }
+          header.appendChild(controls);
+        } else {
+          section.insertBefore(controls, section.firstChild);
+        }
+      });
+
+      // After processing sections, add this:
+      const lists = document.querySelectorAll('section[id] ul, section[id] ol');
+      lists.forEach(list => {
+        const sectionElement = list.closest('section[id]');
+        if (!sectionElement) return;
+        const sectionId = sectionElement.getAttribute('id');
+
+        list.querySelectorAll('li').forEach(item => {
+          // Avoid adding controls if they already exist (e.g. from a previous run or manual addition)
+          if (item.querySelector('.control-buttons-group')) return;
+
+          const itemText = item.textContent.trim().substring(0, 50) + '...'; 
+          const itemControls = createControlsDiv(sectionId, itemText, true); // isForItem = true
+          
+          if (!item.classList.contains('flex')) item.classList.add('flex');
+          if (!item.classList.contains('justify-between')) item.classList.add('justify-between');
+          if (!item.classList.contains('items-center')) item.classList.add('items-center');
+          item.appendChild(itemControls);
+        });
+      });
+
+      // After processing lists, add this:
+      const gridItems = document.querySelectorAll('section[id] div.grid > div, section[id] div[class*="grid-cols-"] > div');
+      gridItems.forEach(item => {
+        if (item.querySelector('.control-buttons-group')) return; // Avoid double-adding
+
+        if (item.tagName.toLowerCase() === 'section' || item.querySelector('h1,h2,h3,h4,h5,h6')) {
+            return;
+        }
+        if (item.children.length === 0 && item.textContent.trim().length < 10) { // Skip very simple/empty divs
+            return;
+        }
+        // Refined check for content items, trying to be less aggressive
+        const hasSignificantText = item.textContent.trim().length > 20;
+        const hasBlockChildren = item.querySelector('p, ul, ol, div.p-4, div.bg-white'); // Common content patterns
+        const isLikelyContentBearing = hasSignificantText || hasBlockChildren || item.classList.contains('card-hover') || item.classList.contains('p-6');
+
+        if (!isLikelyContentBearing) {
+            // Check for specific structural classes that should be ignored if not content bearing
+            if (item.matches('[class*="grid-cols-"]') || item.classList.contains('grid') || item.classList.contains('gap-4') || item.classList.contains('space-y-3')) {
+                 // Potentially a layout div, if it didn't meet content criteria
+                 let containsOtherControls = false;
+                 for(let child of item.children) {
+                     if(child.classList.contains('control-buttons-group')) {
+                         containsOtherControls = true;
+                         break;
+                     }
+                 }
+                 if(!containsOtherControls && item.children.length > 0) { // If it has children but no controls, it might be a container of items
+                    // Let's not add controls to these containers directly, but to their children if they qualify
+                 } else if (!containsOtherControls) { // No children, no controls, and not content bearing
+                     return;
+                 }
+            } else if (!hasSignificantText && !hasBlockChildren) { // Fallback for simpler divs that aren't explicitly layout
+                return;
+            }
+        }
+
+
+        const sectionElement = item.closest('section[id]');
+        if (!sectionElement) return; 
+        const sectionId = sectionElement.getAttribute('id');
+        
+        let itemContextText = '';
+        const itemHeader = item.querySelector('h3:not([class*="text-lg"]), p'); // Prioritize smaller headers or paragraphs for item context
+        if (itemHeader) {
+            itemContextText = itemHeader.textContent.trim().substring(0,50) + '...';
+        } else {
+            itemContextText = item.textContent.trim().substring(0,50) + '...';
+        }
+        if (!itemContextText && item.textContent.trim()) itemContextText = item.textContent.trim().substring(0,50) + '...';
+        if (!itemContextText || itemContextText === "...") itemContextText = 'Unnamed Grid Item';
+
+
+        const gridItemControls = createControlsDiv(sectionId, itemContextText, true); // isForItem = true
+        item.classList.add('relative'); // Good for positioning child controls if needed
+        
+        // Try to append controls in a less intrusive way, e.g., end of content
+        const contentWrapper = item.querySelector('.p-4, .p-6') || item; // If there's an inner padding div, append there
+        contentWrapper.appendChild(gridItemControls); 
+      });
+      
+      // Re-run createIcons after new buttons are added to the DOM
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+
+      // Event listener for closing the modal
+      if (closeModalButton) {
+        closeModalButton.addEventListener('click', () => {
+          aiModal.classList.add('hidden');
+        });
+      }
+      
+      // Close modal if clicked outside the modal content
+      if (aiModal) {
+        aiModal.addEventListener('click', (event) => {
+          if (event.target === aiModal) { // Check if the click is on the backdrop
+            aiModal.classList.add('hidden');
+          }
+        });
+      }
+    });
     </script>
 </body>
 </html>
