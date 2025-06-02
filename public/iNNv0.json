@@ -34,7 +34,8 @@
       "Internal Tool Development",
       "Event Organization",
       "Service Offering Expansion"
-    ]
+    ],
+    "businessDescription": "This business operates as a Fractional Innovation Officer service, specializing in driving business growth through the strategic application of Artificial Intelligence. We partner with companies to embed innovation capabilities and AI-driven strategies without the overhead of a full-time executive hire. Our core offerings include developing bespoke AI innovation roadmaps aligned with specific business objectives, optimizing existing Research and Development processes for enhanced efficiency and output, and cultivating a forward-thinking culture of continuous improvement within client organizations. We provide end-to-end support, from initial technology scouting and integration of cutting-edge AI tools to comprehensive client training and workshops designed to upskill internal teams. Furthermore, we actively engage in thought leadership through content creation and speaking engagements to share insights and best practices in AI and fractional innovation. Our flexible consulting services are tailored to meet the unique needs and challenges of each client, ensuring maximum competitive advantage and sustainable market leadership. We aim to be the trusted partner for businesses seeking to navigate the complexities of AI adoption and unlock new avenues for growth and innovation."
   },
   "people": [
     {
@@ -143,13 +144,23 @@
       "opportunityName": "Organize Innovation Events (Hackathons, Idea Contests)",
       "opportunityDescription": "Develop and execute a service offering for organizing corporate hackathons, innovation challenges, and idea contests for clients, fostering internal innovation and talent development.",
       "opportunityProblem": "Clients often struggle to foster internal innovation culture and generate new ideas effectively, lacking the expertise and resources to run impactful innovation events.",
-      "opportunitySource": "Market Demand",
-      "opportunityStakeholders": "Corporate HR, Innovation Leads, R&D Departments",
-      "opportunityProposerId": "PERSON_LUCAS_CERVERA",
-      "opportunityPriority": 8,
-      "opportunityStatus": "Under Review",
-      "opportunityDateIdentified": "2025-05-20",
-      "opportunityLastUpdated": "2025-06-01T09:00:00Z"
+      "initiativeValueProposition": "Enable clients to generate new ideas, foster a culture of innovation, identify internal talent, and solve specific business challenges. Creates a new revenue stream and enhances our reputation as a holistic innovation partner.",
+      "initiativeSolutionHypothesis": "Providing structured innovation event organization services will help clients stimulate internal creativity and generate tangible solutions, leading to increased demand for our expertise.",
+      "initiativeGoals": "1. Develop a service blueprint for event organization by end of Q3 2025.\n2. Create a marketing proposal template for innovation events by end of Q3 2025.\n3. Secure 1 pilot client for an innovation event by Q4 2025.\n4. Document lessons learned from the pilot event to refine the offering.",
+      "initiativeObjective": "To successfully offer and execute corporate innovation events that result in actionable ideas for clients.",
+      "initiativeResults": "Initial brainstorming on event types and potential client needs has begun. Research into successful corporate innovation events is underway.",
+      "initiativeLearnings": "The key will be demonstrating clear ROI for clients from these events. Integration of AI in idea generation or analysis might be a unique selling point.",
+      "initiativeDecision": "Persevere",
+      "initiativeDecisionJustification": "This initiative leverages our innovation expertise and meets a clear client need for fostering internal creativity.",
+      "initiativeNextSteps": "1. Define different event formats (e.g., 1-day hackathon, multi-week idea challenge) and their corresponding deliverables.\n2. Develop a pricing model for event organization based on complexity and duration.\n3. Create a 'Why Host an Innovation Event?' marketing pitch.\n4. Identify potential partners for event platforms or logistical support (if needed).",
+      "initiativeBudget": 1000,
+      "initiativeResources": "Lucas Cervera (Event Designer, Facilitator, AI Integration Specialist)\nAccess to innovation event platforms/software (trial versions initially)",
+      "initiativeRisks": "1. Difficulty in attracting participants for client events.\n2. Ensuring the generated ideas are truly innovative and actionable.\n3. Logistical challenges in managing events remotely or on-site.\n4. Lucas accidentally turning a hackathon into a robot fight club.",
+      "initiativeDateRegistered": "2025-05-30",
+      "initiativeStartDate": "2025-07-01",
+      "initiativeEndDate": "2026-06-30",
+      "initiativeLastUpdated": "2025-06-01T18:00:00Z",
+      "initiativeNotes": "Highlight the role of AI in enhancing idea generation, evaluation, or even participant matching within these events. Focus on clear objectives for each event."
     }
   ],
   "initiatives": [
@@ -217,7 +228,7 @@
       "initiativeManagerId": "PERSON_LUCAS_CERVERA",
       "initiativeOpportunityId": "OPP_THOUGHT_LEADERSHIP_CONTENT",
       "initiativeUser": "Prospective Clients, Industry Professionals, Media",
-      "initiativeProblem": "Low brand visibility and limited recognition as a leading expert in AI-driven innovation and fractional innovation services, hindering lead generation and market positioning.",
+      "initiativeProblem": "Low brand visibility and limited recognition as a leading expert in AI-driven innovation and fractional innovation services, hindering lead generation.",
       "initiativeSolution": "Develop a multi-format content series (e.g., 3-4 blog posts, 1 whitepaper, 2 webinars/online workshops) focusing on practical applications of AI in innovation, benefits of fractional innovation, and success stories from client projects. Leverage social media and industry platforms for distribution.",
       "initiativeValueProposition": "Increase website traffic by 20%, generate 10-15 qualified leads per quarter, enhance brand authority, and position Lucas Cervera as a go-to expert in the field. Ultimately, reduce client acquisition costs.",
       "initiativeSolutionHypothesis": "Consistent, high-quality thought leadership content will attract new clients and establish brand authority in AI-driven fractional innovation.",
@@ -301,7 +312,7 @@
       "initiativeManagerId": "PERSON_LUCAS_CERVERA",
       "initiativeOpportunityId": "OPP_INNOVATION_EVENTS",
       "initiativeUser": "Corporate Clients, Employees within client organizations",
-      "initiativeProblem": "Companies struggle to foster internal innovation, generate fresh ideas, and engage employees in creative problem-solving, lacking the expertise and resources to run impactful innovation events.",
+      "initiativeProblem": "Companies struggle to foster internal innovation culture and generate new ideas effectively, lacking the expertise and resources to run impactful innovation events.",
       "initiativeSolution": "Develop a service offering to design, organize, and facilitate bespoke innovation events for clients, including hackathons, idea contests, 'hackadays', and innovation workshops. This includes planning, theme development, participant recruitment strategies, judging criteria, and post-event analysis.",
       "initiativeValueProposition": "Enable clients to generate new ideas, foster a culture of innovation, identify internal talent, and solve specific business challenges. Creates a new revenue stream and enhances our reputation as a holistic innovation partner.",
       "initiativeSolutionHypothesis": "Providing structured innovation event organization services will help clients stimulate internal creativity and generate tangible solutions, leading to increased demand for our expertise.",
