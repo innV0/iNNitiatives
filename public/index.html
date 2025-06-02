@@ -351,16 +351,10 @@
                         <i :data-lucide="tab.icon" class="w-4 h-4"></i>
                         <span>{{ tab.name }}</span>
                     </button>
-                     <button @click="openDocs()"
-                            :class="[
-                                'flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap',
-                                activeTab === 'docs'
-                                    ? 'bg-gray-50 text-blue-600 border-b-2 border-blue-600'
-                                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                            ]">
+                    <a href="https://docsify-this.net/?basePath=https://innv0.github.io/iNNitiatives/public&homepage=docs.md&sidebar=true#/" target="_blank" class="flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap text-gray-600 hover:text-gray-900 hover:bg-gray-50">
                         <i data-lucide="book" class="w-4 h-4"></i>
                         <span>Docs</span>
-                    </button>
+                    </a>
                 </div>
             </div>
         </nav>
@@ -1396,9 +1390,6 @@
             },
             // --- METHODS ---
             methods: {
-                openDocs() {
-                    window.open('https://docsify-this.net/?basePath=https://innv0.github.io/iNNitiatives/public&homepage=docs.md&sidebar=true#/', '_blank', 'width=900,height=600');
-                },
                 getFieldDescription(path) {
                     const parts = path.split('.');
                     if (parts.length === 2) {
