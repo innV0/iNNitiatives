@@ -314,8 +314,9 @@ const app = createApp({
     }
 });
 
-// Expose appUtils to the global context of the Vue app instance
-app.config.globalProperties.appUtils = appUtils;
+// Expose appUtils and APP_SCHEMA to the global context of the Vue app instance
+app.config.globalProperties.$appUtils = appUtils;
+app.config.globalProperties.$APP_SCHEMA = APP_SCHEMA;
 
 // Register components
 app.component('notification-handler', NotificationHandler);

@@ -89,7 +89,7 @@
             <program-view v-if="activeTab === 'program'"
                 :program-data="appData.program"
                 :get-field-description-fn="getFieldDescription"
-                :format-field-name-fn="appUtils.formatFieldName"
+                :format-field-name-fn="$appUtils.formatFieldName"
                 @edit-program-requested="editProgram"
                 @open-ai-modal-requested="openAiModal($event.context, $event.data)">
             </program-view>
@@ -110,7 +110,7 @@
                 :opportunities="filteredAndSortedOpportunities"
                 :people-list="appData.people"
                 :program-default-opportunity-statuses="appData.program ? appData.program.programDefaultOpportunityStatuses : []"
-                :app-schema-opportunity-statuses="APP_SCHEMA.definitions.opportunity.properties.opportunityStatus.enum"
+                :app-schema-opportunity-statuses="$APP_SCHEMA.definitions.opportunity.properties.opportunityStatus.enum"
                 :get-person-name-fn="getPersonName"
                 :current-sort-field="opportunitySortField"
                 :current-sort-order="opportunitySortOrder"
