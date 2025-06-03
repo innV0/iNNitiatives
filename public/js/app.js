@@ -261,6 +261,9 @@ const app = createApp({
         handleClearOpportunityFilters() {  this.mainOpportunityFilterName = ''; this.mainOpportunityFilterProposerId = ''; this.mainOpportunityFilterStatus = ''; },
         handleOpportunitySortRequested(field) {  this.setOpportunitySort(field); },
         setInitiativeSort(field) { if (this.initiativeSortField === field) { this.initiativeSortOrder = this.initiativeSortOrder === 'asc' ? 'desc' : 'asc'; } else { this.initiativeSortField = field; this.initiativeSortOrder = 'asc'; } this.$nextTick(() => lucide.createIcons() ); },
+        // Event handlers for InitiativesView component
+        handleAddInitiativeRequested() { this.addInitiative(); },
+        handleInitiativeSortRequested(field) { this.setInitiativeSort(field); },
         viewItem(item, type) { if (!item || !type) return; this.currentViewItem = item; this.viewModalTitle = `View ${type.charAt(0).toUpperCase() + type.slice(1)}: ${item.initiativeName || item.opportunityName || item.personName || item.programName}`; let schemaDefinition; if (type === 'program') schemaDefinition = APP_SCHEMA.definitions.programConfiguration; else if (type === 'person') schemaDefinition = APP_SCHEMA.definitions.person; else if (type === 'opportunity') schemaDefinition = APP_SCHEMA.definitions.opportunity; else if (type === 'initiative') schemaDefinition = APP_SCHEMA.definitions.initiative; this.currentViewItemFields = Object.entries(schemaDefinition.properties || {}).map(([key, prop]) => ({ key: key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, })); this.findRelatedItems(item, type); this.showViewItemModal = true; this.$nextTick(() => { lucide.createIcons(); }); },
         closeViewModal() { this.showViewItemModal = false; this.currentViewItem = null; this.viewItemModalTitle = ''; this.currentViewItemFields = []; this.relatedItems = []; },
         findRelatedItems(item, type) { this.relatedItems = []; if (!item || !type || !this.appData) return; if (type === 'person') { (this.appData.opportunities || []).forEach(opp => { if (opp.opportunityProposerId === item.personId) { this.relatedItems.push({ id: opp.opportunityId, name: opp.opportunityName, type: 'opportunity', item: opp }); } }); (this.appData.initiatives || []).forEach(init => { if (init.initiativeManagerId === item.personId) { this.relatedItems.push({ id: init.initiativeId, name: init.initiativeName, type: 'initiative', item: init }); } }); } else if (type === 'opportunity') { (this.appData.initiatives || []).forEach(init => { if (init.initiativeOpportunityId === item.opportunityId) { this.relatedItems.push({ id: init.initiativeId, name: init.initiativeName, type: 'initiative', item: init }); } }); } else if (type === 'initiative') { if (item.initiativeManagerId) { const manager = this.getPerson(item.initiativeManagerId); if (manager) { this.relatedItems.push({ id: manager.personId, name: manager.personName, type: 'person', item: manager }); } } if (item.initiativeOpportunityId) { const opportunity = this.getOpportunity(item.initiativeOpportunityId); if (opportunity) { this.relatedItems.push({ id: opportunity.opportunityId, name: opportunity.opportunityName, type: 'opportunity', item: opportunity }); } } } },
@@ -309,7 +312,7 @@ const app = createApp({
             lucide.createIcons();
         });
     }
-}); // End of createApp options
+});
 
 // Expose appUtils to the global context of the Vue app instance
 app.config.globalProperties.appUtils = appUtils;
@@ -325,12 +328,17 @@ app.component('top-opportunities-summary', TopOpportunitiesSummary);
 app.component('team-overview-summary', TeamOverviewSummary);
 app.component('recent-activity-summary', RecentActivitySummary);
 app.component('dashboard-view', DashboardView);
+app.component('program-view', ProgramView);
+app.component('edit-modal', EditModal);
+app.component('view-item-modal', ViewItemModal);
+app.component('help-modal', HelpModal);
+app.component('ai-modal', AiModal);
+app.component('person-card', PersonCard);
+app.component('people-view', PeopleView);
+app.component('opportunity-list-item', OpportunityListItem);
+app.component('opportunities-filter-controls', OpportunitiesFilterControls);
+app.component('opportunities-view', OpportunitiesView);
+app.component('initiative-list-item', InitiativeListItem);
+app.component('initiatives-view', InitiativesView);
 
-app.mount('#app'); // Mount the app
-
-// Original Lucide icon initialization - can be kept or removed if Vue's hooks are sufficient
-// document.addEventListener('DOMContentLoaded', function() {
-//     lucide.createIcons();
-// }); // This is commented out as Vue's mounted/updated hooks handle icons.
-
-[end of public/js/app.js]
+app.mount('#app');
