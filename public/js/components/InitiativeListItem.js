@@ -1,14 +1,6 @@
 export const InitiativeListItem = {
-    props: {
-        initiative: {
-            type: Object,
-            required: true
-        },
-        getPersonNameFn: {
-            type: Function,
-            required: true
-        }
-    },
+    props: ['initiative', 'getPersonNameFn'],
+    emits: ['view-item-requested', 'edit-item-requested', 'open-ai-modal-requested', 'delete-item-requested'],
     template: `
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm initiative-card p-6 card-hover">
             <div class="flex flex-col md:flex-row justify-between md:items-start">
@@ -24,7 +16,7 @@ export const InitiativeListItem = {
                     <p class="text-sm text-gray-500">Budget: <span class="font-medium text-gray-700">€{{ $appUtils.formatNumber(initiative.initiativeBudget) }}</span></p>
                 </div>
                 <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-2 flex-shrink-0 hover-actions">
-                     <button @click="$emit('view-item-requested', { item: initiative, type: 'initiative' })" class="w-full md:w-auto flex items-center justify-center space-x-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors" title="View Initiative">
+                    <button @click="$emit('view-item-requested', { item: initiative, type: 'initiative' })" class="w-full md:w-auto flex items-center justify-center space-x-2 bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors" title="View Initiative">
                         <i data-lucide="eye" class="w-4 h-4"></i>
                         <span>View</span>
                     </button>
@@ -36,7 +28,7 @@ export const InitiativeListItem = {
                         <i data-lucide="bot" class="w-4 h-4"></i>
                         <span>AI</span>
                     </button>
-                    <button @click="$emit('delete-item-requested', initiative.initiativeId)" class="w-full md:w-auto flex items-center justify-center space-x-1 bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm transition-colors border border-red-200" title="Delete Initiative">
+                    <button @click="$emit('delete-item-requested', initiative.initiativeId)" class="w-full md:w-auto flex items-center justify-center space-x-1 bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-red-200" title="Delete Initiative">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                         <span>Delete</span>
                     </button>
@@ -44,7 +36,7 @@ export const InitiativeListItem = {
             </div>
         </div>
     `,
-    mounted() {
+    mounted() { // Added mounted and updated for Lucide icons, as they are good practice for components with icons
         this.$nextTick(() => {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
