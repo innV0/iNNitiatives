@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://unpkg.com/lucide@latest/dist/iconfont/lucide.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <!-- <script src="https://unpkg.com/lucide@latest"></script> --> <!-- Consolidated UMD main script is used -->
     <!-- Marked.js for Markdown rendering -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <!-- DOMPurify for sanitizing HTML -->
@@ -92,7 +91,7 @@
                 :get-field-description-fn="getFieldDescription"
                 :format-field-name-fn="appUtils.formatFieldName"
                 @edit-program-requested="editProgram"
-                @open-ai-modal-requested="openAiModal($event.context, $event.data)"> <!-- Ensure payload is passed correctly -->
+                @open-ai-modal-requested="openAiModal($event.context, $event.data)">
             </program-view>
 
             <!-- People Tab -->
@@ -134,9 +133,9 @@
                 :get-person-name-fn="getPersonName"
                 :current-sort-field="initiativeSortField"
                 :current-sort-order="initiativeSortOrder"
-                @add-initiative-requested="addInitiative"
+                @add-initiative-requested="handleAddInitiativeRequested"
                 @open-ai-modal-requested="openAiModal($event.contextType, $event.item)"
-                @sort-requested="setInitiativeSort"
+                @sort-requested="handleInitiativeSortRequested"
                 @view-item-requested="viewItem($event.item, $event.type)"
                 @edit-item-requested="editInitiative($event)"
                 @delete-item-requested="deleteInitiative($event)">
