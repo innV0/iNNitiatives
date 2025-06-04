@@ -31,6 +31,7 @@ export const PersonCard = {
                         field-key="personDescription"
                         :value="person.personDescription"
                         :field-meta="descriptionMeta"
+                        display-class="line-clamp-2"
                     ></field-renderer>
                     <div v-if="person.personUrl" class="mb-4">
                         <a :href="person.personUrl" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm">

@@ -227,7 +227,15 @@
     text-overflow: ellipsis; /* Add ellipsis for truncated text */
     white-space: nowrap; /* Prevent text from wrapping */
 }
- .view-item-modal-content .related-item-type {
+.view-item-modal-content .related-item-type {
     font-size: 0.75rem; /* text-xs */
     color: #6b7280; /* gray-500 */
- }
+}
+
+/* Utility class replicating Tailwind's line-clamp-2 */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

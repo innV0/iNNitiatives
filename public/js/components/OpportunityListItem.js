@@ -53,7 +53,7 @@ export const OpportunityListItem = {
                 </div>
             </div>
             <div class="px-4 pb-3 pt-2 border-t border-gray-100" v-if="opportunity.opportunityDescription">
-                 <p class="text-sm text-gray-600 leading-relaxed">{{ opportunity.opportunityDescription.length > 150 ? opportunity.opportunityDescription.substring(0, 150) + '...' : opportunity.opportunityDescription }}</p>
+                 <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">{{ opportunity.opportunityDescription }}</p>
             </div>
         </div>
     `,
