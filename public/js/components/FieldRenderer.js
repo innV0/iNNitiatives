@@ -3,7 +3,8 @@ export const FieldRenderer = {
     fieldKey: { type: String, required: true },
     value: { default: '' },
     fieldMeta: { type: Object, default: () => ({}) },
-    editable: { type: Boolean, default: false }
+    editable: { type: Boolean, default: false },
+    displayClass: { type: String, default: '' }
   },
   emits: ['update'],
   data() {
@@ -41,7 +42,7 @@ export const FieldRenderer = {
       <template v-else>
         <span class="inline-flex items-center space-x-1" :title="fieldMeta.tooltip">
           <i v-if="fieldMeta.icon" :data-lucide="fieldMeta.icon" class="w-3 h-3"></i>
-          <span>{{ displayValue }}</span>
+          <span :class="displayClass">{{ displayValue }}</span>
         </span>
       </template>
     </div>
