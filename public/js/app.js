@@ -14,12 +14,10 @@ import { ProgramView } from './components/ProgramView.js';
 import { ItemModal } from './components/ItemModal.js';
 import { HelpModal } from './components/HelpModal.js';
 import { AiModal } from './components/AiModal.js';
-import { PersonCard } from './components/PersonCard.js';
+import { ItemCard } from './components/ItemCard.js';
 import { PeopleView } from './components/PeopleView.js';
-import { OpportunityListItem } from './components/OpportunityListItem.js';
 import { OpportunitiesFilterControls } from './components/OpportunitiesFilterControls.js';
 import { OpportunitiesView } from './components/OpportunitiesView.js';
-import { InitiativeListItem } from './components/InitiativeListItem.js';
 import { InitiativesView } from './components/InitiativesView.js';
 import { TableView } from './components/TableView.js';
 import { ItemBadge } from './components/ItemBadge.js';
@@ -28,6 +26,23 @@ import { SearchSelect } from './components/SearchSelect.js';
 import { getFieldMeta } from './fieldMeta.js';
 
 const { createApp } = Vue; // Vue import
+
+const lucideMixin = {
+    mounted() {
+        this.$nextTick(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    },
+    updated() {
+        this.$nextTick(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    }
+};
 
 const app = createApp({
     data() {
@@ -331,13 +346,24 @@ const app = createApp({
                 console.error('Error in performSave:', error);
             }
         },
-        setOpportunitySort(field) { if (this.opportunitySortField === field) { this.opportunitySortOrder = this.opportunitySortOrder === 'asc' ? 'desc' : 'asc'; } else { this.opportunitySortField = field; this.opportunitySortOrder = 'asc'; } this.$nextTick(() => lucide.createIcons() ); },
+        setSort(field, fieldProp, orderProp) {
+            if (this[fieldProp] === field) {
+                this[orderProp] = this[orderProp] === 'asc' ? 'desc' : 'asc';
+            } else {
+                this[fieldProp] = field;
+                this[orderProp] = 'asc';
+            }
+            this.$nextTick(() => {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        },
+        setOpportunitySort(field) { this.setSort(field, 'opportunitySortField', 'opportunitySortOrder'); },
         // Event handlers for OpportunitiesView component
         handleAddOpportunityRequested() { this.addOpportunity(); },
         handleOpportunityFiltersChanged(filters) { this.mainOpportunityFilterName = filters.name; this.mainOpportunityFilterProposerId = filters.proposerId; this.mainOpportunityFilterStatus = filters.status; },
         handleClearOpportunityFilters() {  this.mainOpportunityFilterName = ''; this.mainOpportunityFilterProposerId = ''; this.mainOpportunityFilterStatus = ''; },
         handleOpportunitySortRequested(field) {  this.setOpportunitySort(field); },
-        setInitiativeSort(field) { if (this.initiativeSortField === field) { this.initiativeSortOrder = this.initiativeSortOrder === 'asc' ? 'desc' : 'asc'; } else { this.initiativeSortField = field; this.initiativeSortOrder = 'asc'; } this.$nextTick(() => lucide.createIcons() ); },
+        setInitiativeSort(field) { this.setSort(field, 'initiativeSortField', 'initiativeSortOrder'); },
         // Event handlers for InitiativesView component
         handleAddInitiativeRequested() { this.addInitiative(); },
         handleInitiativeSortRequested(field) { this.setInitiativeSort(field); },
@@ -484,6 +510,7 @@ const app = createApp({
 // Expose appUtils and APP_SCHEMA to the global context of the Vue app instance
 app.config.globalProperties.$appUtils = appUtils;
 app.config.globalProperties.$APP_SCHEMA = APP_SCHEMA;
+app.mixin(lucideMixin);
 
 // Register components
 app.component('notification-handler', NotificationHandler);
@@ -500,12 +527,10 @@ app.component('program-view', ProgramView);
 app.component('item-modal', ItemModal);
 app.component('help-modal', HelpModal);
 app.component('ai-modal', AiModal);
-app.component('person-card', PersonCard);
+app.component('item-card', ItemCard);
 app.component('people-view', PeopleView);
-app.component('opportunity-list-item', OpportunityListItem);
 app.component('opportunities-filter-controls', OpportunitiesFilterControls);
 app.component('opportunities-view', OpportunitiesView);
-app.component('initiative-list-item', InitiativeListItem);
 app.component('initiatives-view', InitiativesView);
 app.component('table-view', TableView);
 app.component('item-badge', ItemBadge);

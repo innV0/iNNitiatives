@@ -70,18 +70,18 @@ export const TableView = {
         }
     },
     template: `
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+        <div class="overflow-x-auto w-full">
+            <table class="min-w-max w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50 sticky top-0 z-10">
                     <tr>
-                        <th v-for="field in mappedFields" :key="field.key" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">
+                        <th v-for="(field, idx) in mappedFields" :key="field.key" :class="['px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50', idx === 0 ? 'sticky left-0 z-20' : '']">
                             {{ field.title }}
                         </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <tr v-for="(row, rowIndex) in editableItems" :key="rowIndex">
-                        <td v-for="field in mappedFields" :key="field.key" class="px-3 py-2 whitespace-nowrap">
+                        <td v-for="(field, idx) in mappedFields" :key="field.key" :class="['px-3 py-2 whitespace-nowrap', idx === 0 ? 'sticky left-0 bg-white z-10' : '']">
                             <field-renderer
                                 :field-key="field.key"
                                 :value="row[field.key]"
