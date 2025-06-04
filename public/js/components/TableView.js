@@ -4,7 +4,13 @@ import { getFieldMeta } from '../fieldMeta.js';
 export const TableView = {
     props: {
         items: { type: Array, default: () => [] },
-        fields: { type: [Array, Object], default: () => [] }
+        fields: { type: [Array, Object], default: () => [] },
+        /**
+         * Name of the section inside appData this table represents.
+         * When provided, edited values will automatically update
+         * the corresponding object in appData.
+         */
+        appDataSection: { type: String, default: '' }
     },
     components: { FieldRenderer },
     emits: ['update-item'],
@@ -48,8 +54,18 @@ export const TableView = {
             const processed = this.$root && this.$root.processFormData
                 ? this.$root.processFormData(this.editableItems[index], this.mappedFields)
                 : this.editableItems[index];
-            if (processed) {
-                this.$emit('update-item', { index, item: processed });
+            if (!processed) return;
+            this.$emit('update-item', { index, item: processed });
+
+            if (this.appDataSection && this.$root && this.$root.appData && Array.isArray(this.$root.appData[this.appDataSection])) {
+                const section = this.$root.appData[this.appDataSection];
+                const updated = { ...section[index], ...processed };
+                if (this.appDataSection === 'opportunities') {
+                    updated.opportunityLastUpdated = new Date().toISOString();
+                } else if (this.appDataSection === 'initiatives') {
+                    updated.initiativeLastUpdated = new Date().toISOString();
+                }
+                section.splice(index, 1, updated);
             }
         }
     },
