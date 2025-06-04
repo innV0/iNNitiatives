@@ -22,6 +22,7 @@ import { OpportunitiesFilterControls } from './components/OpportunitiesFilterCon
 import { OpportunitiesView } from './components/OpportunitiesView.js';
 import { InitiativeListItem } from './components/InitiativeListItem.js';
 import { InitiativesView } from './components/InitiativesView.js';
+import { TableView } from './components/TableView.js';
 
 const { createApp } = Vue; // Vue import
 
@@ -362,5 +363,6 @@ app.component('opportunities-filter-controls', OpportunitiesFilterControls);
 app.component('opportunities-view', OpportunitiesView);
 app.component('initiative-list-item', InitiativeListItem);
 app.component('initiatives-view', InitiativesView);
+app.component('table-view', TableView);
 
 app.mount('#app');
