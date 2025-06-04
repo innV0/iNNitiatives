@@ -1,4 +1,5 @@
 import { TableView } from './TableView.js';
+import { ItemCard } from './ItemCard.js';
 import { APP_SCHEMA } from '../appSchema.js';
 
 export const OpportunitiesView = {
@@ -18,7 +19,7 @@ export const OpportunitiesView = {
             default: 'table'
         }
     },
-    components: { TableView },
+    components: { TableView, ItemCard },
     data() {
         return {
             filterName: this.initialFilterName,
@@ -99,30 +100,20 @@ export const OpportunitiesView = {
                     <table-view :items="opportunities" :fields="tableFields" app-data-section="opportunities" @view-item-requested="$emit('view-item-requested', $event)"></table-view>
                 </div>
                 <div v-else class="space-y-4">
-                    <opportunity-list-item v-for="opp in opportunities" :key="opp.opportunityId"
-                        :opportunity="opp"
+                    <item-card
+                        v-for="opp in opportunities"
+                        :key="opp.opportunityId"
+                        :item="opp"
+                        type="opportunity"
                         :get-person-name-fn="getPersonNameFn"
                         @view-item-requested="$emit('view-item-requested', $event)"
                         @edit-item-requested="$emit('edit-item-requested', $event)"
                         @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
                         @delete-item-requested="$emit('delete-item-requested', $event)">
-                    </opportunity-list-item>
+                    </item-card>
                 </div>
             </div>
         </section>
     `,
-    mounted() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+    
 };

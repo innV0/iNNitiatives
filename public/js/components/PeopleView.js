@@ -1,4 +1,5 @@
 import { TableView } from './TableView.js';
+import { ItemCard } from './ItemCard.js';
 import { APP_SCHEMA } from '../appSchema.js';
 
 export const PeopleView = {
@@ -16,7 +17,7 @@ export const PeopleView = {
             default: 'grid'
         }
     },
-    components: { TableView },
+    components: { TableView, ItemCard },
     computed: {
         tableFields() { return this.$root.generateFormFields(APP_SCHEMA.definitions.person); }
     },
@@ -51,33 +52,20 @@ export const PeopleView = {
 
             <div v-else>
                 <div v-if="viewMode === 'grid'" class="space-y-4">
-                    <person-card
+                    <item-card
                         v-for="person in people"
                         :key="person.personId"
-                        :person="person"
+                        :item="person"
+                        type="person"
                         :get-person-avatar-fn="getPersonAvatarFn"
                         @view-item-requested="$emit('view-item-requested', $event)"
                         @edit-item-requested="$emit('edit-item-requested', $event)"
                         @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
                         @delete-item-requested="$emit('delete-item-requested', $event)">
-                    </person-card>
+                    </item-card>
                 </div>
                 <table-view v-else :items="people" :fields="tableFields" app-data-section="people" @view-item-requested="$emit('view-item-requested', $event)"></table-view>
             </div>
         </section>
-    `,
-    mounted() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+    `
 };

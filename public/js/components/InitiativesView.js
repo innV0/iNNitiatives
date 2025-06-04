@@ -1,4 +1,5 @@
 import { TableView } from './TableView.js';
+import { ItemCard } from './ItemCard.js';
 import { APP_SCHEMA } from '../appSchema.js';
 
 export const InitiativesView = {
@@ -12,7 +13,7 @@ export const InitiativesView = {
             default: 'table'
         }
     },
-    components: { TableView },
+    components: { TableView, ItemCard },
     emits: ['add-initiative-requested', 'open-ai-modal-requested', 'sort-requested', 'view-item-requested', 'edit-item-requested', 'delete-item-requested'],
     computed: {
         tableFields() { return this.$root.generateFormFields(APP_SCHEMA.definitions.initiative); }
@@ -51,32 +52,20 @@ export const InitiativesView = {
                     <table-view :items="initiatives" :fields="tableFields" app-data-section="initiatives" @view-item-requested="$emit('view-item-requested', $event)"></table-view>
                 </div>
                 <div v-else class="space-y-4">
-                    <initiative-list-item
+                    <item-card
                         v-for="init in initiatives"
                         :key="init.initiativeId"
-                        :initiative="init"
+                        :item="init"
+                        type="initiative"
                         :get-person-name-fn="getPersonNameFn"
                         @view-item-requested="$emit('view-item-requested', $event)"
                         @edit-item-requested="$emit('edit-item-requested', $event)"
                         @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
                         @delete-item-requested="$emit('delete-item-requested', $event)">
-                    </initiative-list-item>
+                    </item-card>
                 </div>
             </div>
         </section>
     `,
-    mounted() { // Added mounted and updated for Lucide icons
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+    
 };
