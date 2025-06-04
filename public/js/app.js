@@ -258,7 +258,78 @@ const app = createApp({
         closeItemModal() { this.showItemModal = false; this.itemModalTitle = ''; this.itemModalFormData = {}; this.itemModalFormFields = []; this.itemModalItemData = null; this.itemModalItemFields = []; this.currentEditType = null; this.currentEditId = null; this.showSaveAndDownload = false; this.relatedItems = []; },
         saveForm(formDataFromModal) { this.performSave(formDataFromModal); },
         saveAndDownload(formDataFromModal) { this.performSave(formDataFromModal); this.$nextTick(() => { this.exportData(); }); },
-        performSave(dataToSave) { try { let schemaDefinition; let requiredFields = []; const entityTitle = this.currentEditType.charAt(0).toUpperCase() + this.currentEditType.slice(1); if (this.currentEditType === 'program') { schemaDefinition = APP_SCHEMA.definitions.programConfiguration; } else if (this.currentEditType === 'person') { schemaDefinition = APP_SCHEMA.definitions.person; } else if (this.currentEditType === 'opportunity') { schemaDefinition = APP_SCHEMA.definitions.opportunity; } else if (this.currentEditType === 'initiative') { schemaDefinition = APP_SCHEMA.definitions.initiative; } if (schemaDefinition && schemaDefinition.required) { requiredFields = schemaDefinition.required; } for (const fieldName of requiredFields) { const fieldDefinition = schemaDefinition.properties[fieldName]; const fieldTitle = (fieldDefinition ? fieldDefinition.title : '') || appUtils.formatFieldName(fieldName); const value = dataToSave[fieldName]; if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) { this.showNotification('Error', `Field "${fieldTitle}" is required for ${entityTitle}.`, 'error'); return; } } const processedData = this.processFormData(dataToSave, this.itemModalFormFields); if (processedData === null) { return; } if (this.currentEditType === 'program') { this.appData.program = { ...this.appData.program, ...processedData }; } else if (this.currentEditType === 'person') { if (!this.appData.people) this.appData.people = []; if (this.currentEditId) { const index = this.appData.people.findIndex(p => p.personId === this.currentEditId); if (index !== -1) this.appData.people[index] = { ...this.appData.people[index], ...processedData }; } else { this.appData.people.push(processedData); } } else if (this.currentEditType === 'opportunity') { if (!this.appData.opportunities) this.appData.opportunities = []; if (this.currentEditId) { const index = this.appData.opportunities.findIndex(o => o.opportunityId === this.currentEditId); if (index !== -1) this.appData.opportunities[index] = { ...this.appData.opportunities[index], ...processedData }; } else { this.appData.opportunities.push(processedData); } } else if (this.currentEditType === 'initiative') { if (!this.appData.initiatives) this.appData.initiatives = []; processedData.initiativeLastUpdated = new Date().toISOString(); if (this.currentEditId) { const index = this.appData.initiatives.findIndex(i => i.initiativeId === this.currentEditId); if (index !== -1) this.appData.initiatives[index] = { ...this.appData.initiatives[index], ...processedData }; } else { this.appData.initiatives.push(processedData); } } this.closeItemModal(); this.showNotification('Success', `${entityTitle} data saved successfully!`, 'success'); } catch (error) { this.showNotification('Error', `Error saving data: ${error.message}`, 'error'); console.error("Error in performSave:", error); } },
+        performSave(dataToSave) {
+            try {
+                let schemaDefinition;
+                let requiredFields = [];
+                const entityTitle = this.currentEditType.charAt(0).toUpperCase() + this.currentEditType.slice(1);
+
+                if (this.currentEditType === 'program') {
+                    schemaDefinition = APP_SCHEMA.definitions.programConfiguration;
+                } else if (this.currentEditType === 'person') {
+                    schemaDefinition = APP_SCHEMA.definitions.person;
+                } else if (this.currentEditType === 'opportunity') {
+                    schemaDefinition = APP_SCHEMA.definitions.opportunity;
+                } else if (this.currentEditType === 'initiative') {
+                    schemaDefinition = APP_SCHEMA.definitions.initiative;
+                }
+
+                if (schemaDefinition && schemaDefinition.required) {
+                    requiredFields = schemaDefinition.required;
+                }
+
+                for (const fieldName of requiredFields) {
+                    const fieldDefinition = schemaDefinition.properties[fieldName];
+                    const fieldTitle = (fieldDefinition ? fieldDefinition.title : '') || appUtils.formatFieldName(fieldName);
+                    const value = dataToSave[fieldName];
+                    if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) {
+                        this.showNotification('Error', `Field "${fieldTitle}" is required for ${entityTitle}.`, 'error');
+                        return;
+                    }
+                }
+
+                const processedData = this.processFormData(dataToSave, this.itemModalFormFields);
+                if (processedData === null) {
+                    return;
+                }
+
+                if (this.currentEditType === 'program') {
+                    this.appData.program = { ...this.appData.program, ...processedData };
+                } else if (this.currentEditType === 'person') {
+                    if (!this.appData.people) this.appData.people = [];
+                    if (this.currentEditId) {
+                        const index = this.appData.people.findIndex(p => p.personId === this.currentEditId);
+                        if (index !== -1) this.appData.people.splice(index, 1, { ...this.appData.people[index], ...processedData });
+                    } else {
+                        this.appData.people.push(processedData);
+                    }
+                } else if (this.currentEditType === 'opportunity') {
+                    if (!this.appData.opportunities) this.appData.opportunities = [];
+                    processedData.opportunityLastUpdated = new Date().toISOString();
+                    if (this.currentEditId) {
+                        const index = this.appData.opportunities.findIndex(o => o.opportunityId === this.currentEditId);
+                        if (index !== -1) this.appData.opportunities.splice(index, 1, { ...this.appData.opportunities[index], ...processedData });
+                    } else {
+                        this.appData.opportunities.push(processedData);
+                    }
+                } else if (this.currentEditType === 'initiative') {
+                    if (!this.appData.initiatives) this.appData.initiatives = [];
+                    processedData.initiativeLastUpdated = new Date().toISOString();
+                    if (this.currentEditId) {
+                        const index = this.appData.initiatives.findIndex(i => i.initiativeId === this.currentEditId);
+                        if (index !== -1) this.appData.initiatives.splice(index, 1, { ...this.appData.initiatives[index], ...processedData });
+                    } else {
+                        this.appData.initiatives.push(processedData);
+                    }
+                }
+
+                this.closeItemModal();
+                this.showNotification('Success', `${entityTitle} data saved successfully!`, 'success');
+            } catch (error) {
+                this.showNotification('Error', `Error saving data: ${error.message}`, 'error');
+                console.error('Error in performSave:', error);
+            }
+        },
         setOpportunitySort(field) { if (this.opportunitySortField === field) { this.opportunitySortOrder = this.opportunitySortOrder === 'asc' ? 'desc' : 'asc'; } else { this.opportunitySortField = field; this.opportunitySortOrder = 'asc'; } this.$nextTick(() => lucide.createIcons() ); },
         // Event handlers for OpportunitiesView component
         handleAddOpportunityRequested() { this.addOpportunity(); },
