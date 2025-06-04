@@ -304,27 +304,73 @@ const app = createApp({
                 relationshipType: prop.relationshipType,
             }));
             this.findRelatedItems(item, type);
-            this.itemModalActiveTab = 'edit'; this.showItemModal = true;
-        findRelatedItems(item, type) { this.relatedItems = []; if (!item || !type || !this.appData) return; if (type === 'person') { (this.appData.opportunities || []).forEach(opp => { if (opp.opportunityProposerId === item.personId) { this.relatedItems.push({ id: opp.opportunityId, name: opp.opportunityName, type: 'opportunity', item: opp }); } }); (this.appData.initiatives || []).forEach(init => { if (init.initiativeManagerId === item.personId) { this.relatedItems.push({ id: init.initiativeId, name: init.initiativeName, type: 'initiative', item: init }); } }); } else if (type === 'opportunity') { (this.appData.initiatives || []).forEach(init => { if (init.initiativeOpportunityId === item.opportunityId) { this.relatedItems.push({ id: init.initiativeId, name: init.initiativeName, type: 'initiative', item: init }); } }); } else if (type === 'initiative') { if (item.initiativeManagerId) { const manager = this.getPerson(item.initiativeManagerId); if (manager) { this.relatedItems.push({ id: manager.personId, name: manager.personName, type: 'person', item: manager }); } } if (item.initiativeOpportunityId) { const opportunity = this.getOpportunity(item.initiativeOpportunityId); if (opportunity) { this.relatedItems.push({ id: opportunity.opportunityId, name: opportunity.opportunityName, type: 'opportunity', item: opportunity }); } } } },
+            this.itemModalActiveTab = 'view'; this.showItemModal = true;
+        },
+        findRelatedItems(item, type) {
+            this.relatedItems = [];
+            if (!item || !type || !this.appData) return;
+
+            if (type === 'person') {
+                (this.appData.opportunities || []).forEach(opp => {
+                    if (opp.opportunityProposerId === item.personId) {
+                        this.relatedItems.push({
+                            id: opp.opportunityId,
+                            name: opp.opportunityName,
+                            type: 'opportunity',
+                            item: opp
+                        });
+                    }
+                });
+                (this.appData.initiatives || []).forEach(init => {
+                    if (init.initiativeManagerId === item.personId) {
+                        this.relatedItems.push({
+                            id: init.initiativeId,
+                            name: init.initiativeName,
+                            type: 'initiative',
+                            item: init
+                        });
+                    }
+                });
+            } else if (type === 'opportunity') {
+                (this.appData.initiatives || []).forEach(init => {
+                    if (init.initiativeOpportunityId === item.opportunityId) {
+                        this.relatedItems.push({
+                            id: init.initiativeId,
+                            name: init.initiativeName,
+                            type: 'initiative',
+                            item: init
+                        });
+                    }
+                });
+            } else if (type === 'initiative') {
+                if (item.initiativeManagerId) {
+                    const manager = this.getPerson(item.initiativeManagerId);
+                    if (manager) {
+                        this.relatedItems.push({
+                            id: manager.personId,
+                            name: manager.personName,
+                            type: 'person',
+                            item: manager
+                        });
+                    }
+                }
+                if (item.initiativeOpportunityId) {
+                    const opportunity = this.getOpportunity(item.initiativeOpportunityId);
+                    if (opportunity) {
+                        this.relatedItems.push({
+                            id: opportunity.opportunityId,
+                            name: opportunity.opportunityName,
+                            type: 'opportunity',
+                            item: opportunity
+                        });
+                    }
+                }
+            }
+        },
         async fetchDocumentation() { try { const response = await fetch('./docs.md'); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const markdown = await response.text(); this.parseDocumentation(markdown); } catch (error) { console.error("Error fetching documentation:", error); this.showNotification('Error', 'Failed to load documentation.', 'error'); } },
         parseDocumentation(markdown) { const lines = markdown.split('\n'); let currentEntity = null; let currentField = null; let descriptionLines = []; this.documentation = {}; for (const line of lines) { const entityMatch = line.match(/^##\s+(.+)\s+\(`(\w+)`\)/); const fieldMatch = line.match(/^###\s+`(\w+)`/); if (entityMatch) { if (currentField && descriptionLines.length > 0) { this.documentation[currentEntity][currentField] = descriptionLines.join('\n').trim(); } currentEntity = entityMatch[2]; this.documentation[currentEntity] = {}; currentField = null; descriptionLines = []; } else if (fieldMatch) { if (currentField && descriptionLines.length > 0) { this.documentation[currentEntity][currentField] = descriptionLines.join('\n').trim(); } currentField = fieldMatch[1]; descriptionLines = []; } else if (currentField !== null) { descriptionLines.push(line); } } if (currentField && descriptionLines.length > 0) { this.documentation[currentEntity][currentField] = descriptionLines.join('\n').trim(); } console.log("Parsed Documentation:", this.documentation); },
         showHelp(fieldKey, entityType) { const entityKey = entityType === 'initiative' ? 'initiative' : entityType === 'opportunity' ? 'opportunity' : entityType === 'person' ? 'person' : 'program'; const markdownContent = this.documentation[entityKey] ? this.documentation[entityKey][fieldKey] : null; if (markdownContent) { this.helpModalTitle = `Help: ${appUtils.formatFieldName(fieldKey)}`; const renderedHtml = marked.parse(markdownContent); this.renderedHelpContent = DOMPurify.sanitize(renderedHtml); this.showHelpContentModal = true; this.$nextTick(() => { lucide.createIcons(); }); } else { this.showNotification('Info', 'Documentation not available for this field.', 'info'); } },
         closeHelpModal() { this.showHelpContentModal = false; this.helpModalTitle = ''; this.renderedHelpContent = ''; },
-                 adjustModalPositions() {
-                    const modals = document.querySelectorAll('.fixed.inset-0.bg-black\\/30'); // This selector might need to be more specific if other fixed elements exist
-                    modals.forEach((modal, index) => {
-                        // This logic might need refinement if modals are not always stacked or z-index needs to be more dynamic
-                        const zIndexBase = 50; // Base z-index for first modal
-                        modal.style.zIndex = zIndexBase + index;
-                        const modalContent = modal.querySelector('.relative.mx-auto');
-                        if (modalContent) {
-                            // This centering logic might be affected by other styles; Tailwind's flex centering is usually preferred.
-                            // modalContent.style.transform = `translate(-50%, -50%) translate(${index * 20}px, ${index * 20}px)`;
-                            // modalContent.style.top = '50%';
-                            // modalContent.style.left = '50%';
-                        }
-            });
-        },
          adjustModalPositions() {
             const modals = document.querySelectorAll('.fixed.inset-0.bg-black\\/30');
             modals.forEach((modal, index) => {
