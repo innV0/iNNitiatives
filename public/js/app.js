@@ -24,6 +24,7 @@ import { InitiativesView } from './components/InitiativesView.js';
 import { TableView } from './components/TableView.js';
 import { ItemBadge } from './components/ItemBadge.js';
 import { FieldRenderer } from './components/FieldRenderer.js';
+import { SearchSelect } from './components/SearchSelect.js';
 import { getFieldMeta } from './fieldMeta.js';
 
 const { createApp } = Vue; // Vue import
@@ -376,6 +377,8 @@ const app = createApp({
                 format: prop.format,
                 relationshipType: prop.relationshipType,
             }));
+            this.itemModalFormFields = this.generateFormFields(schemaDefinition);
+            this.itemModalFormData = this.prepareFormData(item, this.itemModalFormFields);
             this.findRelatedItems(item, type);
             this.itemModalActiveTab = 'view'; this.showItemModal = true;
         },
@@ -507,5 +510,6 @@ app.component('initiatives-view', InitiativesView);
 app.component('table-view', TableView);
 app.component('item-badge', ItemBadge);
 app.component('field-renderer', FieldRenderer);
+app.component('search-select', SearchSelect);
 
 app.mount('#app');

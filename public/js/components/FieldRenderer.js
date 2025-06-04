@@ -1,3 +1,5 @@
+import { ItemBadge } from './ItemBadge.js';
+
 export const FieldRenderer = {
   props: {
     fieldKey: { type: String, required: true },
@@ -6,7 +8,8 @@ export const FieldRenderer = {
     editable: { type: Boolean, default: false },
     displayClass: { type: String, default: '' }
   },
-  emits: ['update'],
+  components: { ItemBadge },
+  emits: ['update', 'view-item-requested'],
   data() {
     return { internalValue: this.value };
   },
@@ -36,11 +39,27 @@ export const FieldRenderer = {
         <select v-if="fieldMeta.enum" v-model="internalValue" @change="emitUpdate" class="form-select w-full">
           <option v-for="option in fieldMeta.enum" :key="option" :value="option">{{ option }}</option>
         </select>
-        <textarea v-else-if="fieldMeta.format === 'textarea'" v-model="internalValue" @input="emitUpdate" rows="3" class="form-input form-textarea w-full"></textarea>
-        <input v-else :type="inputType" v-model="internalValue" @input="emitUpdate" class="form-input w-full"/>
+        <textarea v-else-if="fieldMeta.format === 'textarea'" v-model="internalValue" @keydown.enter.prevent="emitUpdate" @blur="emitUpdate" rows="3" class="form-input form-textarea w-full"></textarea>
+        <input v-else :type="inputType" v-model="internalValue" @keydown.enter.prevent="emitUpdate" @blur="emitUpdate" class="form-input w-full"/>
       </template>
       <template v-else>
-        <span class="inline-flex items-center space-x-1" :title="fieldMeta.tooltip">
+        <item-badge
+          v-if="fieldMeta.relationshipType === 'person'"
+          :name="$root.getPersonName(value)"
+          icon="user"
+          :item="$root.getPerson(value)"
+          type="person"
+          @view-item-requested="$emit('view-item-requested', $event)"
+        ></item-badge>
+        <item-badge
+          v-else-if="fieldMeta.relationshipType === 'opportunity'"
+          :name="$root.getOpportunityName(value)"
+          icon="lightbulb"
+          :item="$root.getOpportunity(value)"
+          type="opportunity"
+          @view-item-requested="$emit('view-item-requested', $event)"
+        ></item-badge>
+        <span v-else class="inline-flex items-center space-x-1" :title="fieldMeta.tooltip">
           <i v-if="fieldMeta.icon" :data-lucide="fieldMeta.icon" class="w-3 h-3"></i>
           <span :class="displayClass">{{ displayValue }}</span>
         </span>

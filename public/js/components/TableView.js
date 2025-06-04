@@ -13,7 +13,7 @@ export const TableView = {
         appDataSection: { type: String, default: '' }
     },
     components: { FieldRenderer },
-    emits: ['update-item'],
+    emits: ['update-item', 'view-item-requested'],
     data() {
         return {
             editableItems: [],
@@ -88,6 +88,7 @@ export const TableView = {
                                 :field-meta="field"
                                 editable
                                 @update="val => { row[field.key] = val; emitUpdate(rowIndex); }"
+                                @view-item-requested="$emit('view-item-requested', $event)"
                             ></field-renderer>
                         </td>
                     </tr>
