@@ -1,3 +1,5 @@
+import { FieldRenderer } from './FieldRenderer.js';
+
 export const ItemModal = {
     props: {
         show: Boolean,
@@ -16,6 +18,7 @@ export const ItemModal = {
         getOpportunityNameFn: Function,
         viewItemFn: Function
     },
+    components: { FieldRenderer },
     data() {
         return {
             currentFormData: {},
@@ -105,7 +108,11 @@ export const ItemModal = {
                                      </template>
                                     <span v-else class="text-gray-500 italic">Not specified</span>
                                 </div>
-                                <span v-else>{{ itemData[field.key] || 'Not specified' }}</span>
+                                <field-renderer v-else
+                                    :field-key="field.key"
+                                    :value="itemData[field.key]"
+                                    :field-meta="field"
+                                ></field-renderer>
                             </div>
                         </div>
                         <div v-if="relatedItemsData && relatedItemsData.length > 0" class="related-items-section">
