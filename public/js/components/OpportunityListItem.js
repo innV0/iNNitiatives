@@ -15,7 +15,14 @@ export const OpportunityListItem = {
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-4">
                 <div class="flex-1 mb-3 md:mb-0 md:mr-4 min-w-0">
                     <h3 class="text-lg font-semibold text-blue-600 truncate" :title="opportunity.opportunityName">{{ opportunity.opportunityName || 'N/A' }}</h3>
-                    <p class="text-xs text-gray-500">ID: {{ opportunity.opportunityId }}</p>
+                    <item-badge
+                        class="mt-1"
+                        :name="opportunity.opportunityId"
+                        icon="hash"
+                        :item="opportunity"
+                        type="opportunity"
+                        @view-item-requested="$emit('view-item-requested', $event)"
+                    ></item-badge>
                 </div>
                 <div class="w-full md:w-1/4 text-sm text-gray-700 mb-2 md:mb-0 md:text-center truncate" :title="getPersonNameFn(opportunity.opportunityProposerId)">
                     {{ getPersonNameFn(opportunity.opportunityProposerId) }}

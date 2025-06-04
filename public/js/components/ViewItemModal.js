@@ -40,15 +40,29 @@ export const ViewItemModal = {
                                     <span v-else class="text-gray-500 italic">No items defined</span>
                                 </div>
                                 <div v-else-if="field.relationshipType === 'person' && getPersonNameFn">
-                                     <span v-if="itemData[field.key]" @click="handleViewItem(itemData[field.key], 'person')" class="text-blue-600 hover:underline cursor-pointer">
-                                        {{ getPersonNameFn(itemData[field.key]) }} ({{ itemData[field.key] }})
-                                    </span>
+                                     <template v-if="itemData[field.key]">
+                                        <span class="mr-2">{{ getPersonNameFn(itemData[field.key]) }}</span>
+                                        <item-badge
+                                            :name="itemData[field.key]"
+                                            icon="hash"
+                                            :item="{ personId: itemData[field.key], personName: getPersonNameFn(itemData[field.key]) }"
+                                            type="person"
+                                            @view-item-requested="handleViewItem($event.item, $event.type)"
+                                        ></item-badge>
+                                     </template>
                                     <span v-else class="text-gray-500 italic">Not specified</span>
                                 </div>
                                 <div v-else-if="field.relationshipType === 'opportunity' && getOpportunityNameFn">
-                                     <span v-if="itemData[field.key]" @click="handleViewItem(itemData[field.key], 'opportunity')" class="text-blue-600 hover:underline cursor-pointer">
-                                        {{ getOpportunityNameFn(itemData[field.key]) }} ({{ itemData[field.key] }})
-                                    </span>
+                                     <template v-if="itemData[field.key]">
+                                        <span class="mr-2">{{ getOpportunityNameFn(itemData[field.key]) }}</span>
+                                        <item-badge
+                                            :name="itemData[field.key]"
+                                            icon="hash"
+                                            :item="{ opportunityId: itemData[field.key], opportunityName: getOpportunityNameFn(itemData[field.key]) }"
+                                            type="opportunity"
+                                            @view-item-requested="handleViewItem($event.item, $event.type)"
+                                        ></item-badge>
+                                     </template>
                                     <span v-else class="text-gray-500 italic">Not specified</span>
                                 </div>
                                 <span v-else>{{ itemData[field.key] || 'Not specified' }}</span>
