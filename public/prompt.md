@@ -14,10 +14,7 @@ Your goal is to help the innovation team improve **clarity, alignment, strategic
 ---
 
 🗣️ **First, ask the user:**
-> “In which language would you prefer to continue?”  
-> Options:  
-> • English  
-> • Español
+Based on the provided JSON model and its content identify the language used and make the appropriate translation. Confirm the language of the content and let the userou know that you will continue using that language unless you specify another by typing its name in the chat.
 
 ---
 

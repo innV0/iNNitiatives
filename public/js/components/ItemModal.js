@@ -1,51 +1,46 @@
-export const EditModal = {
+export const ItemModal = {
     props: {
         show: Boolean,
         title: String,
+        activeTab: { type: String, default: 'view' },
         formFields: Array,
         initialFormData: Object,
-        showSaveAndDownloadButton: Boolean,
-        // Props for select dropdowns
+        itemData: Object,
+        itemFields: Array,
+        relatedItemsData: Array,
         peopleList: { type: Array, default: () => [] },
         opportunitiesList: { type: Array, default: () => [] },
-        currentEditEntityType: String // To pass to the help emitter
+        currentEditEntityType: String,
+        showSaveAndDownloadButton: Boolean,
+        getPersonNameFn: Function,
+        getOpportunityNameFn: Function,
+        viewItemFn: Function
     },
     data() {
         return {
-            currentFormData: {}
+            currentFormData: {},
+            internalTab: this.activeTab
         };
     },
     watch: {
+        activeTab(val) { this.internalTab = val; },
         initialFormData: {
-            handler(newData) {
-                this.currentFormData = JSON.parse(JSON.stringify(newData || {}));
-            },
+            handler(newData) { this.currentFormData = JSON.parse(JSON.stringify(newData || {})); },
             immediate: true,
             deep: true
         },
         show(newVal) {
             if (newVal) {
-                this.$nextTick(() => {
-                     if (typeof lucide !== 'undefined') {
-                        lucide.createIcons();
-                    }
-                });
+                this.$nextTick(() => { if (typeof lucide !== 'undefined') { lucide.createIcons(); } });
             }
         }
     },
     methods: {
-        closeModal() {
-            this.$emit('close-modal-requested');
-        },
-        saveForm() {
-            this.$emit('save-form-requested', JSON.parse(JSON.stringify(this.currentFormData)));
-        },
-        saveAndDownload() {
-            this.$emit('save-and-download-requested', JSON.parse(JSON.stringify(this.currentFormData)));
-        },
-        requestShowHelp(fieldKey) {
-            this.$emit('show-help-requested', { fieldKey: fieldKey, entityType: this.currentEditEntityType });
-        },
+        switchTab(tab) { this.internalTab = tab; this.$emit('update:activeTab', tab); },
+        closeModal() { this.$emit('close-modal-requested'); },
+        saveForm() { this.$emit('save-form-requested', JSON.parse(JSON.stringify(this.currentFormData))); },
+        saveAndDownload() { this.$emit('save-and-download-requested', JSON.parse(JSON.stringify(this.currentFormData))); },
+        requestShowHelp(fieldKey) { this.$emit('show-help-requested', { fieldKey: fieldKey, entityType: this.currentEditEntityType }); },
         addArrayItem(fieldKey) {
             if (!this.currentFormData[fieldKey] || !Array.isArray(this.currentFormData[fieldKey])) {
                 this.currentFormData[fieldKey] = [];
@@ -57,7 +52,8 @@ export const EditModal = {
             if (this.currentFormData[fieldKey] && Array.isArray(this.currentFormData[fieldKey])) {
                 this.currentFormData[fieldKey].splice(index, 1);
             }
-        }
+        },
+        handleViewItem(item, type) { if (this.viewItemFn) { this.viewItemFn(item, type); } }
     },
     template: `
         <div v-if="show" class="fixed inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
@@ -68,7 +64,65 @@ export const EditModal = {
                         <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
-                <div class="p-6">
+                <div class="border-b border-gray-200 flex">
+                    <button @click="switchTab('view')" :class="['flex-1 px-4 py-2 text-sm font-medium', internalTab==='view' ? 'bg-gray-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50']">View</button>
+                    <button @click="switchTab('edit')" :class="['flex-1 px-4 py-2 text-sm font-medium', internalTab==='edit' ? 'bg-gray-50 text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50']">Edit</button>
+                </div>
+                <div v-if="internalTab==='view'" class="view-item-modal-content">
+                    <div v-if="itemData">
+                        <div v-for="field in itemFields" :key="field.key" class="field-display">
+                            <div class="field-label">{{ field.title }}</div>
+                            <div class="field-value">
+                                <div v-if="Array.isArray(itemData[field.key])">
+                                    <ul v-if="itemData[field.key].length > 0" class="list-disc list-inside">
+                                        <li v-for="(val, index) in itemData[field.key]" :key="index">{{ val }}</li>
+                                    </ul>
+                                    <span v-else class="text-gray-500 italic">No items defined</span>
+                                </div>
+                                <div v-else-if="field.relationshipType === 'person' && getPersonNameFn">
+                                     <template v-if="itemData[field.key]">
+                                        <span class="mr-2">{{ getPersonNameFn(itemData[field.key]) }}</span>
+                                        <item-badge
+                                            :name="itemData[field.key]"
+                                            icon="hash"
+                                            :item="{ personId: itemData[field.key], personName: getPersonNameFn(itemData[field.key]) }"
+                                            type="person"
+                                            @view-item-requested="handleViewItem($event.item, $event.type)"
+                                        ></item-badge>
+                                     </template>
+                                    <span v-else class="text-gray-500 italic">Not specified</span>
+                                </div>
+                                <div v-else-if="field.relationshipType === 'opportunity' && getOpportunityNameFn">
+                                     <template v-if="itemData[field.key]">
+                                        <span class="mr-2">{{ getOpportunityNameFn(itemData[field.key]) }}</span>
+                                        <item-badge
+                                            :name="itemData[field.key]"
+                                            icon="hash"
+                                            :item="{ opportunityId: itemData[field.key], opportunityName: getOpportunityNameFn(itemData[field.key]) }"
+                                            type="opportunity"
+                                            @view-item-requested="handleViewItem($event.item, $event.type)"
+                                        ></item-badge>
+                                     </template>
+                                    <span v-else class="text-gray-500 italic">Not specified</span>
+                                </div>
+                                <span v-else>{{ itemData[field.key] || 'Not specified' }}</span>
+                            </div>
+                        </div>
+                        <div v-if="relatedItemsData && relatedItemsData.length > 0" class="related-items-section">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4">Related Items</h4>
+                            <div class="related-items-grid">
+                                <div v-for="related in relatedItemsData" :key="related.id" @click="handleViewItem(related.item, related.type)" class="related-item-card">
+                                    <p class="related-item-title">{{ related.name }}</p>
+                                    <p class="related-item-type">{{ related.type.charAt(0).toUpperCase() + related.type.slice(1) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <div v-else class="text-center text-gray-500 py-8">
+                        No item data to display.
+                    </div>
+                </div>
+                <div v-else class="p-6">
                     <form @submit.prevent="saveForm" class="space-y-6">
                         <div class="form-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div v-for="field in formFields" :key="field.key"
@@ -80,7 +134,6 @@ export const EditModal = {
                                     </span>
                                     {{ field.title }}
                                 </label>
-
                                 <input v-if="field.type === 'string' && !field.enum && field.format !== 'textarea' && !field.isSimpleStringArray && !field.relationshipType"
                                        :id="field.key"
                                        v-model="currentFormData[field.key]"
@@ -88,13 +141,11 @@ export const EditModal = {
                                        :readonly="field.readonly"
                                        class="form-input"
                                        :class="{ 'bg-gray-100 text-gray-500 cursor-not-allowed': field.readonly }">
-
                                 <textarea v-else-if="field.type === 'string' && field.format === 'textarea' && !field.isSimpleStringArray"
                                           :id="field.key"
                                           v-model="currentFormData[field.key]"
                                           rows="4"
                                           class="form-input form-textarea"></textarea>
-
                                 <input v-else-if="field.type === 'number' || field.type === 'integer'"
                                        :id="field.key"
                                        v-model.number="currentFormData[field.key]"
@@ -102,7 +153,6 @@ export const EditModal = {
                                        :min="field.minimum"
                                        :max="field.maximum"
                                        class="form-input">
-
                                 <select v-else-if="field.enum"
                                         :id="field.key"
                                         v-model="currentFormData[field.key]"
@@ -110,7 +160,6 @@ export const EditModal = {
                                     <option value="">Select {{ field.title }}</option>
                                     <option v-for="option in field.enum" :key="option" :value="option">{{ option }}</option>
                                 </select>
-
                                 <select v-else-if="field.relationshipType === 'person'"
                                         :id="field.key"
                                         v-model="currentFormData[field.key]"
@@ -120,7 +169,6 @@ export const EditModal = {
                                         {{ person.personName }} ({{ person.personId }})
                                     </option>
                                 </select>
-
                                 <select v-else-if="field.relationshipType === 'opportunity'"
                                         :id="field.key"
                                         v-model="currentFormData[field.key]"
@@ -130,14 +178,12 @@ export const EditModal = {
                                         {{ opp.opportunityName }} ({{ opp.opportunityId }})
                                     </option>
                                 </select>
-
                                 <textarea v-else-if="field.type === 'array' && !field.isSimpleStringArray"
                                           :id="field.key"
                                           v-model="currentFormData[field.key + '_json']"
                                           rows="3"
                                           class="form-input form-textarea"
                                           placeholder='Enter JSON array, e.g., ["item1", "item2"]'></textarea>
-
                                 <div v-else-if="field.isSimpleStringArray">
                                     <div v-for="(item, index) in currentFormData[field.key]" :key="index" class="array-item-input-container">
                                         <input type="text" v-model="currentFormData[field.key][index]" class="form-input array-item-input" :placeholder="'Item ' + (index + 1)">
@@ -156,14 +202,16 @@ export const EditModal = {
                 </div>
                 <div class="flex justify-end space-x-3 p-6 border-t border-gray-200">
                     <button @click="closeModal" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
-                        Cancel
+                        {{ internalTab === 'view' ? 'Close' : 'Cancel' }}
                     </button>
-                    <button @click="saveForm" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-                        Save
-                    </button>
-                    <button v-if="showSaveAndDownloadButton" @click="saveAndDownload" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
-                        Save & Export
-                    </button>
+                    <template v-if="internalTab === 'edit'">
+                        <button @click="saveForm" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                            Save
+                        </button>
+                        <button v-if="showSaveAndDownloadButton" @click="saveAndDownload" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+                            Save & Export
+                        </button>
+                    </template>
                 </div>
             </div>
         </div>
