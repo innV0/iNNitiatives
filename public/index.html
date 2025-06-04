@@ -149,32 +149,27 @@
         </main>
 
         <!-- Modals registered globally in app.js -->
-        <edit-modal
-            :show="showEditAddModal"
-            :title="editAddModalTitle"
-            :form-fields="editAddFormFields"
-            :initial-form-data="editAddFormData"
+        <item-modal
+            :show="showItemModal"
+            :title="itemModalTitle"
+            :active-tab.sync="itemModalActiveTab"
+            :form-fields="itemModalFormFields"
+            :initial-form-data="itemModalFormData"
+            :item-data="itemModalItemData"
+            :item-fields="itemModalItemFields"
+            :related-items-data="relatedItems"
             :people-list="appData.people"
             :opportunities-list="appData.opportunities"
             :current-edit-entity-type="currentEditType"
             :show-save-and-download-button="showSaveAndDownload"
-            @close-modal-requested="closeEditAddModal"
-            @save-form-requested="saveForm($event)"
-            @save-and-download-requested="saveAndDownload($event)"
-            @show-help-requested="showHelp($event.fieldKey, $event.entityType)">
-        </edit-modal>
-
-        <view-item-modal
-            :show="showViewItemModal"
-            :title="viewItemModalTitle"
-            :item-data="currentViewItem"
-            :item-fields="currentViewItemFields"
-            :related-items-data="relatedItems"
             :get-person-name-fn="getPersonName"
             :get-opportunity-name-fn="getOpportunityName"
             :view-item-fn="viewItem"
-            @close-modal-requested="closeViewModal">
-        </view-item-modal>
+            @close-modal-requested="closeItemModal"
+            @save-form-requested="saveForm($event)"
+            @save-and-download-requested="saveAndDownload($event)"
+            @show-help-requested="showHelp($event.fieldKey, $event.entityType)">
+        </item-modal>
 
         <help-modal
             :show="showHelpContentModal"
