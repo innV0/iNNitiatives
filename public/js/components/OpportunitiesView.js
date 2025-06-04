@@ -1,5 +1,6 @@
 import { TableView } from './TableView.js';
 import { ItemCard } from './ItemCard.js';
+import { TableFilterControls } from './TableFilterControls.js';
 import { APP_SCHEMA } from '../appSchema.js';
 
 export const OpportunitiesView = {
@@ -11,21 +12,16 @@ export const OpportunitiesView = {
         getPersonNameFn: { type: Function, required: true },
         currentSortField: String,
         currentSortOrder: String,
-        initialFilterName: { type: String, default: '' },
-        initialFilterProposerId: { type: String, default: '' },
-        initialFilterStatus: { type: String, default: '' },
+        currentFilterField: String,
+        currentFilterValue: String,
         viewMode: {
             type: String,
             default: 'table'
         }
     },
-    components: { TableView, ItemCard },
+    components: { TableView, ItemCard, TableFilterControls },
     data() {
-        return {
-            filterName: this.initialFilterName,
-            filterProposerId: this.initialFilterProposerId,
-            filterStatus: this.initialFilterStatus
-        };
+        return {};
     },
     computed: {
         // This computed property ensures that the filter controls always have a valid list of statuses.
@@ -37,21 +33,8 @@ export const OpportunitiesView = {
         },
         tableFields() { return this.$root.generateFormFields(APP_SCHEMA.definitions.opportunity); }
     },
-    watch: {
-        filterName(newValue) { this.$emit('filters-changed', { name: newValue, proposerId: this.filterProposerId, status: this.filterStatus }); },
-        filterProposerId(newValue) { this.$emit('filters-changed', { name: this.filterName, proposerId: newValue, status: this.filterStatus }); },
-        filterStatus(newValue) { this.$emit('filters-changed', { name: this.filterName, proposerId: this.filterProposerId, status: newValue }); },
-        initialFilterName(newVal) { this.filterName = newVal; },
-        initialFilterProposerId(newVal) { this.filterProposerId = newVal; },
-        initialFilterStatus(newVal) { this.filterStatus = newVal; }
-    },
+    emits: ['add-opportunity-requested', 'open-ai-modal-requested', 'toggle-view-mode', 'sort-requested', 'view-item-requested', 'edit-item-requested', 'delete-item-requested', 'filter-changed', 'clear-filter'],
     methods: {
-        clearInternalFiltersAndEmit() {
-            this.filterName = '';
-            this.filterProposerId = '';
-            this.filterStatus = '';
-            this.$emit('filters-cleared'); // This will trigger the parent to clear its main filters
-        },
         handleSortRequested(field) {
             this.$emit('sort-requested', field);
         }
@@ -79,14 +62,16 @@ export const OpportunitiesView = {
                 </div>
             </div>
 
-            <opportunities-filter-controls
-                v-model:modelValueName="filterName"
-                v-model:modelValueProposerId="filterProposerId"
-                v-model:modelValueStatus="filterStatus"
+            <table-filter-controls
+                :fields="tableFields"
+                :model-value-field="currentFilterField"
+                :model-value-value="currentFilterValue"
                 :people-list="peopleList"
-                :program-default-opportunity-statuses="effectiveOpportunityStatuses"
-                @clear-filters-requested="clearInternalFiltersAndEmit">
-            </opportunities-filter-controls>
+                :opportunities-list="opportunities"
+                @update:modelValueField="$emit('filter-changed', { field: $event, value: currentFilterValue })"
+                @update:modelValueValue="$emit('filter-changed', { field: currentFilterField, value: $event })"
+                @clear-filter="$emit('clear-filter')"
+            ></table-filter-controls>
 
             <div v-if="opportunities.length === 0" class="text-center py-12">
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

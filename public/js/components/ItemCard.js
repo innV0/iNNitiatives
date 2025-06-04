@@ -12,24 +12,6 @@ export const ItemCard = {
         itemName() {
             return this.item.name || this.item[`${this.type}Name`] || 'N/A';
         },
-        subInfo() {
-            if (this.type === 'person') {
-                return this.item.personRole || '';
-            }
-            if (this.type === 'opportunity') {
-                const proposer = this.getPersonNameFn ? this.getPersonNameFn(this.item.opportunityProposerId) : '';
-                const status = this.item.opportunityStatus || '';
-                const priority = this.item.opportunityPriority !== undefined ? `Priority: ${this.item.opportunityPriority}` : '';
-                return [proposer, status, priority].filter(Boolean).join(' | ');
-            }
-            if (this.type === 'initiative') {
-                const manager = this.getPersonNameFn ? this.getPersonNameFn(this.item.initiativeManagerId) : '';
-                const type = this.item.initiativeType || '';
-                const phase = this.item.initiativePhase || '';
-                return [manager, type, phase].filter(Boolean).join(' | ');
-            }
-            return '';
-        },
         avatar() {
             if (this.type === 'person' && this.getPersonAvatarFn) {
                 return this.getPersonAvatarFn(this.item.personId);
@@ -98,7 +80,6 @@ export const ItemCard = {
                 <img v-if="avatar" :src="avatar" class="w-12 h-12 rounded-full object-cover border"/>
                 <div class="min-w-0">
                     <h3 class="text-lg font-semibold text-blue-700 truncate" :title="itemName">{{ itemName }}</h3>
-                    <p v-if="subInfo" class="text-sm text-gray-500 mt-1 truncate">{{ subInfo }}</p>
                     <div v-if="badges.length" class="flex flex-wrap gap-1 mt-1">
                         <template v-for="(badge, idx) in badges" :key="idx">
                             <item-badge
