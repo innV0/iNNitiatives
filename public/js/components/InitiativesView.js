@@ -1,5 +1,14 @@
 export const InitiativesView = {
-    props: ['initiatives', 'getPersonNameFn', 'currentSortField', 'currentSortOrder'],
+    props: {
+        initiatives: Array,
+        getPersonNameFn: Function,
+        currentSortField: String,
+        currentSortOrder: String,
+        viewMode: {
+            type: String,
+            default: 'table'
+        }
+    },
     emits: ['add-initiative-requested', 'open-ai-modal-requested', 'sort-requested', 'view-item-requested', 'edit-item-requested', 'delete-item-requested'],
     template: `
         <section class="space-y-6">
@@ -17,6 +26,9 @@ export const InitiativesView = {
                         <i data-lucide="bot" class="w-4 h-4"></i>
                         <span>AI</span>
                     </button>
+                    <button @click="$emit('toggle-view-mode')" :title="viewMode === 'grid' ? 'Switch to table view' : 'Switch to grid view'" class="flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
+                        <i :data-lucide="viewMode === 'grid' ? 'table' : 'layout-grid'" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
 
@@ -27,12 +39,13 @@ export const InitiativesView = {
                 <p class="text-gray-600">No initiatives created yet</p>
             </div>
 
-            <div v-else class="space-y-4">
-                <div class="flex justify-between items-center text-xs text-gray-500 font-medium px-6 py-2 border-b bg-gray-50 rounded-t-lg">
-                    <div class="flex-1 cursor-pointer hover:text-gray-800" @click="$emit('sort-requested', 'initiativeName')">
-                        Name
-                        <i v-if="currentSortField === 'initiativeName'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
-                    </div>
+            <div v-else>
+                <div v-if="viewMode === 'table'" class="space-y-4">
+                    <div class="flex justify-between items-center text-xs text-gray-500 font-medium px-6 py-2 border-b bg-gray-50 rounded-t-lg">
+                        <div class="flex-1 cursor-pointer hover:text-gray-800" @click="$emit('sort-requested', 'initiativeName')">
+                            Name
+                            <i v-if="currentSortField === 'initiativeName'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
+                        </div>
                     <div class="w-1/4 cursor-pointer hover:text-gray-800 text-center" @click="$emit('sort-requested', 'initiativePhase')">
                         Phase
                         <i v-if="currentSortField === 'initiativePhase'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
@@ -53,6 +66,19 @@ export const InitiativesView = {
                     @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
                     @delete-item-requested="$emit('delete-item-requested', $event)">
                 </initiative-list-item>
+                </div>
+                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <initiative-list-item
+                        v-for="init in initiatives"
+                        :key="init.initiativeId"
+                        :initiative="init"
+                        :get-person-name-fn="getPersonNameFn"
+                        @view-item-requested="$emit('view-item-requested', $event)"
+                        @edit-item-requested="$emit('edit-item-requested', $event)"
+                        @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
+                        @delete-item-requested="$emit('delete-item-requested', $event)">
+                    </initiative-list-item>
+                </div>
             </div>
         </section>
     `,
