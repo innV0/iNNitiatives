@@ -1,3 +1,6 @@
+import { TableView } from './TableView.js';
+import { APP_SCHEMA } from '../appSchema.js';
+
 export const OpportunitiesView = {
     props: {
         opportunities: { type: Array, default: () => [] },
@@ -15,6 +18,7 @@ export const OpportunitiesView = {
             default: 'table'
         }
     },
+    components: { TableView },
     data() {
         return {
             filterName: this.initialFilterName,
@@ -29,7 +33,8 @@ export const OpportunitiesView = {
                 return this.programDefaultOpportunityStatuses;
             }
             return this.appSchemaOpportunityStatuses;
-        }
+        },
+        tableFields() { return this.$root.generateFormFields(APP_SCHEMA.definitions.opportunity); }
     },
     watch: {
         filterName(newValue) { this.$emit('filters-changed', { name: newValue, proposerId: this.filterProposerId, status: this.filterStatus }); },
@@ -90,37 +95,10 @@ export const OpportunitiesView = {
             </div>
 
             <div v-else>
-                <div v-if="viewMode === 'table'" class="space-y-3">
-                    <div class="flex justify-between items-center text-xs text-gray-500 font-medium px-3 py-2 border-b bg-gray-50 rounded-t-lg">
-                        <div class="flex-1 cursor-pointer hover:text-gray-800" @click="handleSortRequested('opportunityName')">
-                            Name
-                            <i v-if="currentSortField === 'opportunityName'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
-                        </div>
-                    <div class="w-1/4 cursor-pointer hover:text-gray-800 text-center" @click="handleSortRequested('opportunityProposerId')">
-                        Proposer
-                         <i v-if="currentSortField === 'opportunityProposerId'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
-                    </div>
-                     <div class="w-1/6 cursor-pointer hover:text-gray-800 text-center" @click="handleSortRequested('opportunityStatus')">
-                        Status
-                        <i v-if="currentSortField === 'opportunityStatus'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
-                    </div>
-                    <div class="w-1/6 cursor-pointer hover:text-gray-800 text-center" @click="handleSortRequested('opportunityPriority')">
-                        Priority
-                        <i v-if="currentSortField === 'opportunityPriority'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-0-9' : 'arrow-down-9-0'" class="sort-icon"></i>
-                    </div>
-                    <div class="w-1/6 text-right">Actions</div>
+                <div v-if="viewMode === 'table'">
+                    <table-view :items="opportunities" :fields="tableFields" app-data-section="opportunities" @view-item-requested="$emit('view-item-requested', $event)"></table-view>
                 </div>
-
-                <opportunity-list-item v-for="opp in opportunities" :key="opp.opportunityId"
-                    :opportunity="opp"
-                    :get-person-name-fn="getPersonNameFn"
-                    @view-item-requested="$emit('view-item-requested', $event)"
-                    @edit-item-requested="$emit('edit-item-requested', $event)"
-                    @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
-                    @delete-item-requested="$emit('delete-item-requested', $event)">
-                </opportunity-list-item>
-                </div>
-                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div v-else class="space-y-4">
                     <opportunity-list-item v-for="opp in opportunities" :key="opp.opportunityId"
                         :opportunity="opp"
                         :get-person-name-fn="getPersonNameFn"

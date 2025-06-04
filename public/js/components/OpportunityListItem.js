@@ -24,8 +24,14 @@ export const OpportunityListItem = {
                         @view-item-requested="$emit('view-item-requested', $event)"
                     ></item-badge>
                 </div>
-                <div class="w-full md:w-1/4 text-sm text-gray-700 mb-2 md:mb-0 md:text-center truncate" :title="getPersonNameFn(opportunity.opportunityProposerId)">
-                    {{ getPersonNameFn(opportunity.opportunityProposerId) }}
+                <div class="w-full md:w-1/4 text-sm text-gray-700 mb-2 md:mb-0 md:text-center truncate">
+                    <item-badge
+                        :name="getPersonNameFn(opportunity.opportunityProposerId)"
+                        icon="user"
+                        :item="{ personId: opportunity.opportunityProposerId, personName: getPersonNameFn(opportunity.opportunityProposerId) }"
+                        type="person"
+                        @view-item-requested="$emit('view-item-requested', $event)"
+                    ></item-badge>
                 </div>
                  <div class="w-full md:w-1/6 flex justify-start md:justify-center mb-3 md:mb-0">
                     <span :class="$appUtils.getPhaseClass(opportunity.opportunityStatus)" class="status-badge">

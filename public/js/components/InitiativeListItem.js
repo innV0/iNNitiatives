@@ -12,7 +12,15 @@ export const InitiativeListItem = {
                         </span>
                     </div>
                     <p class="text-sm text-gray-500 mb-1">Type: <span class="font-medium text-gray-700">{{ initiative.initiativeType }}</span></p>
-                    <p class="text-sm text-gray-500 mb-1">Manager: <span class="font-medium text-gray-700 truncate" :title="getPersonNameFn(initiative.initiativeManagerId)">{{ getPersonNameFn(initiative.initiativeManagerId) }}</span></p>
+                    <p class="text-sm text-gray-500 mb-1">Manager:
+                        <item-badge
+                            :name="getPersonNameFn(initiative.initiativeManagerId)"
+                            icon="user"
+                            :item="{ personId: initiative.initiativeManagerId, personName: getPersonNameFn(initiative.initiativeManagerId) }"
+                            type="person"
+                            @view-item-requested="$emit('view-item-requested', $event)"
+                        ></item-badge>
+                    </p>
                     <p class="text-sm text-gray-500">Budget: <span class="font-medium text-gray-700">€{{ $appUtils.formatNumber(initiative.initiativeBudget) }}</span></p>
                     <p v-if="initiative.initiativeObjective" class="text-sm text-gray-600 mt-2 line-clamp-2">{{ initiative.initiativeObjective }}</p>
                 </div>
