@@ -58,6 +58,9 @@ const app = createApp({
             opportunitySortOrder: 'asc',
             initiativeSortField: 'initiativeName',
             initiativeSortOrder: 'asc',
+            peopleViewMode: 'grid',
+            opportunitiesViewMode: 'table',
+            initiativesViewMode: 'table',
             showViewItemModal: false,
             viewItemModalTitle: '',
             currentViewItem: null,
@@ -264,6 +267,18 @@ const app = createApp({
         // Event handlers for InitiativesView component
         handleAddInitiativeRequested() { this.addInitiative(); },
         handleInitiativeSortRequested(field) { this.setInitiativeSort(field); },
+        togglePeopleViewMode() {
+            this.peopleViewMode = this.peopleViewMode === 'grid' ? 'table' : 'grid';
+            localStorage.setItem('peopleViewMode', this.peopleViewMode);
+        },
+        toggleOpportunitiesViewMode() {
+            this.opportunitiesViewMode = this.opportunitiesViewMode === 'grid' ? 'table' : 'grid';
+            localStorage.setItem('opportunitiesViewMode', this.opportunitiesViewMode);
+        },
+        toggleInitiativesViewMode() {
+            this.initiativesViewMode = this.initiativesViewMode === 'grid' ? 'table' : 'grid';
+            localStorage.setItem('initiativesViewMode', this.initiativesViewMode);
+        },
         viewItem(item, type) { if (!item || !type) return; this.currentViewItem = item; this.viewModalTitle = `View ${type.charAt(0).toUpperCase() + type.slice(1)}: ${item.initiativeName || item.opportunityName || item.personName || item.programName}`; let schemaDefinition; if (type === 'program') schemaDefinition = APP_SCHEMA.definitions.programConfiguration; else if (type === 'person') schemaDefinition = APP_SCHEMA.definitions.person; else if (type === 'opportunity') schemaDefinition = APP_SCHEMA.definitions.opportunity; else if (type === 'initiative') schemaDefinition = APP_SCHEMA.definitions.initiative; this.currentViewItemFields = Object.entries(schemaDefinition.properties || {}).map(([key, prop]) => ({ key: key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, })); this.findRelatedItems(item, type); this.showViewItemModal = true; this.$nextTick(() => { lucide.createIcons(); }); },
         closeViewModal() { this.showViewItemModal = false; this.currentViewItem = null; this.viewItemModalTitle = ''; this.currentViewItemFields = []; this.relatedItems = []; },
         findRelatedItems(item, type) { this.relatedItems = []; if (!item || !type || !this.appData) return; if (type === 'person') { (this.appData.opportunities || []).forEach(opp => { if (opp.opportunityProposerId === item.personId) { this.relatedItems.push({ id: opp.opportunityId, name: opp.opportunityName, type: 'opportunity', item: opp }); } }); (this.appData.initiatives || []).forEach(init => { if (init.initiativeManagerId === item.personId) { this.relatedItems.push({ id: init.initiativeId, name: init.initiativeName, type: 'initiative', item: init }); } }); } else if (type === 'opportunity') { (this.appData.initiatives || []).forEach(init => { if (init.initiativeOpportunityId === item.opportunityId) { this.relatedItems.push({ id: init.initiativeId, name: init.initiativeName, type: 'initiative', item: init }); } }); } else if (type === 'initiative') { if (item.initiativeManagerId) { const manager = this.getPerson(item.initiativeManagerId); if (manager) { this.relatedItems.push({ id: manager.personId, name: manager.personName, type: 'person', item: manager }); } } if (item.initiativeOpportunityId) { const opportunity = this.getOpportunity(item.initiativeOpportunityId); if (opportunity) { this.relatedItems.push({ id: opportunity.opportunityId, name: opportunity.opportunityName, type: 'opportunity', item: opportunity }); } } } },
@@ -302,6 +317,12 @@ const app = createApp({
     },
     // --- LIFECYCLE HOOKS ---
     mounted() {
+        const ppl = localStorage.getItem('peopleViewMode');
+        const opp = localStorage.getItem('opportunitiesViewMode');
+        const ini = localStorage.getItem('initiativesViewMode');
+        if (ppl) this.peopleViewMode = ppl;
+        if (opp) this.opportunitiesViewMode = opp;
+        if (ini) this.initiativesViewMode = ini;
         this.$nextTick(() => {
             lucide.createIcons();
         });
