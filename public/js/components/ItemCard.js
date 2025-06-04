@@ -35,6 +35,61 @@ export const ItemCard = {
                 return this.getPersonAvatarFn(this.item.personId);
             }
             return null;
+        },
+        badges() {
+            const b = [];
+            if (this.type === 'opportunity') {
+                if (this.item.opportunityProposerId) {
+                    b.push({
+                        kind: 'item',
+                        name: this.getPersonNameFn ? this.getPersonNameFn(this.item.opportunityProposerId) : this.$root.getPersonName(this.item.opportunityProposerId),
+                        icon: 'user',
+                        item: this.$root.getPerson(this.item.opportunityProposerId),
+                        type: 'person'
+                    });
+                }
+                if (this.item.opportunityPriority !== undefined) {
+                    b.push({
+                        kind: 'number',
+                        value: this.$appUtils.formatNumber(this.item.opportunityPriority),
+                        icon: 'star'
+                    });
+                }
+                if (this.item.opportunityStatus) {
+                    b.push({
+                        kind: 'text',
+                        value: this.item.opportunityStatus,
+                        icon: 'flag'
+                    });
+                }
+            } else if (this.type === 'initiative') {
+                if (this.item.initiativeManagerId) {
+                    b.push({
+                        kind: 'item',
+                        name: this.getPersonNameFn ? this.getPersonNameFn(this.item.initiativeManagerId) : this.$root.getPersonName(this.item.initiativeManagerId),
+                        icon: 'user',
+                        item: this.$root.getPerson(this.item.initiativeManagerId),
+                        type: 'person'
+                    });
+                }
+                if (this.item.initiativeOpportunityId) {
+                    b.push({
+                        kind: 'item',
+                        name: this.$root.getOpportunityName(this.item.initiativeOpportunityId),
+                        icon: 'lightbulb',
+                        item: this.$root.getOpportunity(this.item.initiativeOpportunityId),
+                        type: 'opportunity'
+                    });
+                }
+                if (this.item.initiativeBudget !== undefined) {
+                    b.push({
+                        kind: 'number',
+                        value: this.$appUtils.formatNumber(this.item.initiativeBudget),
+                        icon: 'euro'
+                    });
+                }
+            }
+            return b;
         }
     },
     template: `
@@ -44,6 +99,22 @@ export const ItemCard = {
                 <div class="min-w-0">
                     <h3 class="text-lg font-semibold text-blue-700 truncate" :title="itemName">{{ itemName }}</h3>
                     <p v-if="subInfo" class="text-sm text-gray-500 mt-1 truncate">{{ subInfo }}</p>
+                    <div v-if="badges.length" class="flex flex-wrap gap-1 mt-1">
+                        <template v-for="(badge, idx) in badges" :key="idx">
+                            <item-badge
+                                v-if="badge.kind === 'item'"
+                                :name="badge.name"
+                                :icon="badge.icon"
+                                :item="badge.item"
+                                :type="badge.type"
+                                @view-item-requested="$emit('view-item-requested', $event)"
+                            ></item-badge>
+                            <span v-else class="inline-flex items-center space-x-1 bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                                <i :data-lucide="badge.icon" class="w-3 h-3"></i>
+                                <span>{{ badge.value }}</span>
+                            </span>
+                        </template>
+                    </div>
                 </div>
             </div>
             <div class="flex space-x-2 flex-shrink-0 hover-actions">
