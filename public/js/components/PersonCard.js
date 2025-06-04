@@ -1,3 +1,6 @@
+import { FieldRenderer } from './FieldRenderer.js';
+import { getFieldMeta } from '../fieldMeta.js';
+
 export const PersonCard = {
     props: {
         person: {
@@ -10,6 +13,10 @@ export const PersonCard = {
         }
         // getFieldDescription is not passed as per subtask, tooltip for name will be removed or simplified
     },
+    components: { FieldRenderer },
+    computed: {
+        descriptionMeta() { return getFieldMeta('person.personDescription'); }
+    },
     template: `
         <div class="bg-white rounded-xl border border-gray-200 p-6 card-hover shadow-sm">
             <div class="flex items-start space-x-4">
@@ -20,7 +27,12 @@ export const PersonCard = {
                     <h3 class="text-lg font-semibold text-gray-900 truncate" :title="person.personName">
                         {{ person.personName || 'N/A' }}
                     </h3>
-                    <p class="text-gray-700 text-sm mb-3">{{ person.personDescription || 'No description' }}</p>
+                    <field-renderer
+                        field-key="personDescription"
+                        :value="person.personDescription"
+                        :field-meta="descriptionMeta"
+                        display-class="line-clamp-2"
+                    ></field-renderer>
                     <div v-if="person.personUrl" class="mb-4">
                         <a :href="person.personUrl" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm">
                             <i data-lucide="external-link" class="w-3 h-3"></i>

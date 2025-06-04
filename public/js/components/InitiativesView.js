@@ -1,3 +1,6 @@
+import { TableView } from './TableView.js';
+import { APP_SCHEMA } from '../appSchema.js';
+
 export const InitiativesView = {
     props: {
         initiatives: Array,
@@ -9,7 +12,11 @@ export const InitiativesView = {
             default: 'table'
         }
     },
+    components: { TableView },
     emits: ['add-initiative-requested', 'open-ai-modal-requested', 'sort-requested', 'view-item-requested', 'edit-item-requested', 'delete-item-requested'],
+    computed: {
+        tableFields() { return this.$root.generateFormFields(APP_SCHEMA.definitions.initiative); }
+    },
     template: `
         <section class="space-y-6">
             <div class="flex justify-between items-center">
@@ -40,34 +47,10 @@ export const InitiativesView = {
             </div>
 
             <div v-else>
-                <div v-if="viewMode === 'table'" class="space-y-4">
-                    <div class="flex justify-between items-center text-xs text-gray-500 font-medium px-6 py-2 border-b bg-gray-50 rounded-t-lg">
-                        <div class="flex-1 cursor-pointer hover:text-gray-800" @click="$emit('sort-requested', 'initiativeName')">
-                            Name
-                            <i v-if="currentSortField === 'initiativeName'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
-                        </div>
-                    <div class="w-1/4 cursor-pointer hover:text-gray-800 text-center" @click="$emit('sort-requested', 'initiativePhase')">
-                        Phase
-                        <i v-if="currentSortField === 'initiativePhase'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
-                    </div>
-                    <div class="w-1/6 cursor-pointer hover:text-gray-800 text-center" @click="$emit('sort-requested', 'initiativeType')">
-                        Type
-                        <i v-if="currentSortField === 'initiativeType'" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up-az' : 'arrow-down-za'" class="sort-icon"></i>
-                    </div>
-                    <div class="w-1/6 text-right">Actions</div>
+                <div v-if="viewMode === 'table'">
+                    <table-view :items="initiatives" :fields="tableFields" app-data-section="initiatives" @view-item-requested="$emit('view-item-requested', $event)"></table-view>
                 </div>
-                <initiative-list-item
-                    v-for="init in initiatives"
-                    :key="init.initiativeId"
-                    :initiative="init"
-                    :get-person-name-fn="getPersonNameFn"
-                    @view-item-requested="$emit('view-item-requested', $event)"
-                    @edit-item-requested="$emit('edit-item-requested', $event)"
-                    @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
-                    @delete-item-requested="$emit('delete-item-requested', $event)">
-                </initiative-list-item>
-                </div>
-                <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div v-else class="space-y-4">
                     <initiative-list-item
                         v-for="init in initiatives"
                         :key="init.initiativeId"

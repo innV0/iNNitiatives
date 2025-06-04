@@ -1,3 +1,6 @@
+import { FieldRenderer } from './FieldRenderer.js';
+import { SearchSelect } from './SearchSelect.js';
+
 export const ItemModal = {
     props: {
         show: Boolean,
@@ -16,6 +19,7 @@ export const ItemModal = {
         getOpportunityNameFn: Function,
         viewItemFn: Function
     },
+    components: { FieldRenderer, SearchSelect },
     data() {
         return {
             currentFormData: {},
@@ -36,7 +40,16 @@ export const ItemModal = {
         }
     },
     methods: {
-        switchTab(tab) { this.internalTab = tab; this.$emit('update:activeTab', tab); },
+        switchTab(tab) {
+            this.internalTab = tab;
+            this.$emit('update:activeTab', tab);
+            if (tab === 'edit') {
+                this.$nextTick(() => {
+                    const first = this.$el.querySelector('input, textarea, select');
+                    if (first) first.focus();
+                });
+            }
+        },
         closeModal() { this.$emit('close-modal-requested'); },
         saveForm() { this.$emit('save-form-requested', JSON.parse(JSON.stringify(this.currentFormData))); },
         saveAndDownload() { this.$emit('save-and-download-requested', JSON.parse(JSON.stringify(this.currentFormData))); },
@@ -53,7 +66,14 @@ export const ItemModal = {
                 this.currentFormData[fieldKey].splice(index, 1);
             }
         },
-        handleViewItem(item, type) { if (this.viewItemFn) { this.viewItemFn(item, type); } }
+        handleViewItem(item, type) { if (this.viewItemFn) { this.viewItemFn(item, type); } },
+        handleKeydown(event) { if (event.key === 'Escape') this.closeModal(); }
+    },
+    mounted() {
+        document.addEventListener('keydown', this.handleKeydown);
+    },
+    unmounted() {
+        document.removeEventListener('keydown', this.handleKeydown);
     },
     template: `
         <div v-if="show" class="fixed inset-0 bg-black/30 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4">
@@ -71,7 +91,13 @@ export const ItemModal = {
                 <div v-if="internalTab==='view'" class="view-item-modal-content">
                     <div v-if="itemData">
                         <div v-for="field in itemFields" :key="field.key" class="field-display">
-                            <div class="field-label">{{ field.title }}</div>
+                            <div class="field-label flex items-center">
+                                <span class="tooltip-container">
+                                    <i class="tooltip-icon">?</i>
+                                    <span class="tooltip-text">{{ field.description }}</span>
+                                </span>
+                                {{ field.title }}
+                            </div>
                             <div class="field-value">
                                 <div v-if="Array.isArray(itemData[field.key])">
                                     <ul v-if="itemData[field.key].length > 0" class="list-disc list-inside">
@@ -105,16 +131,25 @@ export const ItemModal = {
                                      </template>
                                     <span v-else class="text-gray-500 italic">Not specified</span>
                                 </div>
-                                <span v-else>{{ itemData[field.key] || 'Not specified' }}</span>
+                                <field-renderer v-else
+                                    :field-key="field.key"
+                                    :value="itemData[field.key]"
+                                    :field-meta="field"
+                                ></field-renderer>
                             </div>
                         </div>
                         <div v-if="relatedItemsData && relatedItemsData.length > 0" class="related-items-section">
                             <h4 class="text-lg font-semibold text-gray-900 mb-4">Related Items</h4>
-                            <div class="related-items-grid">
-                                <div v-for="related in relatedItemsData" :key="related.id" @click="handleViewItem(related.item, related.type)" class="related-item-card">
-                                    <p class="related-item-title">{{ related.name }}</p>
-                                    <p class="related-item-type">{{ related.type.charAt(0).toUpperCase() + related.type.slice(1) }}</p>
-                                </div>
+                            <div class="related-items-list flex flex-wrap gap-2">
+                                <item-badge
+                                    v-for="related in relatedItemsData"
+                                    :key="related.id"
+                                    :name="related.name"
+                                    icon="link"
+                                    :item="related.item"
+                                    :type="related.type"
+                                    @view-item-requested="handleViewItem($event.item, $event.type)"
+                                ></item-badge>
                             </div>
                         </div>
                     </div>
@@ -160,24 +195,18 @@ export const ItemModal = {
                                     <option value="">Select {{ field.title }}</option>
                                     <option v-for="option in field.enum" :key="option" :value="option">{{ option }}</option>
                                 </select>
-                                <select v-else-if="field.relationshipType === 'person'"
-                                        :id="field.key"
-                                        v-model="currentFormData[field.key]"
-                                        class="form-select">
-                                    <option value="">Select Person</option>
-                                    <option v-for="person in peopleList" :key="person.personId" :value="person.personId">
-                                        {{ person.personName }} ({{ person.personId }})
-                                    </option>
-                                </select>
-                                <select v-else-if="field.relationshipType === 'opportunity'"
-                                        :id="field.key"
-                                        v-model="currentFormData[field.key]"
-                                        class="form-select">
-                                    <option value="">Select Opportunity</option>
-                                    <option v-for="opp in opportunitiesList" :key="opp.opportunityId" :value="opp.opportunityId">
-                                        {{ opp.opportunityName }} ({{ opp.opportunityId }})
-                                    </option>
-                                </select>
+                                <search-select v-else-if="field.relationshipType === 'person'"
+                                        :model-value="currentFormData[field.key]"
+                                        @update:modelValue="val => currentFormData[field.key] = val"
+                                        :options="peopleList.map(p => ({ value: p.personId, label: p.personName }))"
+                                        placeholder="Select Person">
+                                </search-select>
+                                <search-select v-else-if="field.relationshipType === 'opportunity'"
+                                        :model-value="currentFormData[field.key]"
+                                        @update:modelValue="val => currentFormData[field.key] = val"
+                                        :options="opportunitiesList.map(o => ({ value: o.opportunityId, label: o.opportunityName }))"
+                                        placeholder="Select Opportunity">
+                                </search-select>
                                 <textarea v-else-if="field.type === 'array' && !field.isSimpleStringArray"
                                           :id="field.key"
                                           v-model="currentFormData[field.key + '_json']"
