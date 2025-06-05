@@ -107,29 +107,27 @@ export const ItemModal = {
                                 </div>
                                 <div v-else-if="field.relationshipType === 'person' && getPersonNameFn">
                                      <template v-if="itemData[field.key]">
-                                        <span class="mr-2">{{ getPersonNameFn(itemData[field.key]) }}</span>
                                         <item-badge
-                                            :name="itemData[field.key]"
-                                            icon="hash"
+                                            :name="getPersonNameFn(itemData[field.key])"
+                                            icon="user"
                                             :item="{ personId: itemData[field.key], personName: getPersonNameFn(itemData[field.key]) }"
                                             type="person"
                                             @view-item-requested="handleViewItem($event.item, $event.type)"
                                         ></item-badge>
                                      </template>
-                                    <span v-else class="text-gray-500 italic">Not specified</span>
+                                     <span v-else class="text-gray-500 italic">Not specified</span>
                                 </div>
                                 <div v-else-if="field.relationshipType === 'opportunity' && getOpportunityNameFn">
                                      <template v-if="itemData[field.key]">
-                                        <span class="mr-2">{{ getOpportunityNameFn(itemData[field.key]) }}</span>
                                         <item-badge
-                                            :name="itemData[field.key]"
-                                            icon="hash"
+                                            :name="getOpportunityNameFn(itemData[field.key])"
+                                            icon="lightbulb"
                                             :item="{ opportunityId: itemData[field.key], opportunityName: getOpportunityNameFn(itemData[field.key]) }"
                                             type="opportunity"
                                             @view-item-requested="handleViewItem($event.item, $event.type)"
                                         ></item-badge>
                                      </template>
-                                    <span v-else class="text-gray-500 italic">Not specified</span>
+                                     <span v-else class="text-gray-500 italic">Not specified</span>
                                 </div>
                                 <field-renderer v-else
                                     :field-key="field.key"

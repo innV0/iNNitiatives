@@ -122,14 +122,7 @@ export const APP_SCHEMA = {
         }
       },
       "required": [
-        "programName",
-        "programObjectives",
-        "programStages",
-        "programDefaultOpportunityStatuses",
-        "programDefaultInitiativeTypes",
-        "programLastUpdated",
-        "programSponsorPersonId",
-        "programManagerPersonId"
+        "programName"
       ]
     },
     "person": {
@@ -171,7 +164,7 @@ export const APP_SCHEMA = {
           "description": "URL of the person's image"
         }
       },
-      "required": ["personId", "personName", "personRole"]
+      "required": ["personId", "personName"]
     },
     "opportunity": {
       "type": "object",
@@ -246,12 +239,7 @@ export const APP_SCHEMA = {
       },
       "required": [
         "opportunityId",
-        "opportunityName",
-        "opportunityProblem",
-        "opportunityProposerId",
-        "opportunityStatus",
-        "opportunityDateIdentified",
-        "opportunityLastUpdated"
+        "opportunityName"
       ]
     },
     "iNNitiative": {
@@ -340,13 +328,7 @@ export const APP_SCHEMA = {
       },
       "required": [
         "iNNitiativeId",
-        "iNNitiativeName",
-        "iNNitiativeType",
-        "iNNitiativePhase",
-        "iNNitiativeOwnerPersonId",
-        "iNNitiativeRelatedOpportunityId",
-        "iNNitiativeDateRegistered",
-        "iNNitiativeStatus"
+        "iNNitiativeName"
       ]
     }
   }
