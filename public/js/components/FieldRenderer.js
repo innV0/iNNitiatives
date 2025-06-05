@@ -1,4 +1,5 @@
 import { ItemBadge } from './ItemBadge.js';
+import { SearchSelect } from './SearchSelect.js';
 
 export const FieldRenderer = {
   props: {
@@ -8,7 +9,7 @@ export const FieldRenderer = {
     editable: { type: Boolean, default: false },
     displayClass: { type: String, default: '' }
   },
-  components: { ItemBadge },
+  components: { ItemBadge, SearchSelect },
   emits: ['update', 'view-item-requested'],
   data() {
     return { internalValue: this.value };
@@ -36,7 +37,21 @@ export const FieldRenderer = {
   template: `
     <div class="field-renderer">
       <template v-if="editable">
-        <select v-if="fieldMeta.enum" v-model="internalValue" @change="emitUpdate" class="form-select w-full">
+        <search-select
+          v-if="fieldMeta.relationshipType === 'person'"
+          :model-value="internalValue"
+          @update:modelValue="val => { internalValue = val; emitUpdate(); }"
+          :options="$root.appData.people.map(p => ({ value: p.personId, label: p.personName }))"
+          placeholder="Select Person"
+        ></search-select>
+        <search-select
+          v-else-if="fieldMeta.relationshipType === 'opportunity'"
+          :model-value="internalValue"
+          @update:modelValue="val => { internalValue = val; emitUpdate(); }"
+          :options="$root.appData.opportunities.map(o => ({ value: o.opportunityId, label: o.opportunityName }))"
+          placeholder="Select Opportunity"
+        ></search-select>
+        <select v-else-if="fieldMeta.enum" v-model="internalValue" @change="emitUpdate" class="form-select w-full">
           <option v-for="option in fieldMeta.enum" :key="option" :value="option">{{ option }}</option>
         </select>
         <textarea v-else-if="fieldMeta.format === 'textarea'" v-model="internalValue" @keydown.enter.prevent="emitUpdate" @blur="emitUpdate" rows="3" class="form-input form-textarea w-full"></textarea>
