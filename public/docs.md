@@ -850,7 +850,6 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 *   **Summary**: The specific calendar date on which the innovation initiative was formally created, officially registered, or first logged within the iNNitiatives tracking system or innovation program.
 *   **Detailed Description**: This field records the "birth date" or formal inception date of the initiative as a recognized project or distinct endeavor within the framework of the innovation program. It marks the point at which an idea or opportunity, having passed some initial screening or approval, transitions into a formal commitment for more detailed exploration, planning, or development, even if full resources are not yet allocated or work has not yet commenced. This date is useful for several analytical and operational purposes:
     *   **Tracking Initiative Age**: Understanding how long individual initiatives have been active or in the system.
-    *   **Lifecycle Duration Analysis**: When combined with `initiativeEndDate`, it allows for calculating the total duration of initiatives from official registration to completion or termination.
     *   **Pipeline Velocity and Throughput**: Analyzing the overall speed of the innovation program in moving concepts from idea/opportunity stage into active project execution.
     *   **Historical Context**: Providing a clear timestamp for when the initiative was formally acknowledged and added to the portfolio.
     The format for this date should be a standard, machine-readable date (the schema's `format: "date"` strongly suggests YYYY-MM-DD is appropriate and preferred for consistency and sortability).
@@ -860,48 +859,6 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   In **Stage-Gate** processes, this might correspond to the date a project is formally approved to enter Stage 1 after an initial idea screening.
 *   **Ghostbusters Example**: `2024-02-01` (for INN_SUPER_TRAP_DEV)
 
-### initiativeStartDate
-**Initiative Start Date**
-*   **Summary**: The actual calendar date on which significant work on the innovation initiative formally commenced, or the officially planned and approved start date for the initiative as a whole or for its current active phase.
-*   **Detailed Description**: This field is important for tracking project timelines, enabling resource scheduling, and measuring actual progress against planned schedules. It can represent either:
-    *   The **officially planned or projected commencement date** that was set during the initiative's planning phase or at the approval of its current phase. This is useful for forward-looking planning.
-    *   The **actual date** when the core team began substantive work on the initiative's tasks, deliverables, and objectives. This is useful for historical tracking and performance analysis.
-    For initiatives that proceed through multiple distinct phases (as defined in `programStages`), this field might be updated at the beginning of each new phase to reflect the start date of that *current* active phase. Users should enter a standard date format (e.g., YYYY-MM-DD). This data, especially when used in conjunction with `initiativeEndDate` and phase changes, allows for the calculation of actual phase durations and helps in understanding adherence to schedules.
-*   **Methodology Connection**: A core data point for all forms of **Project Scheduling and Tracking**.
-    *   **Gantt Charts / Traditional Project Plans**: The start date is a fundamental data point for every task and the project overall.
-    *   **Agile (Scrum)**: Could represent the start date of the first sprint dedicated to working on a significant epic or feature that constitutes this initiative.
-    *   **Resource Management Systems**: Rely on start dates to allocate and level resources.
-    Helps in understanding actual versus planned timelines and in calculating project velocity or lead times.
-*   **Ghostbusters Example**: `2024-02-15` (for INN_SUPER_TRAP_DEV)
-
-### initiativeEndDate
-**Initiative End Date**
-*   **Summary**: The actual calendar date on which the innovation initiative (or its current active phase) was formally completed and all its objectives were met, or the officially planned/estimated end date for its completion.
-*   **Detailed Description**: This field is crucial for comprehensive project timeline management, understanding actual project durations, and evaluating on-time delivery performance against initial plans. It can represent:
-    *   An **estimated completion date** that was set during the initial planning stages of the initiative or at the beginning of its current phase. This is used for forecasting and planning.
-    *   The **actual date** when all planned work for the initiative (or its current phase) was formally concluded, all key deliverables were met, objectives were achieved (or a formal decision was made to terminate the initiative prematurely). This is used for historical analysis and performance reporting.
-    This date, when compared with the `initiativeStartDate`, allows for the precise calculation of the actual project or phase duration. It is also vital for resource forecasting (knowing when team members or other resources might become available for new assignments) and for overall innovation portfolio planning and review. A standard date format (e.g., YYYY-MM-DD) is expected.
-*   **Methodology Connection**: A core data point for all forms of **Project Scheduling, Tracking, and Closure**.
-    *   **Gantt Charts / Traditional Project Plans**: The end date is a fundamental data point for project milestones and the overall project completion.
-    *   **Agile Development**: Could represent the end date of a specific release, the date an epic is considered "Done-Done," or when a product is launched.
-    *   **Stage-Gate**: The date a project successfully exits the final stage or is otherwise formally closed.
-    Helps in performance analysis (actual vs. planned duration), resource planning, and historical reporting.
-*   **Ghostbusters Example**: `2024-09-30` (for INN_SUPER_TRAP_DEV)
-
-### initiativeLastUpdated
-**Initiative Last Updated**
-*   **Summary**: A system-generated timestamp indicating the precise date and time when any data field or information related to this specific initiative was last modified or updated within the iNNitiatives system.
-*   **Detailed Description**: This field is designated as `readonly` in the schema, signifying that its value should be automatically managed and populated by the iNNitiatives application itself, rather than being manually entered or editable by users. Every time a user edits and successfully saves any changes to an initiative's record (e.g., updating its `initiativePhase`, adding `initiativeLearnings`, changing its `initiativeBudget`, or modifying its `initiativeNotes`), this timestamp should be automatically updated to reflect the exact moment of that last modification. It serves as an essential component of an audit trail and provides valuable operational insights for:
-    *   **Data Freshness and Relevance**: Helps users quickly assess how current and up-to-date the information for a particular initiative is.
-    *   **Recent Activity Monitoring**: Allows stakeholders, program managers, and team members to easily see which initiatives are actively being worked on, discussed, or updated.
-    *   **Stagnation Detection**: Can be used to highlight initiatives that have not been touched or updated for a significant period, which might indicate they are stalled, neglected, or require urgent review and follow-up.
-    *   **Implicit Version Control Indication**: While not a full version control system, it indicates when the last snapshot of the initiative's data was saved.
-    The format for this timestamp is typically a comprehensive date-time string, often adhering to the ISO 8601 standard (e.g., "YYYY-MM-DDTHH:mm:ssZ" or similar), ensuring global consistency and precision for accurate tracking.
-*   **Methodology Connection**: Supports general **Data Governance**, **Process Monitoring**, **Auditing**, and **Active Project Management** within the innovation system.
-    *   Helps ensure that the information used for decision-making and reporting remains current, accurate, and relevant.
-    *   Can be used by the system to trigger automated workflows, notifications (e.g., "Initiative X has not been updated in 30 days"), or escalations if critical initiatives show no recent updates.
-    *   Useful for auditing changes and, if the system supports it, potentially linking back to a more detailed change history or version log for the initiative.
-*   **Ghostbusters Example**: `2024-05-22T09:15:00.000Z` (for INN_SUPER_TRAP_DEV)
 
 ### initiativeNotes
 **Initiative Additional Notes**
