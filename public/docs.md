@@ -566,9 +566,73 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   Supports portfolio-level views of which opportunities are being actively pursued.
 *   **Ghostbusters Example**: `OPP_SUPER_TRAP_ADV` (for INN_SUPER_TRAP_DEV)
 
+### iNNitiativeValueProposition
+**Initiative Value Proposition**
+*   **Summary**: A clear, concise, and compelling statement that articulates the unique and significant benefits, positive outcomes, or perceived value that this initiative's solution is expected to deliver specifically to its target users and/or to the organization as a whole.
+*   **Detailed Description**: This field answers the critical question: "Why should anyone (the target user, the customer, the organization) care about this solution and choose it or support it?" It should clearly and persuasively define the specific advantages, improvements, problem resolutions, cost savings, revenue generation opportunities, efficiency gains, enhanced experiences, or other positive impacts that the solution will provide. A strong value proposition focuses on the *benefits* received by the user or organization, rather than just listing the *features* of the solution. It should highlight what makes the solution unique, superior, or more desirable compared to existing alternatives (including the option of doing nothing). Crafting a compelling value proposition is essential for:
+    *   Gaining user adoption and engagement.
+    *   Securing stakeholder buy-in and continued funding.
+    *   Guiding marketing, sales, and communication efforts.
+    *   Ensuring the team remains focused on delivering what truly matters to the user/organization.
+    It should ideally be framed from the perspective of those who will receive the value, using language they understand and find compelling.
+*   **Methodology Connection**: A core concept in business strategy, product development, and innovation.
+    *   **Lean Startup**: The "Value Proposition" block is a central component of the Business Model Canvas and Lean Canvas. It's a key hypothesis that must be rigorously tested and validated with users.
+    *   **Marketing Strategy**: A well-defined value proposition is the foundation of product positioning and messaging.
+    *   **Design Thinking**: Deeply understanding user needs and pain points (from the Empathize and Define phases) is crucial for crafting a value proposition that truly resonates and addresses those needs.
+    *   **Blue Ocean Strategy**: Focuses on creating uncontested market space by offering a unique value proposition that makes the competition irrelevant.
+*   **Ghostbusters Example**: `Projected 25% reduction in on-site time for complex cases, capability to address 15% more severe anomalies, improved team safety. Plus, it looks incredibly cool, which never hurts client confidence.` (for INN_SUPER_TRAP_DEV)
 
+### iNNitiativeExpectedBenefits
+**Expected Benefits**
+*   **Summary**: Outline the tangible or intangible benefits this initiative aims to realize once completed.
+*   **Detailed Description**: Describe anticipated outcomes such as revenue impact, cost savings, strategic positioning, or qualitative improvements that support the overall program objectives.
 
-### initiativeRisks
+### iNNitiativeValidation
+**Validation Notes**
+*   **Summary**: A running log of key validation activities and findings gathered as the initiative progresses.
+*   **Detailed Description**: Summarize evidence from experiments, user feedback, or market analysis that supports or challenges the initiative direction.
+
+### iNNitiativeGoals
+**Initiative Goals/Success Metrics**
+*   **Summary**: Specific, measurable, achievable, relevant, and time-bound (SMART) goals that concretely define how the overall success and impact of this particular initiative will be measured and evaluated upon its completion or at key milestones during its lifecycle.
+*   **Detailed Description**: These are the specific targets and Key Performance Indicators (KPIs) for the initiative itself, which should be distinct from, though often supportive of, the broader `programIndicators`. These `iNNitiativeGoals` should directly relate to and quantify the intended `iNNitiativeValueProposition` and provide clear, unambiguous, and agreed-upon success criteria. Examples of well-defined goals include:
+    *   "Achieve an X% market adoption rate for the new product among the target user segment within Y months of launch."
+    *   "Reduce the average cycle time for process Z by Q% within the next fiscal quarter, with a 95% quality rating."
+    *   "Attain a customer satisfaction score (CSAT) of N (e.g., 4.5 out of 5) or a Net Promoter Score (NPS) of +X for the new feature, as measured by post-interaction surveys within the first 60 days."
+    *   "Generate $M in new incremental revenue directly attributable to this initiative in its first year of operation."
+    *   "Successfully complete X number of pilot tests with Y% of participants indicating they would use the final solution."
+    Well-defined goals are essential for tracking meaningful progress towards desired outcomes (not just tracking activity), making informed decisions during the initiative's lifecycle (e.g., whether to continue investing, pivot the approach, or stop the effort), and ultimately for determining if the initiative has been successful in its own right and has delivered the expected value to users and the organization. They make success tangible and measurable.
+*   **Methodology Connection**: Goal-setting is a fundamental principle in most management and execution frameworks.
+    *   **OKRs (Objectives and Key Results)**: This field would list the "Key Results" that support the initiative's primary objective (which might be implicitly its name, its problem statement, or its value proposition). Each KR should be measurable and trackable.
+    *   **SMART Goals**: A widely used framework for setting effective, actionable goals. The goals listed here should ideally conform to SMART criteria.
+    *   **Project Management (PMBOK, PRINCE2)**: Defining clear project objectives and success criteria is a key part of project initiation and planning.
+    *   **Lean Startup / Innovation Accounting**: While focusing on "actionable metrics" and "validated learning," specific goals are still set for experiments and MVPs to determine if hypotheses are validated.
+    These goals define "what done looks like" for the initiative in terms of measurable impact and outcomes.
+*   **Ghostbusters Example**:
+    ```
+    1. Develop a functional, field-testable prototype by Q3.
+    2. Successfully contain three simulated standard anomalies simultaneously for a 24-hour period.
+    3. Ensure prototype can be deployed by a single operative in under 2 minutes with minimal swearing.
+    4. Reduce 'unexpected re-manifestation' incidents by 90% compared to current units.
+    ```
+    (for INN_SUPER_TRAP_DEV)
+
+### iNNitiativeStatus
+**iNNitiative Status**
+*   **Summary**: The strategic Go/No-Go/Change-course decision made for the initiative after a thorough evaluation of the validation evidence and the synthesized validation evidence from an experiment, a completed phase, or a formal gate review.
+*   **Detailed Description**: This field represents a critical checkpoint or 'Gate' in a Stage-Gate process, or a formal decision point at the end of an iterative cycle (e.g., a Lean Startup experiment or an Agile sprint/release focused on validation and learning). Based on the accumulated evidence and learning, the initiative team, program manager, or the relevant governance body must make a conscious, documented choice about how to proceed with the initiative. The schema provides an enumerated list of possible decisions:
+    *   `Persevere`: Continue with the current strategy, plan, and direction. This decision is typically made when the evidence gathered sufficiently supports the existing hypotheses and the current approach is showing promise towards achieving its goals.
+    *   `Pivot`: Make a significant, structured change in one or more core aspects of the initiative. This could be a change in the target target users segment, a redefinition of the problem statement, a fundamental alteration to the solution or its key features, a new `iNNitiativeValueProposition`, a shift in the business model, or a change in the core technology approach. A pivot is made based on critical validation evidence that invalidate previous core assumptions and suggest a new, more promising path.
+    *   `Discard`: Formally abandon, terminate, or "kill" the initiative. This decision is made when the evidence strongly suggests the initiative is not viable, not valuable enough to justify further investment, the problem isn't as significant as initially thought, or insurmountable technical/market challenges have been identified. "Failing fast" and discarding unpromising initiatives is a healthy part of an efficient innovation process, freeing up resources for more promising endeavors.
+    *   `Validated for Handover`: The core concept, solution, or business model has been sufficiently validated through experimentation and iteration, and it is now deemed ready to be transitioned from the innovation/R&D team to a different team or operational unit for full-scale development, broader market launch, ongoing operations, or commercialization.
+    This decision is a **required field** as it marks a formal checkpoint, documents a key strategic choice, and dictates the future trajectory and resource allocation for the initiative.
+*   **Methodology Connection**: A crucial output of iterative and gated innovation processes.
+    *   **Lean Startup**: The "Persevere or Pivot" decision is a recurring and central theme after each Build-Measure-Learn cycle. "Discard" (or "kill the feature/product") is also a valid and often necessary outcome if hypotheses are consistently invalidated.
+    *   **Stage-Gate**: Each "Gate" in a Stage-Gate process is explicitly a decision point where Go/Kill/Hold/Recycle decisions are made by gatekeepers. `Persevere` aligns with a Go decision, `Discard` with Kill. A `Pivot` might lead to a "Recycle" decision, sending the initiative back to an earlier stage with a revised scope or approach.
+    *   **Agile Development**: While less about formal gates for the entire initiative, sprint reviews and release planning involve decisions about what to build next, what to refine, and what to stop working on based on progress, feedback, and learning. For larger epics or products, more formal "continue/pivot/stop" decisions are made.
+*   **Ghostbusters Example**: `Persevere` (for INN_SUPER_TRAP_DEV)
+
+### iNNitiativeRisks
 **Initiative Risks & Mitigation**
 *   **Summary**: A documented identification of potential risks, significant challenges, critical uncertainties, or potential negative events that could adversely impact the initiative's progress, budget, timeline, quality, or ultimate success, along with an outline of proposed plans, strategies, or actions to mitigate (reduce likelihood/impact), avoid (eliminate the cause), transfer (shift to a third party), or accept (acknowledge but take no action) those identified risks.
 *   **Detailed Description**: Proactive risk management is a critical discipline for increasing the likelihood of success in inherently uncertain and often complex innovation endeavors. This field encourages initiative teams to think ahead about what could go wrong ("threats") and also potentially what could go unexpectedly right ("opportunities" in the risk management sense, though less common here). Users should identify potential risks across various relevant categories:
@@ -614,7 +678,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 *   **Ghostbusters Example**: `2024-02-01` (for INN_SUPER_TRAP_DEV)
 
 
-### initiativeNotes
+### iNNitiativeNotes
 **Initiative Additional Notes**
 *   **Summary**: A flexible, free-text field designed for capturing any other relevant notes, ad-hoc comments, miscellaneous observations, informal updates, brief meeting summaries, or supplementary contextual information pertaining to the initiative that does not fit neatly into any of the other more structured, predefined fields.
 *   **Detailed Description**: This field provides a valuable "catch-all" space for qualitative information or contextual details that might be important for a comprehensive understanding of the initiative's history, its current nuances, specific challenges, team dynamics, or future considerations. Users can leverage this field to:
