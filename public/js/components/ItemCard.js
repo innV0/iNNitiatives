@@ -10,6 +10,14 @@ export const ItemCard = {
             return this.item[`${this.type}Id`];
         },
         itemName() {
+            if (this.type === 'initiative') {
+                return (
+                    this.item.iNNitiativeName ||
+                    this.item.initiativeName ||
+                    this.item.name ||
+                    'N/A'
+                );
+            }
             return this.item.name || this.item[`${this.type}Name`] || 'N/A';
         },
         avatar() {
