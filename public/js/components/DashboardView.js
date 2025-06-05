@@ -4,6 +4,7 @@ export const DashboardView = {
         isEmptyData: Boolean,
         iNNitiativePhasesSummary: Array, // Renamed from iNNitiativePhases in main app
         kanbanPhases: Array,
+        summaryCards: Array,
         initiativesByPhase: Object,
         topOpportunities: Array,
         recentInitiatives: Array,
@@ -42,9 +43,10 @@ export const DashboardView = {
             <div v-else class="space-y-8">
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <stats-card title="Team Members" :value="appData.people.length" icon="users" color-theme="green" target-tab="people" @card-clicked="$emit('set-active-tab', $event)"></stats-card>
-                    <stats-card title="Opportunities" :value="appData.opportunities.length" icon="lightbulb" color-theme="yellow" target-tab="opportunities" @card-clicked="$emit('set-active-tab', $event)"></stats-card>
-                    <stats-card title="Active Initiatives" :value="appData.initiatives.length" icon="zap" color-theme="purple" target-tab="initiatives" @card-clicked="$emit('set-active-tab', $event)"></stats-card>
+                    <stats-card v-for="card in summaryCards" :key="card.title"
+                        :title="card.title" :value="card.value" :icon="card.icon"
+                        :color-theme="card.colorTheme" :target-tab="card.targetTab"
+                        @card-clicked="$emit('set-active-tab', $event)"></stats-card>
                 </div>
 
                 <!-- Kanban Board Section -->
@@ -73,19 +75,5 @@ export const DashboardView = {
             </div>
         </section>
     `,
-    mounted() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        // This is important to re-render icons if data changes and v-if/v-for blocks are affected
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+
 };

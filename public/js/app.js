@@ -118,6 +118,27 @@ const app = createApp({
             });
             return Object.entries(phases).map(([name, count]) => ({ name, count }));
         },
+        summaryCards() {
+            const mapping = {
+                people: { icon: 'users', colorTheme: 'green', targetTab: 'people' },
+                opportunities: { icon: 'lightbulb', colorTheme: 'yellow', targetTab: 'opportunities' },
+                initiatives: { icon: 'zap', colorTheme: 'purple', targetTab: 'initiatives' }
+            };
+            const cards = [];
+            Object.entries(APP_SCHEMA.properties).forEach(([key, prop]) => {
+                if (prop.type === 'array') {
+                    const base = mapping[key] || { icon: 'list', colorTheme: 'gray', targetTab: key };
+                    cards.push({
+                        title: prop.title || key,
+                        value: (this.appData[key] || []).length,
+                        icon: base.icon,
+                        colorTheme: base.colorTheme,
+                        targetTab: base.targetTab
+                    });
+                }
+            });
+            return cards;
+        },
         kanbanPhases() {
             if (
                 this.appData.program &&
@@ -292,9 +313,151 @@ const app = createApp({
         loadDataFile(file) { if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const jsonData = JSON.parse(e.target.result); if (typeof jsonData === 'object' && jsonData !== null && 'program' in jsonData && 'people' in jsonData && 'opportunities' in jsonData && 'initiatives' in jsonData) { this.appData = jsonData; this.showNotification('Success', 'Data file loaded successfully!', 'success'); } else { this.showNotification('Error', 'Invalid data file: Missing one or more required top-level keys (program, people, opportunities, initiatives).', 'error'); } } catch (error) { this.showNotification('Error', `Error parsing JSON: ${error.message}`, 'error'); } }; reader.readAsText(file); },
         async loadSampleData() { try { const response = await fetch('./sample-data.json'); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const sampleData = await response.json(); this.appData = sampleData; this.showNotification('Success', 'Sample data loaded successfully!', 'success'); } catch (error) { this.showNotification('Error', `Error loading sample data: ${error.message}`, 'error'); } },
         exportData() { try { const now = new Date(); const timestamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0'); const dataStr = JSON.stringify(this.appData, null, 2); const dataBlob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `innit-data-${timestamp}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); this.showNotification('Success', 'Data exported successfully!', 'success'); } catch (error) { this.showNotification('Error', `Error exporting data: ${error.message}`, 'error'); } },
-        generateFormFields(schemaDefinition) { const fields = []; const properties = schemaDefinition.properties || {}; const simpleStringArrayFields = [ 'programStages', 'programDefaultOpportunityStatuses', 'programDefaultInitiativeTypes', 'initiativeGoals', 'initiativeNextSteps', 'initiativeResources', 'initiativeRisks' ]; for (const [key, prop] of Object.entries(properties)) { let effectiveEnum = prop.enum; if (this.currentEditType === 'initiative') { if (key === 'iNNitiativeType' && this.appData.program && this.appData.program.programDefaultInitiativeTypes && this.appData.program.programDefaultInitiativeTypes.length > 0) { effectiveEnum = this.appData.program.programDefaultInitiativeTypes; } else if (key === 'iNNitiativePhase' && this.appData.program && this.appData.program.programStages && this.appData.program.programStages.length > 0) { effectiveEnum = this.appData.program.programStages; } } else if (this.currentEditType === 'opportunity') { if (key === 'opportunityStatus' && this.appData.program && this.appData.program.programDefaultOpportunityStatuses && this.appData.program.programDefaultOpportunityStatuses.length > 0) { effectiveEnum = this.appData.program.programDefaultOpportunityStatuses; } } fields.push({ key: key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, enum: effectiveEnum, minimum: prop.minimum, maximum: prop.maximum, readonly: prop.readonly || false, relationshipType: prop.relationshipType, isSimpleStringArray: prop.type === 'array' && prop.items && prop.items.type === 'string' && simpleStringArrayFields.includes(key) }); } fields.forEach(field => { if ( (this.currentEditId && (field.key === 'personId' || field.key === 'opportunityId' || field.key === 'iNNitiativeId')) || field.key === 'lastUpdated' || field.key === 'iNNitiativeDateRegistered' || field.key === 'opportunityLastUpdated') { field.readonly = true; } if (!this.currentEditId && (field.key === 'personId' || field.key === 'opportunityId' || field.key === 'iNNitiativeId') && field.key !== 'lastUpdated' && field.key !== 'iNNitiativeDateRegistered' && field.key !== 'opportunityLastUpdated') { if (schemaDefinition.properties[field.key] && schemaDefinition.properties[field.key].readonly !== true) { } } }); return fields; },
-        prepareFormData(data, fields) { const formData = { ...data }; fields.forEach(field => { if (field.isSimpleStringArray) { if (typeof data[field.key] === 'string') { formData[field.key] = data[field.key].split('\n').map(item => item.trim()).filter(item => item !== ''); } else { formData[field.key] = Array.isArray(data[field.key]) ? [...data[field.key]] : []; } } else if (field.type === 'array') { formData[field.key + '_json'] = JSON.stringify(formData[field.key] || []); } }); return formData; },
-        processFormData(formData, fields) { const processedData = { ...formData }; let parseErrorOccurred = false; fields.forEach(field => { if (field.isSimpleStringArray) { processedData[field.key] = Array.isArray(formData[field.key]) ? formData[field.key].join('\n') : ''; } else if (field.type === 'array') { try { processedData[field.key] = JSON.parse(formData[field.key + '_json'] || '[]'); } catch (e) { this.showNotification('Error', `Invalid JSON format for field: ${field.title}. Please correct it.`, 'error'); parseErrorOccurred = true; } delete processedData[field.key + '_json']; } }); return parseErrorOccurred ? null : processedData; },
+        generateFormFields(schemaDefinition) {
+            const fields = [];
+            const properties = schemaDefinition.properties || {};
+            const simpleStringArrayFields = [
+                'programStages',
+                'programDefaultOpportunityStatuses',
+                'programDefaultInitiativeTypes',
+                'initiativeGoals',
+                'initiativeNextSteps',
+                'initiativeResources',
+                'initiativeRisks'
+            ];
+
+            for (const [key, prop] of Object.entries(properties)) {
+                let effectiveEnum = prop.enum;
+
+                if (this.currentEditType === 'initiative') {
+                    if (
+                        key === 'iNNitiativeType' &&
+                        this.appData.program &&
+                        this.appData.program.programDefaultInitiativeTypes &&
+                        this.appData.program.programDefaultInitiativeTypes.length > 0
+                    ) {
+                        effectiveEnum = this.appData.program.programDefaultInitiativeTypes;
+                    } else if (
+                        key === 'iNNitiativePhase' &&
+                        this.appData.program &&
+                        this.appData.program.programStages &&
+                        this.appData.program.programStages.length > 0
+                    ) {
+                        effectiveEnum = this.appData.program.programStages;
+                    }
+                } else if (this.currentEditType === 'opportunity') {
+                    if (
+                        key === 'opportunityStatus' &&
+                        this.appData.program &&
+                        this.appData.program.programDefaultOpportunityStatuses &&
+                        this.appData.program.programDefaultOpportunityStatuses.length > 0
+                    ) {
+                        effectiveEnum = this.appData.program.programDefaultOpportunityStatuses;
+                    }
+                }
+
+                fields.push({
+                    key,
+                    title: prop.title || appUtils.formatFieldName(key),
+                    description: prop.description || 'No description available.',
+                    type: prop.type,
+                    format: prop.format,
+                    enum: effectiveEnum,
+                    minimum: prop.minimum,
+                    maximum: prop.maximum,
+                    readonly: prop.readonly || false,
+                    relationshipType: prop.relationshipType,
+                    isSimpleStringArray:
+                        prop.type === 'array' &&
+                        prop.items &&
+                        prop.items.type === 'string' &&
+                        simpleStringArrayFields.includes(key)
+                });
+            }
+
+            fields.forEach(field => {
+                const isIdField =
+                    field.key === 'personId' ||
+                    field.key === 'opportunityId' ||
+                    field.key === 'iNNitiativeId';
+
+                if (
+                    (this.currentEditId && isIdField) ||
+                    field.key === 'lastUpdated' ||
+                    field.key === 'iNNitiativeDateRegistered' ||
+                    field.key === 'opportunityLastUpdated'
+                ) {
+                    field.readonly = true;
+                }
+
+                if (
+                    !this.currentEditId &&
+                    isIdField &&
+                    field.key !== 'lastUpdated' &&
+                    field.key !== 'iNNitiativeDateRegistered' &&
+                    field.key !== 'opportunityLastUpdated'
+                ) {
+                    if (
+                        schemaDefinition.properties[field.key] &&
+                        schemaDefinition.properties[field.key].readonly !== true
+                    ) {
+                        // field remains editable
+                    }
+                }
+            });
+
+            return fields;
+        },
+
+        prepareFormData(data, fields) {
+            const formData = { ...data };
+            fields.forEach(field => {
+                if (field.isSimpleStringArray) {
+                    if (typeof data[field.key] === 'string') {
+                        formData[field.key] = data[field.key]
+                            .split('\n')
+                            .map(item => item.trim())
+                            .filter(item => item !== '');
+                    } else {
+                        formData[field.key] = Array.isArray(data[field.key])
+                            ? [...data[field.key]]
+                            : [];
+                    }
+                } else if (field.type === 'array') {
+                    formData[field.key + '_json'] = JSON.stringify(formData[field.key] || []);
+                }
+            });
+            return formData;
+        },
+
+        processFormData(formData, fields) {
+            const processedData = { ...formData };
+            let parseErrorOccurred = false;
+
+            fields.forEach(field => {
+                if (field.isSimpleStringArray) {
+                    processedData[field.key] = Array.isArray(formData[field.key])
+                        ? formData[field.key].join('\n')
+                        : '';
+                } else if (field.type === 'array') {
+                    try {
+                        processedData[field.key] = JSON.parse(
+                            formData[field.key + '_json'] || '[]'
+                        );
+                    } catch (e) {
+                        this.showNotification(
+                            'Error',
+                            `Invalid JSON format for field: ${field.title}. Please correct it.`,
+                            'error'
+                        );
+                        parseErrorOccurred = true;
+                    }
+                    delete processedData[field.key + '_json'];
+                }
+            });
+
+            return parseErrorOccurred ? null : processedData;
+        },
         editProgram() { this.itemModalTitle = 'Edit Program Configuration'; const schema = APP_SCHEMA.definitions.programConfiguration; this.currentEditType = 'program'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); if (!this.appData.program || Object.keys(this.appData.program).length === 0) { this.appData.program = { programName: APP_SCHEMA.definitions.programConfiguration.properties.programName.default || "My Innovation Program" }; } this.itemModalFormData = this.prepareFormData(this.appData.program, this.itemModalFormFields); this.itemModalItemData = this.appData.program; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('program.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
         addPerson() { this.itemModalTitle = 'Add New Person'; const schema = APP_SCHEMA.definitions.person; this.currentEditType = 'person'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); let newPersonData = { personId: appUtils.generateUniqueId('PERSON') }; for(const key in schema.properties) { if(schema.properties[key].default !== undefined && newPersonData[key] === undefined) { newPersonData[key] = schema.properties[key].default; } } this.itemModalFormData = this.prepareFormData(newPersonData, this.itemModalFormFields); this.itemModalItemData = newPersonData; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('person.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
         editPerson(person) { this.itemModalTitle = 'Edit Person'; const schema = APP_SCHEMA.definitions.person; this.currentEditType = 'person'; this.currentEditId = person.personId; this.itemModalFormFields = this.generateFormFields(schema); this.itemModalFormData = this.prepareFormData(person, this.itemModalFormFields); this.itemModalItemData = person; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('person.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },

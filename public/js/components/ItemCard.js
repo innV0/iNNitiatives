@@ -18,6 +18,15 @@ export const ItemCard = {
             }
             return null;
         },
+        descriptionSnippet() {
+            if (this.type === 'opportunity' && this.item.opportunityDescription) {
+                return this.item.opportunityDescription.substring(0, 80);
+            }
+            if (this.type === 'initiative' && this.item.iNNitiativeGoals) {
+                return this.item.iNNitiativeGoals.substring(0, 80);
+            }
+            return '';
+        },
         badges() {
             const b = [];
             if (this.type === 'opportunity') {
@@ -63,6 +72,13 @@ export const ItemCard = {
                         type: 'opportunity'
                     });
                 }
+                if (this.item.iNNitiativePhase) {
+                    b.push({
+                        kind: 'text',
+                        value: this.item.iNNitiativePhase,
+                        icon: 'flag'
+                    });
+                }
             }
             return b;
         }
@@ -73,6 +89,7 @@ export const ItemCard = {
                 <img v-if="avatar" :src="avatar" class="w-12 h-12 rounded-full object-cover border"/>
                 <div class="min-w-0">
                     <h3 class="text-lg font-semibold text-blue-700 truncate" :title="itemName">{{ itemName }}</h3>
+                    <p v-if="descriptionSnippet" class="text-sm text-gray-600 truncate">{{ descriptionSnippet }}</p>
                     <div v-if="badges.length" class="flex flex-wrap gap-1 mt-1">
                         <template v-for="(badge, idx) in badges" :key="idx">
                             <item-badge
