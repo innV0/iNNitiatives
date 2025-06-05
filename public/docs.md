@@ -566,55 +566,9 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   Supports portfolio-level views of which opportunities are being actively pursued.
 *   **Ghostbusters Example**: `OPP_SUPER_TRAP_ADV` (for INN_SUPER_TRAP_DEV)
 
-### initiativeUser
-**Initiative Target User**
-*   **Summary**: A clear description of the specific target user, customer segment, internal stakeholder group, or beneficiary population that this innovation initiative is primarily designed to serve, benefit, or create value for.
-*   **Detailed Description**: This field is central to user-centric innovation methodologies such as Design Thinking and Lean Startup. It compels the initiative team to clearly define *who* they are ultimately building the solution for. This could be:
-    *   An external customer segment (e.g., "Small business owners in the downtown retail sector," "Millennial urban commuters using public transport," "Patients with chronic Type 2 diabetes managing their condition at home").
-    *   An internal user group within the organization (e.g., "Sales representatives needing more efficient mobile CRM access," "Factory floor workers requiring enhanced safety monitoring systems," "HR managers aiming to streamline the new employee onboarding process").
-    *   Other defined stakeholder segments (e.g., "Partner organizations in our supply chain who need better data integration," "Community residents in a specific geographic area affected by an environmental sustainability project").
-    Clearly identifying, understanding, and empathizing with the `initiativeUser` is paramount for designing relevant and desirable solutions, conducting effective user research and usability testing, crafting targeted and resonant value propositions, and ultimately increasing the likelihood of the solution's adoption and success. It answers the fundamental question: "For whom are we undertaking this effort, and what are their specific needs and contexts?"
-*   **Methodology Connection**: Core to all user-centric and customer-centric approaches.
-    *   **Design Thinking**: The "Empathize" and "Define" phases are all about deeply understanding the target user, their needs, pain points, and context. User Personas are often created as a way to represent the `initiativeUser`.
-    *   **Lean Startup**: Identifying the "Customer Segment" is a key block on the Business Model Canvas and Lean Canvas. All hypotheses are ultimately about delivering value to this segment.
-    *   **User-Centered Design (UCD)**: The entire methodology revolves around designing for and with the user.
-    *   **Jobs-to-be-Done (JTBD)**: Focuses on the "job" the user is trying to get done, for which the solution is being hired.
-*   **Ghostbusters Example**: `Field Operations Teams, Clients with complex or multiple environmental anomaly incidents` (for INN_SUPER_TRAP_DEV)
-
-### initiativeProblem
-**Initiative Problem**
-*   **Summary**: A detailed articulation of the specific problem, significant challenge, unmet need, critical pain point, or identifiable gap that this particular initiative is specifically aiming to solve or alleviate with its proposed `initiativeSolution`.
-*   **Detailed Description**: While an initiative is typically linked to an `opportunity` which itself has an `opportunityProblem` statement, this `initiativeProblem` field allows for a more refined, focused, or nuanced articulation of the problem that *this specific initiative* is designed to tackle. It might be:
-    *   A specific sub-component or a more granular aspect of the broader opportunity's problem.
-    *   A more precisely defined version of the problem based on further research, user interviews, or analysis conducted after the initial opportunity was identified.
-    *   The problem statement framed explicitly from the perspective of the `initiativeUser` identified for this initiative.
-    A clear, well-understood, and agreed-upon problem statement is the absolute foundation upon which effective and impactful solutions are built. It guides the entire solution design, development, and testing process. It should describe the issue in detail, including its current impact or consequences on the `initiativeUser` or the organization, and clearly articulate why it is important to solve this problem now. It should primarily focus on the "what is wrong" and "why it matters," rather than prematurely jumping to or embedding solutions within the problem definition.
-*   **Methodology Connection**: Reinforces the problem-centric (or user-need-centric) approach fundamental to many effective innovation methodologies.
-    *   **Design Thinking**: Constantly refers back to and refines the problem statement (or Point of View statement) throughout the iterative process.
-    *   **Lean Startup**: The "Problem" box on the Lean Canvas. The entire methodology emphasizes validating that a significant problem exists for a target audience before investing heavily in a solution. "Fall in love with the problem, not your solution."
-    *   **Root Cause Analysis (e.g., 5 Whys, Fishbone Diagram)**: Techniques that can be used to deepen the understanding of the problem, the insights from which would be documented here.
-    *   **Problem-Solution Fit**: A key concept in early-stage innovation, ensuring the solution directly addresses a well-understood problem.
-*   **Ghostbusters Example**: `Current single-incident containment units are inefficient for large-scale or multiple concurrent anomalies, leading to extended on-site time, increased operational risk, and occasionally, things getting a bit... messy.` (for INN_SUPER_TRAP_DEV)
-
-### initiativeSolution
-**Initiative Solution**
-*   **Summary**: A comprehensive overview and detailed explanation of the actual solution – whether it's a new product, an enhanced service, an improved process, a novel technology, or a different business model – that is being actively developed, prototyped, tested, or implemented by this specific initiative.
-*   **Detailed Description**: This field describes the "what" and "how" of the initiative's primary output or deliverable – the tangible or intangible thing being created to address the `initiativeProblem`. Users should provide a clear and thorough description of the proposed solution, including:
-    *   Its key features, functionalities, and core components.
-    *   How it works from a user's perspective (user experience) and/or a technical perspective (architecture, key technologies).
-    *   What makes it distinct, innovative, or superior compared to existing alternatives or the status quo (if any).
-    *   The main technologies, methodologies, or approaches being utilized in its creation.
-    The level of detail in this field might evolve and increase as the initiative progresses through its `iNNitiativePhase`s. In early conceptual stages, it might be a high-level description of the core concept; in later development or implementation stages, it could include more specific architectural details, user interface mockups (or links to them), or process flow diagrams. The description should be clear enough for diverse stakeholders (including both technical and non-technical audiences) to understand the nature of the solution and how it is intended to function and deliver value.
-*   **Methodology Connection**: This is where the "build" and "design" aspects of innovation methodologies are articulated.
-    *   **Agile (Scrum/Kanban)**: The solution evolves iteratively through sprints or continuous flow, with features defined in the Product Backlog. This field could summarize the overall solution vision or the current state of the evolving product.
-    *   **Design Thinking**: The "Ideate" and "Prototype" phases are where potential solutions are conceptualized and made tangible. This field describes the output of those phases.
-    *   **Lean Startup**: The "Solution" box on the Lean Canvas, and the description of the Minimum Viable Product (MVP) being built to test hypotheses.
-    *   **Product Development Lifecycle**: Describes the product or feature being developed.
-*   **Ghostbusters Example**: `A reinforced, high-capacity containment unit featuring an advanced multi-phasic energy grid and a user-friendly (i.e., 'less likely to backfire') activation system. Designed to handle up to three standard anomalies or one 'big one'.` (for INN_SUPER_TRAP_DEV)
-
-### initiativeValueProposition
+### iNNitiativeValueProposition
 **Initiative Value Proposition**
-*   **Summary**: A clear, concise, and compelling statement that articulates the unique and significant benefits, positive outcomes, or perceived value that this initiative's `initiativeSolution` is expected to deliver specifically to its `initiativeUser` and/or to the organization as a whole.
+*   **Summary**: A clear, concise, and compelling statement that articulates the unique and significant benefits, positive outcomes, or perceived value that this initiative's solution is expected to deliver specifically to its target users and/or to the organization as a whole.
 *   **Detailed Description**: This field answers the critical question: "Why should anyone (the target user, the customer, the organization) care about this solution and choose it or support it?" It should clearly and persuasively define the specific advantages, improvements, problem resolutions, cost savings, revenue generation opportunities, efficiency gains, enhanced experiences, or other positive impacts that the solution will provide. A strong value proposition focuses on the *benefits* received by the user or organization, rather than just listing the *features* of the solution. It should highlight what makes the solution unique, superior, or more desirable compared to existing alternatives (including the option of doing nothing). Crafting a compelling value proposition is essential for:
     *   Gaining user adoption and engagement.
     *   Securing stakeholder buy-in and continued funding.
@@ -628,25 +582,20 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   **Blue Ocean Strategy**: Focuses on creating uncontested market space by offering a unique value proposition that makes the competition irrelevant.
 *   **Ghostbusters Example**: `Projected 25% reduction in on-site time for complex cases, capability to address 15% more severe anomalies, improved team safety. Plus, it looks incredibly cool, which never hurts client confidence.` (for INN_SUPER_TRAP_DEV)
 
-### initiativeSolutionHypothesis
-**Initiative Solution Hypothesis**
-*   **Summary**: The core, explicitly stated, and testable assumption (or set of critical assumptions) about *how* the proposed `initiativeSolution` will effectively solve the defined `initiativeProblem` and thereby create the intended `initiativeValueProposition` for the `initiativeUser`.
-*   **Detailed Description**: This is a cornerstone of modern, evidence-based innovation methodologies like Lean Startup and is absolutely critical for guiding experimentation and structured learning. A solution hypothesis is not a statement of fact, but a precise, falsifiable belief that needs to be validated through empirical testing before significant resources are invested in full-scale development. It typically takes a form similar to:
-    "We believe that by [building/implementing this specific `initiativeSolution` or key feature of it],
-    we will achieve [a specific, measurable outcome related to the `initiativeValueProposition` or `initiativeGoals` for the `initiativeUser`],
-    because [the underlying reason, causal mechanism, or core assumption about user behavior, needs, or market dynamics that the solution leverages to solve the `initiativeProblem`]."
-    Stating this clearly helps the initiative team focus their efforts on identifying and testing their riskiest assumptions first. It transforms the development process from merely building features based on intuition or authority to conducting targeted experiments designed to validate or invalidate these critical underlying beliefs. This field is marked as **required** in the schema because it underpins the experimental, learning-driven nature of effective innovation. Without a clear, testable hypothesis, it's difficult to design meaningful experiments, measure progress towards validated learning, or know with any certainty if the initiative is on the right track.
-*   **Methodology Connection**: Absolutely central to several modern innovation and development approaches:
-    *   **Lean Startup**: The entire Build-Measure-Learn feedback loop is designed to iteratively test and refine hypotheses related to the problem, solution, customer, and business model. Hypotheses are formulated for various aspects (e.g., value hypothesis, growth hypothesis).
-    *   **Scientific Method**: This field directly mirrors the concept of a hypothesis in scientific experimentation – a proposed explanation made on the basis of limited evidence as a starting point for further investigation.
-    *   **Assumption Mapping / Riskiest Assumption Testing (RAT)**: Methodologies like these help teams identify their most critical and uncertain assumptions (which then form the basis of their hypotheses) and prioritize them for testing.
-    *   **Hypothesis-Driven Development**: A software development approach where development efforts are guided by explicit hypotheses about user value and business impact.
-*   **Ghostbusters Example**: `Developing a multi-capacity containment unit with an advanced energy grid will significantly reduce on-site time and improve safety for complex anomaly cases.` (for INN_SUPER_TRAP_DEV)
+### iNNitiativeExpectedBenefits
+**Expected Benefits**
+*   **Summary**: Outline the tangible or intangible benefits this initiative aims to realize once completed.
+*   **Detailed Description**: Describe anticipated outcomes such as revenue impact, cost savings, strategic positioning, or qualitative improvements that support the overall program objectives.
 
-### initiativeGoals
+### iNNitiativeValidation
+**Validation Notes**
+*   **Summary**: A running log of key validation activities and findings gathered as the initiative progresses.
+*   **Detailed Description**: Summarize evidence from experiments, user feedback, or market analysis that supports or challenges the initiative direction.
+
+### iNNitiativeGoals
 **Initiative Goals/Success Metrics**
 *   **Summary**: Specific, measurable, achievable, relevant, and time-bound (SMART) goals that concretely define how the overall success and impact of this particular initiative will be measured and evaluated upon its completion or at key milestones during its lifecycle.
-*   **Detailed Description**: These are the specific targets and Key Performance Indicators (KPIs) for the initiative itself, which should be distinct from, though often supportive of, the broader `programIndicators`. These `initiativeGoals` should directly relate to and quantify the intended `initiativeValueProposition` and provide clear, unambiguous, and agreed-upon success criteria. Examples of well-defined goals include:
+*   **Detailed Description**: These are the specific targets and Key Performance Indicators (KPIs) for the initiative itself, which should be distinct from, though often supportive of, the broader `programIndicators`. These `iNNitiativeGoals` should directly relate to and quantify the intended `iNNitiativeValueProposition` and provide clear, unambiguous, and agreed-upon success criteria. Examples of well-defined goals include:
     *   "Achieve an X% market adoption rate for the new product among the target user segment within Y months of launch."
     *   "Reduce the average cycle time for process Z by Q% within the next fiscal quarter, with a 95% quality rating."
     *   "Attain a customer satisfaction score (CSAT) of N (e.g., 4.5 out of 5) or a Net Promoter Score (NPS) of +X for the new feature, as measured by post-interaction surveys within the first 60 days."
@@ -668,61 +617,12 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     ```
     (for INN_SUPER_TRAP_DEV)
 
-### initiativeObjective
-**Initiative Objective (Experiment)**
-*   **Summary**: The specific learning objective, focused question to be answered, or particular micro-hypothesis being rigorously tested with the current iteration, prototype, Minimum Viable Product (MVP), or pilot phase of the initiative. This is often a subset or a specific aspect of the broader `initiativeSolutionHypothesis`.
-*   **Detailed Description**: In an iterative innovation process, such as Lean Startup or Agile development with a learning focus, each cycle or experiment should be designed with a very clear, narrow, and specific learning goal in mind. This field captures that precise objective for the *current* experimental loop or iteration. Instead of attempting to validate the entire, often complex, `initiativeSolutionHypothesis` all at once, an `initiativeObjective` breaks it down into smaller, more manageable, and directly testable parts. Examples include:
-    *   "To determine if at least 20% of invited beta users for our new mobile app will complete the core user journey (e.g., sign-up to first key action) within the first week of use."
-    *   "To validate if target customers are willing to click on a 'learn more' button for a non-existent premium feature (a 'fake door' experiment) at a rate of at least 5% on our landing page."
-    *   "To assess whether the new algorithm can process X type of data with Y% accuracy under Z conditions."
-    *   "To gather qualitative feedback on the usability and desirability of three different UI mockups for feature A from 10 target users."
-    This focused objective drives the "Build" part of the Build-Measure-Learn loop of Lean Startup and the "Prototype" and "Test" phases of Design Thinking. It ensures that each development effort and subsequent experiment is purposefully geared towards gaining specific, actionable insights and reducing uncertainty around the most critical assumptions related to the initiative's success. It answers: "What specific thing do we need to learn *right now*?"
-*   **Methodology Connection**: This field embodies the core of the experimental and iterative nature of:
-    *   **Lean Startup**: Each Minimum Viable Product (MVP) is built to achieve a specific learning objective related to testing a part of the business model or solution hypothesis. The "Learn" goal for a BML cycle.
-    *   **Design Thinking**: The "Test" phase involves getting feedback on prototypes with specific questions in mind to learn about user desirability, solution feasibility, or usability.
-    *   **Agile Development**: While sprint goals are often feature-focused, in an innovation context, a sprint goal can be framed as a learning objective – e.g., "By the end of this sprint, we want to learn if users understand how to use feature X."
-    *   **Hypothesis-Driven Development**: Development tasks are framed as experiments to test hypotheses, each with a clear objective.
-*   **Ghostbusters Example**: `To validate if the new quad-emitter design can maintain stable containment for multiple Class III anomalies for over 24 hours without power fluctuations exceeding 5%.` (for INN_SUPER_TRAP_DEV)
-
-### initiativeResults
-**Initiative Results (Experiment)**
-*   **Summary**: The observed factual data, direct user feedback, quantitative metrics, and qualitative outcomes that were gathered as a direct result of conducting the experiment or testing the prototype/MVP specifically designed to meet the stated `initiativeObjective`.
-*   **Detailed Description**: This field is where the raw, unbiased evidence from the experimentation process is meticulously recorded. It should capture what *actually happened* when the specific `initiativeObjective` was put to the test with real users or in a real-world (or simulated real-world) context. This is not interpretation or opinion, but factual data. This includes:
-    *   **Quantitative data**: Measurable metrics directly related to the objective, such as conversion rates (e.g., X% of users signed up), usage statistics (e.g., Y daily active users, Z% adoption of a specific feature), task completion times, error rates, A/B test results (e.g., variation A outperformed variation B by N%), survey scores on rating scales.
-    *   **Qualitative feedback**: Direct, verbatim quotes from user interviews or usability tests (e.g., "User A said, 'I found this confusing because...'"), common themes emerging from open-ended survey responses, key positive and negative comments.
-    *   **Observed behaviors**: Detailed observations of how users interacted with the prototype or MVP – where they succeeded, where they struggled, what they liked or disliked, any unexpected actions they took, non-verbal cues.
-    *   **Technical performance data**: If the objective was technical, results like processing speed, system stability under load, accuracy rates of an algorithm.
-    These results are the factual inputs for the 'Measure' component of the Lean Startup's Build-Measure-Learn loop and are absolutely crucial for objective analysis and making informed decisions. It's important to record both positive results (validating assumptions) and negative or unexpected results (invalidating assumptions or revealing new insights), as both provide valuable learning.
-*   **Methodology Connection**: This is the "Measure" part of **Lean Startup's Build-Measure-Learn loop**.
-    *   **Usability Testing (Design Thinking, UX Research)**: The direct outputs of usability tests – such as observations, task success/failure rates, user quotes, error logs – are documented here.
-    *   **A/B Testing / Multivariate Testing**: The statistical results and observed differences between the tested variations.
-    *   **Analytics (Web/Mobile/Product)**: Data extracted from analytics platforms tracking user behavior with an MVP or pilot.
-    *   **Scientific Experimentation**: The raw data collected from an experiment before analysis.
-*   **Ghostbusters Example**: `Initial bench tests show stable field geometry. Multi-anomaly simulation pending full power cell integration.` (for INN_SUPER_TRAP_DEV)
-
-### initiativeLearnings
-**Initiative Learnings**
-*   **Summary**: Key insights, new understandings, validated assumptions (those proven true by data), invalidated assumptions (those proven false by data), and unexpected discoveries that are derived from a thorough analysis and synthesis of the `initiativeResults` gathered from an experiment or test.
-*   **Detailed Description**: This is the critical 'Learn' component of the Build-Measure-Learn cycle and the synthesis step that follows Design Thinking's "Test" phase. It goes beyond merely restating the `initiativeResults`; it involves interpreting their meaning and implications for the initiative. Key questions to answer in this field include:
-    *   **Hypothesis Validation**: Based on the evidence, were the hypotheses underpinning the `initiativeObjective` confirmed or refuted? To what degree of confidence?
-    *   **User Understanding**: What new understanding was gained about the target `initiativeUser` – their actual needs, behaviors, preferences, pain points, or motivations? Were initial assumptions about them correct?
-    *   **Problem Understanding**: Was the `initiativeProblem` framed correctly? Is it a real and significant problem for the target user? Has the understanding of the problem evolved?
-    *   **Solution Insights**: What was learned about the proposed `initiativeSolution` itself – its strengths, weaknesses, usability, desirability, feasibility, areas for improvement?
-    *   **Unexpected Discoveries**: Were there any surprising findings, unintended consequences, or new opportunities that emerged from the experiment that were not initially anticipated?
-    These learnings are what directly inform the subsequent `initiativeDecision` (e.g., whether to persevere with the current approach, pivot to a new one, or discard the idea). Documenting learnings clearly, concisely, and actionably is essential for building institutional knowledge, avoiding the repetition of past mistakes or flawed assumptions, and making progressively smarter and more evidence-based decisions in future iterations of this initiative or in other related projects. It answers the question: "What do we know *now* that we didn't know before, and what does this new knowledge *mean* for what we should do next?"
-*   **Methodology Connection**: This is the "Learn" part of **Lean Startup's Build-Measure-Learn loop**, which is arguably the most important step as it drives future action.
-    *   **Design Thinking**: Involves synthesizing findings from the "Test" phase to generate insights that inform the next iteration of ideation or prototyping.
-    *   **Agile Retrospectives**: While often focused on team process, retrospectives also aim to identify learnings from a sprint that can improve the product or future sprints. The learnings here are more specifically focused on the product/solution hypotheses and user understanding.
-    *   **Action Research / Reflective Practice**: Emphasizes learning from action and experience to inform future action.
-    This is where raw data from `initiativeResults` is transformed into actionable intelligence and knowledge.
-*   **Ghostbusters Example**: `The anodyne particle coating on the emitter coils reduces energy bleed-off by an unexpected 7%. This may allow for a smaller primary power cell.` (for INN_SUPER_TRAP_DEV)
-
-### initiativeDecision
-**Initiative Decision**
-*   **Summary**: The strategic Go/No-Go/Change-course decision made for the initiative after a thorough evaluation of the `initiativeResults` and the synthesized `initiativeLearnings` from an experiment, a completed phase, or a formal gate review.
+### iNNitiativeStatus
+**iNNitiative Status**
+*   **Summary**: The strategic Go/No-Go/Change-course decision made for the initiative after a thorough evaluation of the validation evidence and the synthesized validation evidence from an experiment, a completed phase, or a formal gate review.
 *   **Detailed Description**: This field represents a critical checkpoint or 'Gate' in a Stage-Gate process, or a formal decision point at the end of an iterative cycle (e.g., a Lean Startup experiment or an Agile sprint/release focused on validation and learning). Based on the accumulated evidence and learning, the initiative team, program manager, or the relevant governance body must make a conscious, documented choice about how to proceed with the initiative. The schema provides an enumerated list of possible decisions:
     *   `Persevere`: Continue with the current strategy, plan, and direction. This decision is typically made when the evidence gathered sufficiently supports the existing hypotheses and the current approach is showing promise towards achieving its goals.
-    *   `Pivot`: Make a significant, structured change in one or more core aspects of the initiative. This could be a change in the target `initiativeUser` segment, a redefinition of the `initiativeProblem`, a fundamental alteration to the `initiativeSolution` or its key features, a new `initiativeValueProposition`, a shift in the business model, or a change in the core technology approach. A pivot is made based on critical `initiativeLearnings` that invalidate previous core assumptions and suggest a new, more promising path.
+    *   `Pivot`: Make a significant, structured change in one or more core aspects of the initiative. This could be a change in the target target users segment, a redefinition of the problem statement, a fundamental alteration to the solution or its key features, a new `iNNitiativeValueProposition`, a shift in the business model, or a change in the core technology approach. A pivot is made based on critical validation evidence that invalidate previous core assumptions and suggest a new, more promising path.
     *   `Discard`: Formally abandon, terminate, or "kill" the initiative. This decision is made when the evidence strongly suggests the initiative is not viable, not valuable enough to justify further investment, the problem isn't as significant as initially thought, or insurmountable technical/market challenges have been identified. "Failing fast" and discarding unpromising initiatives is a healthy part of an efficient innovation process, freeing up resources for more promising endeavors.
     *   `Validated for Handover`: The core concept, solution, or business model has been sufficiently validated through experimentation and iteration, and it is now deemed ready to be transitioned from the innovation/R&D team to a different team or operational unit for full-scale development, broader market launch, ongoing operations, or commercialization.
     This decision is a **required field** as it marks a formal checkpoint, documents a key strategic choice, and dictates the future trajectory and resource allocation for the initiative.
@@ -732,89 +632,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   **Agile Development**: While less about formal gates for the entire initiative, sprint reviews and release planning involve decisions about what to build next, what to refine, and what to stop working on based on progress, feedback, and learning. For larger epics or products, more formal "continue/pivot/stop" decisions are made.
 *   **Ghostbusters Example**: `Persevere` (for INN_SUPER_TRAP_DEV)
 
-### initiativeDecisionJustification
-**Initiative Decision Justification**
-*   **Summary**: The detailed rationale, explicit reasoning, and supporting evidence (drawn primarily from `initiativeResults` and `initiativeLearnings`) that underpins and justifies the specific `initiativeDecision` (Persevere, Pivot, Discard, Validated for Handover) that was made for the initiative.
-*   **Detailed Description**: Transparency, accountability, and learning from past decisions are key for a robust innovation program. This field provides the necessary space to explain *why* a particular strategic decision was taken for the initiative at a given checkpoint. The justification should be evidence-based, directly referencing:
-    *   The key `initiativeResults` (both quantitative and qualitative data).
-    *   More importantly, the synthesized `initiativeLearnings` derived from those results.
-    *   How these learnings validated or invalidated the `initiativeSolutionHypothesis` or the specific `initiativeObjective` of the experiment/phase.
-    *   Any other relevant factors (e.g., changes in market conditions, strategic priorities, resource availability) that influenced the decision.
-    For example:
-    *   If the decision was to "Pivot," this field would explain which specific learnings invalidated previous core assumptions, why the current path was no longer viable, and what the new proposed direction or hypothesis will be based on those insights.
-    *   If the decision was to "Persevere," it would summarize the key validating evidence and positive indicators that support continued investment in the current direction.
-    *   If the decision was to "Discard," it would clearly outline the reasons for termination (e.g., insurmountable technical challenges, consistently negative user feedback, lack of market interest, poor financial projections based on validated data).
-    This documentation is invaluable for future reviews, for onboarding new team members to the initiative's history and strategic evolution, for institutional memory (preventing the organization from repeating the same mistakes or re-litigating past decisions without new evidence), and for justifying resource allocation or de-allocation to stakeholders and governance bodies.
-*   **Methodology Connection**: Supports **Evidence-Based Decision Making** and **Organizational Learning**.
-    *   **Lean Startup**: Documenting the "why" behind a pivot or persevere decision is crucial for learning and for communicating the rationale to stakeholders. It reinforces the discipline of making decisions based on data, not just opinions.
-    *   **Stage-Gate**: Formal gate review documentation typically includes a detailed justification for Go/Kill/Hold/Recycle decisions, based on predefined criteria and deliverables from the preceding stage.
-    *   Provides an audit trail and a learning resource for key strategic choices made during the innovation lifecycle.
-*   **Ghostbusters Example**: `Early results are promising and align with the core hypothesis. Identified potential for efficiency gains.` (for INN_SUPER_TRAP_DEV)
-
-### initiativeNextSteps
-**Initiative Next Steps**
-*   **Summary**: A clear, actionable outline of the immediate tasks, planned activities, or the definition of the next set of experiments to be undertaken by the initiative team, directly following and driven by the current phase completion, a recent experiment's outcomes, or the latest formal `initiativeDecision`.
-*   **Detailed Description**: This field reflects the iterative, progressive, and action-oriented nature of modern innovation methodologies like Agile and Lean Startup. Based on the `initiativeDecision` made and the accumulated `initiativeLearnings`, what are the concrete, tangible, and prioritized next steps for the initiative team? These steps should be specific enough to guide action in the short term (e.g., for the next sprint, the next phase, or the next few weeks). Examples include:
-    *   If the decision was to `Persevere`: "Develop feature X and Y in the next two sprints," "Conduct a larger-scale pilot with 100 users to validate scalability," "Refine the UI based on feedback from usability testing session #3."
-    *   If the decision was to `Pivot`: "Conduct new user interviews with target segment B to understand their pain points related to Z," "Develop three low-fidelity prototypes for the new solution direction A," "Analyze competitor offerings in the new target market C."
-    *   If the decision was `Validated for Handover`: "Prepare detailed technical documentation for the operations team," "Schedule knowledge transfer sessions with the scaling engineering team," "Define SLAs for the production environment."
-    *   If `Discard` (though less common to have extensive next steps here unless it's about formal closure): "Archive all project documentation," "Conduct a lessons-learned session with the team."
-    Listing clear next steps ensures that the initiative maintains momentum, provides unambiguous direction for the team, and translates strategic decisions and valuable learnings into tangible forward progress.
-*   **Methodology Connection**: Drives action and maintains momentum in iterative and phased frameworks.
-    *   **Agile (Scrum)**: The output of Sprint Planning is the Sprint Backlog, which details the immediate next steps (tasks) for the upcoming sprint. This field could summarize the key themes, epics, or experiments planned for the next iteration or release.
-    *   **Lean Startup**: After deciding to persevere or pivot based on learnings from a Build-Measure-Learn cycle, the team defines the *next* experiment (what to build next to learn more).
-    *   **Project Management**: Action items, task lists, or work packages resulting from a phase review, gate decision, or change request approval.
-    *   **Getting Things Done (GTD)**: Emphasizes defining the "next physical action" to make progress on any project.
-*   **Ghostbusters Example**:
-    ```
-    1. Finalize schematics for reinforced chasis and quad-energy emitters.
-    2. Source next-generation particle induction coils (the non-exploding kind, preferably).
-    3. Conduct rigorous stress testing on containment field stability under duress.
-    4. Consult Peter Venkman on color scheme and 'coolness factor'.
-    ```
-    (for INN_SUPER_TRAP_DEV)
-
-### initiativeBudget
-**Initiative Budget (€)**
-*   **Summary**: The allocated or estimated financial resources, expressed as a numerical value (e.g., in Euros, as suggested by the "€" in the schema's original title description for this field), specifically designated for this innovation initiative.
-*   **Detailed Description**: This field captures the financial commitment or projection for the initiative. It can represent various budgeting scenarios:
-    *   The **total approved budget** for the entire anticipated lifecycle of the initiative.
-    *   The **specific budget allocated** for the current `iNNitiativePhase` (common in Stage-Gate processes where funding is released incrementally).
-    *   An **estimated cost** if the initiative is in very early stages (e.g., idea or concept phase) and formal budget approval is pending or being developed.
-    This figure should ideally encompass all anticipated direct and indirect costs associated with executing the initiative, such as:
-    *   Personnel costs (salaries, contractor fees for the core team and any dedicated support).
-    *   Materials and supplies (e.g., for prototyping, testing).
-    *   Software/hardware procurement or licensing fees.
-    *   External services (e.g., fees for consultants, design agencies, specialized research).
-    *   Marketing, user acquisition, or pilot program expenses.
-    *   Travel and miscellaneous operational costs.
-    Tracking the `initiativeBudget` against actual expenditures is essential for financial planning and control, for making informed decisions about resource allocation across the entire portfolio of initiatives, and for ultimately evaluating the financial efficiency or return on investment (ROI) of the initiative.
-*   **Methodology Connection**: Financial tracking and management are integral to overall **Project Management** and **Portfolio Management**, regardless of the specific innovation methodology.
-    *   **Stage-Gate**: Budgets are often reviewed, and further funding tranches approved, at each successful Gate review.
-    *   **Lean Startup**: While strongly emphasizing capital efficiency and "frugal innovation" in early stages (e.g., building low-cost MVPs), initiatives still incur costs (e.g., team time, tools, small-scale marketing for tests). "Innovation Accounting" involves tracking these investments against the validated learning achieved.
-    *   **Agile Development**: Teams have an associated cost (often a "burn rate"). Budget considerations can influence the scope that can be delivered within a certain timeframe or the number of sprints an initiative can run.
-    *   **Venture Capital / Internal Ventures**: Initiatives might be funded like internal startups, with seed rounds, Series A equivalent, etc., tied to milestones.
-*   **Ghostbusters Example**: `65000` (for INN_SUPER_TRAP_DEV)
-
-### initiativeResources
-**Initiative Resources Needed**
-*   **Summary**: A textual description identifying and detailing key non-financial resources – such as specific personnel skills or roles, critical tools and technologies, essential equipment or facilities, vital data sources, or crucial external partnerships and expertise – that are required for the successful execution and completion of the initiative.
-*   **Detailed Description**: Beyond just monetary budget (`initiativeBudget`), innovation initiatives require a diverse array of other enabling resources to progress effectively. This field is for meticulously detailing those critical non-financial needs. Users should list:
-    *   **Personnel**: Specific roles needed (e.g., "Senior Python Developers," "UX Researcher," "Data Scientist"), number of Full-Time Equivalents (FTEs) or effort level, key skills or certifications required (e.g., "NLP experience," "AWS Certified Solutions Architect"), or even named individuals if their unique expertise is critical and their availability needs to be secured.
-    *   **Tools & Software**: Specialized software licenses (e.g., "CAD software," "statistical analysis package"), development environments, cloud platform credits, analytics platforms, design tools, specific APIs.
-    *   **Equipment & Infrastructure**: Physical equipment (e.g., "3D printer for rapid prototyping," "High-resolution electron microscope"), lab facilities, testing apparatus, dedicated server environments, access to specific machinery.
-    *   **Data & Information**: Access to specific datasets (internal or external), market research reports, intellectual property (e.g., patents to license-in).
-    *   **Expertise & Knowledge**: Access to specific internal subject matter experts (SMEs), external consultants with specialized knowledge, or academic researchers.
-    *   **Partnerships & Collaborations**: Reliance on external organizations, key suppliers for critical components, research institutions, or co-development partners.
-    Clearly identifying these resource needs early in the initiative lifecycle (and regularly updating this list as the initiative evolves) is crucial for effective planning, securing commitments from resource managers, internal resource allocation across competing initiatives, identifying potential bottlenecks or dependencies, and ensuring the initiative team has what it needs to succeed.
-*   **Methodology Connection**: Resource planning and management are key to any execution-oriented framework.
-    *   **Agile (Scrum)**: Team composition (cross-functional skills) and ensuring the team has the necessary tools and environment (Definition of Done often includes access to test environments, etc.).
-    *   **Project Management (PMBOK)**: Resource Planning, Acquire Resources, and Develop Team are core processes.
-    *   **Open Innovation / Co-creation**: Might detail reliance on external partners, their specific contributions, or shared resources as a key component.
-    *   **Theory of Constraints**: Identifying and managing bottleneck resources.
-*   **Ghostbusters Example**: `1 Lead R&D Engineer (Elara)\n1 Mechanical Design Specialist\n1 Quantum Entanglement Consultant (part-time)\nWorkshop access\nHigh-density power cells\nAn almost unhealthy amount of coffee` (for INN_SUPER_TRAP_DEV)
-
-### initiativeRisks
+### iNNitiativeRisks
 **Initiative Risks & Mitigation**
 *   **Summary**: A documented identification of potential risks, significant challenges, critical uncertainties, or potential negative events that could adversely impact the initiative's progress, budget, timeline, quality, or ultimate success, along with an outline of proposed plans, strategies, or actions to mitigate (reduce likelihood/impact), avoid (eliminate the cause), transfer (shift to a third party), or accept (acknowledge but take no action) those identified risks.
 *   **Detailed Description**: Proactive risk management is a critical discipline for increasing the likelihood of success in inherently uncertain and often complex innovation endeavors. This field encourages initiative teams to think ahead about what could go wrong ("threats") and also potentially what could go unexpectedly right ("opportunities" in the risk management sense, though less common here). Users should identify potential risks across various relevant categories:
@@ -845,7 +663,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     ```
     (for INN_SUPER_TRAP_DEV)
 
-### initiativeDateRegistered
+### iNNitiativeDateRegistered
 **Initiative Date Registered**
 *   **Summary**: The specific calendar date on which the innovation initiative was formally created, officially registered, or first logged within the iNNitiatives tracking system or innovation program.
 *   **Detailed Description**: This field records the "birth date" or formal inception date of the initiative as a recognized project or distinct endeavor within the framework of the innovation program. It marks the point at which an idea or opportunity, having passed some initial screening or approval, transitions into a formal commitment for more detailed exploration, planning, or development, even if full resources are not yet allocated or work has not yet commenced. This date is useful for several analytical and operational purposes:
@@ -860,7 +678,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 *   **Ghostbusters Example**: `2024-02-01` (for INN_SUPER_TRAP_DEV)
 
 
-### initiativeNotes
+### iNNitiativeNotes
 **Initiative Additional Notes**
 *   **Summary**: A flexible, free-text field designed for capturing any other relevant notes, ad-hoc comments, miscellaneous observations, informal updates, brief meeting summaries, or supplementary contextual information pertaining to the initiative that does not fit neatly into any of the other more structured, predefined fields.
 *   **Detailed Description**: This field provides a valuable "catch-all" space for qualitative information or contextual details that might be important for a comprehensive understanding of the initiative's history, its current nuances, specific challenges, team dynamics, or future considerations. Users can leverage this field to:
@@ -875,5 +693,4 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   **Agile (Scrum/Kanban)**: Could be used for notes from sprint retrospectives that are specific to this initiative's product development, or for logging informal impediments and their resolution. Daily Scrum notes might sometimes find their way here if not captured elsewhere.
     *   **General Project Management**: Often, project managers maintain a "project log" or "issue log" for miscellaneous items; this field can serve a similar informal purpose.
     *   **Knowledge Management**: Helps capture some of the tacit or unstructured knowledge that often surrounds projects and can be lost if not documented somewhere.
-    *   **Decision Logs**: While `initiativeDecisionJustification` is for formal decisions, minor rationale or context for smaller choices might be noted here.
 *   **Ghostbusters Example**: `Ramona has requested redundant safety interlocks. Louis is already calculating the depreciation schedule. There's a pool on whether the first field test will involve a Class IV or just a very angry badger.` (for INN_SUPER_TRAP_DEV)

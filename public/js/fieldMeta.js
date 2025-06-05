@@ -3,13 +3,18 @@ export const FIELD_ICONS = {
   personName: 'user',
   personRole: 'briefcase',
   personDescription: 'info',
+  programSponsorPersonId: 'user-check',
+  programManagerPersonId: 'user-cog',
   opportunityName: 'lightbulb',
   opportunityPriority: 'star',
   opportunityStatus: 'flag',
   iNNitiativeName: 'activity',
   iNNitiativePhase: 'flag',
   iNNitiativeType: 'tag',
-  initiativeBudget: 'euro'
+  programSponsorPersonId: 'user',
+  programManagerPersonId: 'user',
+  iNNitiativeOwnerPersonId: 'user',
+  iNNitiativeRelatedOpportunityId: 'lightbulb'
 };
 
 import { APP_SCHEMA } from './appSchema.js';
