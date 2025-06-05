@@ -2,7 +2,7 @@ export const DashboardView = {
     props: {
         appData: Object,
         isEmptyData: Boolean,
-        initiativePhasesSummary: Array, // Renamed from initiativePhases in main app
+        iNNitiativePhasesSummary: Array, // Renamed from iNNitiativePhases in main app
         kanbanPhases: Array,
         initiativesByPhase: Object,
         topOpportunities: Array,
@@ -64,7 +64,7 @@ export const DashboardView = {
 
                 <!-- Overview Sections -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <initiatives-by-phase-summary :initiative-phases-summary="initiativePhasesSummary"></initiatives-by-phase-summary>
+                    <initiatives-by-phase-summary :initiative-phases-summary="iNNitiativePhasesSummary"></initiatives-by-phase-summary>
                     <top-opportunities-summary :top-opportunities="topOpportunities" :get-person-name-fn="getPersonNameFn"></top-opportunities-summary>
                 </div>
 

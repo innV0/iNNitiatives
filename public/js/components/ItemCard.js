@@ -45,21 +45,21 @@ export const ItemCard = {
                     });
                 }
             } else if (this.type === 'initiative') {
-                if (this.item.initiativeManagerId) {
+                if (this.item.iNNitiativeOwnerPersonId) {
                     b.push({
                         kind: 'item',
-                        name: this.getPersonNameFn ? this.getPersonNameFn(this.item.initiativeManagerId) : this.$root.getPersonName(this.item.initiativeManagerId),
+                        name: this.getPersonNameFn ? this.getPersonNameFn(this.item.iNNitiativeOwnerPersonId) : this.$root.getPersonName(this.item.iNNitiativeOwnerPersonId),
                         icon: 'user',
-                        item: this.$root.getPerson(this.item.initiativeManagerId),
+                        item: this.$root.getPerson(this.item.iNNitiativeOwnerPersonId),
                         type: 'person'
                     });
                 }
-                if (this.item.initiativeOpportunityId) {
+                if (this.item.iNNitiativeRelatedOpportunityId) {
                     b.push({
                         kind: 'item',
-                        name: this.$root.getOpportunityName(this.item.initiativeOpportunityId),
+                        name: this.$root.getOpportunityName(this.item.iNNitiativeRelatedOpportunityId),
                         icon: 'lightbulb',
-                        item: this.$root.getOpportunity(this.item.initiativeOpportunityId),
+                        item: this.$root.getOpportunity(this.item.iNNitiativeRelatedOpportunityId),
                         type: 'opportunity'
                     });
                 }
