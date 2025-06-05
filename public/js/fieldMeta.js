@@ -9,7 +9,10 @@ export const FIELD_ICONS = {
   iNNitiativeName: 'activity',
   iNNitiativePhase: 'flag',
   iNNitiativeType: 'tag',
-  initiativeBudget: 'euro'
+  programSponsorPersonId: 'user',
+  programManagerPersonId: 'user',
+  iNNitiativeOwnerPersonId: 'user',
+  iNNitiativeRelatedOpportunityId: 'lightbulb'
 };
 
 import { APP_SCHEMA } from './appSchema.js';

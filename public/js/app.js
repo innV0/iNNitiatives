@@ -302,7 +302,46 @@ const app = createApp({
         addOpportunity() { this.itemModalTitle = 'Add New Opportunity'; const schema = APP_SCHEMA.definitions.opportunity; this.currentEditType = 'opportunity'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); const today = new Date().toISOString().split('T')[0]; let newOppData = { opportunityId: appUtils.generateUniqueId('OPP'), opportunityDateIdentified: today, opportunityLastUpdated: new Date().toISOString() }; for(const key in schema.properties) { if(schema.properties[key].default !== undefined && newOppData[key] === undefined) { newOppData[key] = schema.properties[key].default; } if(key === "opportunityPriority" && newOppData[key] === undefined) newOppData[key] = 0; if(key === "opportunityStatus" && newOppData[key] === undefined) newOppData[key] = (this.appData.program && this.appData.program.programDefaultOpportunityStatuses && this.appData.program.programDefaultOpportunityStatuses.length > 0) ? this.appData.program.programDefaultOpportunityStatuses[0] : (schema.properties.opportunityStatus.enum ? schema.properties.opportunityStatus.enum[0] : ''); } this.itemModalFormData = this.prepareFormData(newOppData, this.itemModalFormFields); this.itemModalItemData = newOppData; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('opportunity.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
         editOpportunity(opportunity) { this.itemModalTitle = 'Edit Opportunity'; const schema = APP_SCHEMA.definitions.opportunity; this.currentEditType = 'opportunity'; this.currentEditId = opportunity.opportunityId; this.itemModalFormFields = this.generateFormFields(schema); this.itemModalFormData = this.prepareFormData(opportunity, this.itemModalFormFields); this.itemModalItemData = opportunity; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('opportunity.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
         deleteOpportunity(opportunityId) { const linkedInitiatives = (this.appData.initiatives || []).filter(init => init.iNNitiativeRelatedOpportunityId === opportunityId).length; let warningMessage = `Are you sure you want to delete opportunity ID: ${opportunityId}? This action cannot be undone.`; if (linkedInitiatives > 0) { warningMessage = `Warning: This opportunity is linked to ${linkedInitiatives} initiative(s). Deleting it will leave these initiatives without a valid reference. Proceed with deletion?`; } if (confirm(warningMessage)) { const index = (this.appData.opportunities || []).findIndex(o => o.opportunityId === opportunityId); if (index !== -1) { this.appData.opportunities.splice(index, 1); this.showNotification('Success', `Opportunity ${opportunityId} deleted successfully!`, 'success'); } else { this.showNotification('Error', `Opportunity ${opportunityId} not found.`, 'error'); } } },
-        addInitiative() { this.itemModalTitle = 'Add New iNNitiative'; const schema = APP_SCHEMA.definitions.iNNitiative; this.currentEditType = 'initiative'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); const today = new Date().toISOString().split('T')[0]; let newInitData = { iNNitiativeId: appUtils.generateUniqueId('INN'), initiativeDateRegistered: today, iNNitiativeDateRegistered: new Date().toISOString() }; for(const key in schema.properties) { if(schema.properties[key].default !== undefined && newInitData[key] === undefined) { newInitData[key] = schema.properties[key].default; } if(key === "initiativeBudget" && newInitData[key] === undefined) newInitData[key] = 0; if(key === "iNNitiativePhase" && newInitData[key] === undefined) newInitData[key] = (this.appData.program && this.appData.program.programStages && this.appData.program.programStages.length > 0) ? this.appData.program.programStages[0] : (schema.properties.iNNitiativePhase.enum ? schema.properties.iNNitiativePhase.enum[0] : ''); if(key === "iNNitiativeType" && newInitData[key] === undefined) newInitData[key] = (this.appData.program && this.appData.program.programDefaultInitiativeTypes && this.appData.program.programDefaultInitiativeTypes.length > 0) ? this.appData.program.programDefaultInitiativeTypes[0] : (schema.properties.iNNitiativeType.enum ? schema.properties.iNNitiativeType.enum[0] : ''); if(key === "initiativeDecision" && newInitData[key] === undefined) newInitData[key] = (schema.properties.initiativeDecision.enum ? schema.properties.initiativeDecision.enum[0] : ''); } this.itemModalFormData = this.prepareFormData(newInitData, this.itemModalFormFields); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
+        addInitiative() {
+            this.itemModalTitle = 'Add New iNNitiative';
+            const schema = APP_SCHEMA.definitions.iNNitiative;
+            this.currentEditType = 'initiative';
+            this.currentEditId = null;
+            this.itemModalFormFields = this.generateFormFields(schema);
+            let newInitData = {
+                iNNitiativeId: appUtils.generateUniqueId('INN'),
+                iNNitiativeDateRegistered: new Date().toISOString()
+            };
+            for (const key in schema.properties) {
+                if (schema.properties[key].default !== undefined && newInitData[key] === undefined) {
+                    newInitData[key] = schema.properties[key].default;
+                }
+                if (key === 'iNNitiativePhase' && newInitData[key] === undefined) {
+                    newInitData[key] =
+                        this.appData.program &&
+                        this.appData.program.programStages &&
+                        this.appData.program.programStages.length > 0
+                            ? this.appData.program.programStages[0]
+                            : schema.properties.iNNitiativePhase.enum
+                            ? schema.properties.iNNitiativePhase.enum[0]
+                            : '';
+                }
+                if (key === 'iNNitiativeType' && newInitData[key] === undefined) {
+                    newInitData[key] =
+                        this.appData.program &&
+                        this.appData.program.programDefaultInitiativeTypes &&
+                        this.appData.program.programDefaultInitiativeTypes.length > 0
+                            ? this.appData.program.programDefaultInitiativeTypes[0]
+                            : schema.properties.iNNitiativeType.enum
+                            ? schema.properties.iNNitiativeType.enum[0]
+                            : '';
+                }
+            }
+            this.itemModalFormData = this.prepareFormData(newInitData, this.itemModalFormFields);
+            this.showSaveAndDownload = true;
+            this.itemModalActiveTab = 'edit';
+            this.showItemModal = true;
+        },
         editInitiative(initiative) { this.itemModalTitle = 'Edit iNNitiative'; const schema = APP_SCHEMA.definitions.iNNitiative; this.currentEditType = 'initiative'; this.currentEditId = initiative.iNNitiativeId; this.itemModalFormFields = this.generateFormFields(schema); this.itemModalFormData = this.prepareFormData(initiative, this.itemModalFormFields); this.itemModalItemData = initiative; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('initiative.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
         deleteInitiative(iNNitiativeId) { if (confirm(`Are you sure you want to delete iNNitiative ID: ${iNNitiativeId}? This action cannot be undone.`)) { const index = (this.appData.initiatives || []).findIndex(i => i.iNNitiativeId === iNNitiativeId); if (index !== -1) { this.appData.initiatives.splice(index, 1); this.showNotification('Success', `Initiative ${iNNitiativeId} deleted successfully!`, 'success'); } else { this.showNotification('Error', `Initiative ${iNNitiativeId} not found.`, 'error'); } } },
         closeItemModal() { this.showItemModal = false; this.itemModalTitle = ''; this.itemModalFormData = {}; this.itemModalFormFields = []; this.itemModalItemData = null; this.itemModalItemFields = []; this.currentEditType = null; this.currentEditId = null; this.showSaveAndDownload = false; this.relatedItems = []; },
