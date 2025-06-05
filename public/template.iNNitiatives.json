@@ -1,0 +1,40 @@
+{
+  "program": {
+    "programName": "Innovation Program",
+    "programObjectives": "Vision:\nMission:\nStrategic Objectives:",
+    "programScope": "",
+    "programIndicators": "",
+    "programGovernance": "",
+    "programFunding": "",
+    "programStages": "",
+    "programReporting": "",
+    "programDefaultOpportunityStatuses": "",
+    "programDefaultInitiativeTypes": "",
+    "programBusinessDescription": "",
+    "programLastUpdated": "",
+    "programSponsorPersonId": "",
+    "programManagerPersonId": ""
+  },
+  "people": [
+    {
+      "personId": "PERSON_INNV0_CONSULTANT",
+      "personName": "iNNv0 Consultant",
+      "personDescription": "We help you launch your innovation program in your organization. ",
+      "personRole": "Collaborator",
+      "personUrl": "https://www.linkedin.com/in/lucascervera",
+      "personImageUrl": "https://lucascervera.com/assets/lucas_video.webp"
+    },
+    {
+      "personId": "PERSON_INNV0_AI",
+      "personName": "iNNitiatives Artificial Intelligence",
+      "personDescription": "I help you design and implement an innovation program for your organization. Additionally, I give you feedback and ideas on the detected opportunities and initiatives underway. ",
+      "personRole": "Collaborator",
+      "personUrl": "https://innitiatives.com",
+      "personImageUrl": "https://innv0.com/assets/innv0_logo.svg"
+    }
+  ],
+  "opportunities": [],
+  "initiatives": [],
+  "version": "1.0.0",
+  "publishedDate": "2025-06-05"
+}
