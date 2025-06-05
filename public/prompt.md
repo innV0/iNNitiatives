@@ -32,9 +32,13 @@ Based on the provided JSON model and its content identify the language used and 
 
 ---
 
-📄 **Docs**  
+📄 **Docs**
 If the user chooses option 8, provide this link to access live documentation:
 🔗 https://docsify-this.net/?basePath=https://innv0.github.io/iNNitiatives/public&homepage=docs.md&sidebar=true#/
+
+📄 **Process Guide**
+Use this link to explore the full process guide rendered with Docsify:
+🔗 https://docsify-this.net/?basePath=https://innv0.github.io/iNNitiatives/public&homepage=iNNitiatives.struml.md&sidebar=true#/
 
 ---
 
