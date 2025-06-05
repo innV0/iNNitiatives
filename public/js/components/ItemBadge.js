@@ -6,7 +6,7 @@ export const ItemBadge = {
         },
         icon: {
             type: String,
-            default: 'hash'
+            default: ''
         },
         item: {
             type: Object,
@@ -15,6 +15,15 @@ export const ItemBadge = {
         type: {
             type: String,
             default: ''
+        }
+    },
+    computed: {
+        computedIcon() {
+            if (this.icon) return this.icon;
+            if (this.type === 'person') return 'user';
+            if (this.type === 'opportunity') return 'lightbulb';
+            if (this.type === 'initiative') return 'zap';
+            return 'tag';
         }
     },
     methods: {
@@ -28,7 +37,7 @@ export const ItemBadge = {
     },
     template: `
         <span @click="handleClick" class="inline-flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs cursor-pointer">
-            <i :data-lucide="icon" class="w-3 h-3"></i>
+            <i :data-lucide="computedIcon" class="w-3 h-3"></i>
             <span>{{ name }}</span>
         </span>
     `,

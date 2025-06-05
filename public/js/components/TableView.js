@@ -10,10 +10,12 @@ export const TableView = {
          * When provided, edited values will automatically update
          * the corresponding object in appData.
          */
-        appDataSection: { type: String, default: '' }
+        appDataSection: { type: String, default: '' },
+        currentSortField: String,
+        currentSortOrder: String
     },
     components: { FieldRenderer },
-    emits: ['update-item', 'view-item-requested'],
+    emits: ['update-item', 'view-item-requested', 'sort-requested'],
     data() {
         return {
             editableItems: [],
@@ -70,18 +72,22 @@ export const TableView = {
         }
     },
     template: `
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+        <div class="overflow-x-auto w-full">
+            <table class="min-w-max w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50 sticky top-0 z-10">
                     <tr>
-                        <th v-for="field in mappedFields" :key="field.key" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">
-                            {{ field.title }}
+                        <th v-for="(field, idx) in mappedFields" :key="field.key" :class="['px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50 cursor-pointer select-none', idx === 0 ? 'sticky left-0 z-20' : '']" @click="$emit('sort-requested', field.key)">
+                            <span class="inline-flex items-center space-x-1">
+                                <span>{{ field.title }}</span>
+                                <i v-if="currentSortField === field.key" :data-lucide="currentSortOrder === 'asc' ? 'arrow-up' : 'arrow-down'" class="w-3 h-3"></i>
+                                <i v-else data-lucide="arrow-up-down" class="w-3 h-3 text-gray-300"></i>
+                            </span>
                         </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <tr v-for="(row, rowIndex) in editableItems" :key="rowIndex">
-                        <td v-for="field in mappedFields" :key="field.key" class="px-3 py-2 whitespace-nowrap">
+                        <td v-for="(field, idx) in mappedFields" :key="field.key" :class="['px-3 py-2 whitespace-nowrap', idx === 0 ? 'sticky left-0 bg-white z-10' : '']">
                             <field-renderer
                                 :field-key="field.key"
                                 :value="row[field.key]"
@@ -96,4 +102,11 @@ export const TableView = {
             </table>
         </div>
     `
+    ,
+    mounted() {
+        this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+    },
+    updated() {
+        this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
+    }
 };

@@ -14,20 +14,36 @@ import { ProgramView } from './components/ProgramView.js';
 import { ItemModal } from './components/ItemModal.js';
 import { HelpModal } from './components/HelpModal.js';
 import { AiModal } from './components/AiModal.js';
-import { PersonCard } from './components/PersonCard.js';
+import { ItemCard } from './components/ItemCard.js';
 import { PeopleView } from './components/PeopleView.js';
-import { OpportunityListItem } from './components/OpportunityListItem.js';
 import { OpportunitiesFilterControls } from './components/OpportunitiesFilterControls.js';
 import { OpportunitiesView } from './components/OpportunitiesView.js';
-import { InitiativeListItem } from './components/InitiativeListItem.js';
 import { InitiativesView } from './components/InitiativesView.js';
 import { TableView } from './components/TableView.js';
+import { TableFilterControls } from './components/TableFilterControls.js';
 import { ItemBadge } from './components/ItemBadge.js';
 import { FieldRenderer } from './components/FieldRenderer.js';
 import { SearchSelect } from './components/SearchSelect.js';
 import { getFieldMeta } from './fieldMeta.js';
 
 const { createApp } = Vue; // Vue import
+
+const lucideMixin = {
+    mounted() {
+        this.$nextTick(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    },
+    updated() {
+        this.$nextTick(() => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    }
+};
 
 const app = createApp({
     data() {
@@ -58,9 +74,12 @@ const app = createApp({
             showSaveAndDownload: false,
             notifications: [],
             notificationId: 0,
-            mainOpportunityFilterName: '',
-            mainOpportunityFilterProposerId: '',
-            mainOpportunityFilterStatus: '',
+            peopleFilterField: '',
+            peopleFilterValue: '',
+            opportunityFilterField: '',
+            opportunityFilterValue: '',
+            initiativeFilterField: '',
+            initiativeFilterValue: '',
             opportunitySortField: 'opportunityName',
             opportunitySortOrder: 'asc',
             initiativeSortField: 'initiativeName',
@@ -128,17 +147,31 @@ const app = createApp({
                 .sort((a, b) => new Date(b.initiativeLastUpdated || 0) - new Date(a.initiativeLastUpdated || 0))
                 .slice(0, 5);
         },
+        filteredPeople() {
+            let people = [...(this.appData.people || [])];
+            if (this.peopleFilterField) {
+                people = people.filter(p => {
+                    const val = p[this.peopleFilterField];
+                    if (val === undefined || val === null) return false;
+                    if (typeof val === 'string') {
+                        return val.toLowerCase().includes((this.peopleFilterValue || '').toLowerCase());
+                    }
+                    return String(val) === this.peopleFilterValue;
+                });
+            }
+            return people;
+        },
         filteredAndSortedOpportunities() {
             let opportunities = [...(this.appData.opportunities || [])];
-            if (this.mainOpportunityFilterName) {
-                opportunities = opportunities.filter(opp =>
-                    opp.opportunityName.toLowerCase().includes(this.mainOpportunityFilterName.toLowerCase()));
-            }
-            if (this.mainOpportunityFilterProposerId) {
-                opportunities = opportunities.filter(opp => opp.opportunityProposerId === this.mainOpportunityFilterProposerId);
-            }
-            if (this.mainOpportunityFilterStatus) {
-                opportunities = opportunities.filter(opp => opp.opportunityStatus === this.mainOpportunityFilterStatus);
+            if (this.opportunityFilterField) {
+                opportunities = opportunities.filter(o => {
+                    const val = o[this.opportunityFilterField];
+                    if (val === undefined || val === null) return false;
+                    if (typeof val === 'string') {
+                        return val.toLowerCase().includes((this.opportunityFilterValue || '').toLowerCase());
+                    }
+                    return String(val) === this.opportunityFilterValue;
+                });
             }
             opportunities.sort((a, b) => {
                 let valA = a[this.opportunitySortField];
@@ -159,6 +192,16 @@ const app = createApp({
         },
         filteredAndSortedInitiatives() {
             let initiatives = [...(this.appData.initiatives || [])];
+            if (this.initiativeFilterField) {
+                initiatives = initiatives.filter(i => {
+                    const val = i[this.initiativeFilterField];
+                    if (val === undefined || val === null) return false;
+                    if (typeof val === 'string') {
+                        return val.toLowerCase().includes((this.initiativeFilterValue || '').toLowerCase());
+                    }
+                    return String(val) === this.initiativeFilterValue;
+                });
+            }
             initiatives.sort((a, b) => {
                 let valA = a[this.initiativeSortField];
                 let valB = b[this.initiativeSortField];
@@ -331,20 +374,35 @@ const app = createApp({
                 console.error('Error in performSave:', error);
             }
         },
-        setOpportunitySort(field) { if (this.opportunitySortField === field) { this.opportunitySortOrder = this.opportunitySortOrder === 'asc' ? 'desc' : 'asc'; } else { this.opportunitySortField = field; this.opportunitySortOrder = 'asc'; } this.$nextTick(() => lucide.createIcons() ); },
+        setSort(field, fieldProp, orderProp) {
+            if (this[fieldProp] === field) {
+                this[orderProp] = this[orderProp] === 'asc' ? 'desc' : 'asc';
+            } else {
+                this[fieldProp] = field;
+                this[orderProp] = 'asc';
+            }
+            this.$nextTick(() => {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        },
+        setOpportunitySort(field) { this.setSort(field, 'opportunitySortField', 'opportunitySortOrder'); },
         // Event handlers for OpportunitiesView component
         handleAddOpportunityRequested() { this.addOpportunity(); },
-        handleOpportunityFiltersChanged(filters) { this.mainOpportunityFilterName = filters.name; this.mainOpportunityFilterProposerId = filters.proposerId; this.mainOpportunityFilterStatus = filters.status; },
-        handleClearOpportunityFilters() {  this.mainOpportunityFilterName = ''; this.mainOpportunityFilterProposerId = ''; this.mainOpportunityFilterStatus = ''; },
+        handleOpportunityFiltersChanged(filter) { this.opportunityFilterField = filter.field; this.opportunityFilterValue = filter.value; },
+        handleClearOpportunityFilters() { this.opportunityFilterField = ''; this.opportunityFilterValue = ''; },
         handleOpportunitySortRequested(field) {  this.setOpportunitySort(field); },
-        setInitiativeSort(field) { if (this.initiativeSortField === field) { this.initiativeSortOrder = this.initiativeSortOrder === 'asc' ? 'desc' : 'asc'; } else { this.initiativeSortField = field; this.initiativeSortOrder = 'asc'; } this.$nextTick(() => lucide.createIcons() ); },
+        setInitiativeSort(field) { this.setSort(field, 'initiativeSortField', 'initiativeSortOrder'); },
         // Event handlers for InitiativesView component
         handleAddInitiativeRequested() { this.addInitiative(); },
         handleInitiativeSortRequested(field) { this.setInitiativeSort(field); },
+        handleInitiativeFilterChanged(filter) { this.initiativeFilterField = filter.field; this.initiativeFilterValue = filter.value; },
+        handleClearInitiativeFilter() { this.initiativeFilterField = ''; this.initiativeFilterValue = ''; },
         togglePeopleViewMode() {
             this.peopleViewMode = this.peopleViewMode === 'grid' ? 'table' : 'grid';
             localStorage.setItem('peopleViewMode', this.peopleViewMode);
         },
+        handlePeopleFilterChanged(filter) { this.peopleFilterField = filter.field; this.peopleFilterValue = filter.value; },
+        handleClearPeopleFilter() { this.peopleFilterField = ''; this.peopleFilterValue = ''; },
         toggleOpportunitiesViewMode() {
             this.opportunitiesViewMode = this.opportunitiesViewMode === 'grid' ? 'table' : 'grid';
             localStorage.setItem('opportunitiesViewMode', this.opportunitiesViewMode);
@@ -484,6 +542,7 @@ const app = createApp({
 // Expose appUtils and APP_SCHEMA to the global context of the Vue app instance
 app.config.globalProperties.$appUtils = appUtils;
 app.config.globalProperties.$APP_SCHEMA = APP_SCHEMA;
+app.mixin(lucideMixin);
 
 // Register components
 app.component('notification-handler', NotificationHandler);
@@ -500,14 +559,13 @@ app.component('program-view', ProgramView);
 app.component('item-modal', ItemModal);
 app.component('help-modal', HelpModal);
 app.component('ai-modal', AiModal);
-app.component('person-card', PersonCard);
+app.component('item-card', ItemCard);
 app.component('people-view', PeopleView);
-app.component('opportunity-list-item', OpportunityListItem);
 app.component('opportunities-filter-controls', OpportunitiesFilterControls);
 app.component('opportunities-view', OpportunitiesView);
-app.component('initiative-list-item', InitiativeListItem);
 app.component('initiatives-view', InitiativesView);
 app.component('table-view', TableView);
+app.component('table-filter-controls', TableFilterControls);
 app.component('item-badge', ItemBadge);
 app.component('field-renderer', FieldRenderer);
 app.component('search-select', SearchSelect);

@@ -1,4 +1,6 @@
 import { TableView } from './TableView.js';
+import { ItemCard } from './ItemCard.js';
+import { TableFilterControls } from './TableFilterControls.js';
 import { APP_SCHEMA } from '../appSchema.js';
 
 export const PeopleView = {
@@ -11,12 +13,15 @@ export const PeopleView = {
             type: Function,
             required: true
         },
+        currentFilterField: String,
+        currentFilterValue: String,
         viewMode: {
             type: String,
             default: 'grid'
         }
     },
-    components: { TableView },
+    components: { TableView, ItemCard, TableFilterControls },
+    emits: ['filter-changed', 'clear-filter', 'add-person-requested', 'open-ai-modal-requested', 'toggle-view-mode', 'view-item-requested', 'edit-item-requested', 'delete-item-requested'],
     computed: {
         tableFields() { return this.$root.generateFormFields(APP_SCHEMA.definitions.person); }
     },
@@ -27,7 +32,7 @@ export const PeopleView = {
                     <h2 class="text-2xl font-bold text-gray-900">Team Members</h2>
                     <p class="text-gray-600 mt-1">Manage your innovation team and their roles</p>
                 </div>
-                <div class="flex space-x-3"> <!-- Added a div wrapper for buttons -->
+            <div class="flex space-x-3"> <!-- Added a div wrapper for buttons -->
                     <button @click="$emit('add-person-requested')" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                         <i data-lucide="user-plus" class="w-4 h-4"></i>
                         <span>Add Person</span>
@@ -42,6 +47,16 @@ export const PeopleView = {
                 </div>
             </div>
 
+            <table-filter-controls
+                :fields="tableFields"
+                :model-value-field="currentFilterField"
+                :model-value-value="currentFilterValue"
+                @update:modelValueField="$emit('filter-changed', { field: $event, value: currentFilterValue })"
+                @update:modelValueValue="$emit('filter-changed', { field: currentFilterField, value: $event })"
+                @clear-filter="$emit('clear-filter')"
+                :people-list="people"
+            ></table-filter-controls>
+
             <div v-if="people.length === 0" class="text-center py-12">
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i data-lucide="users" class="w-8 h-8 text-gray-400"></i>
@@ -51,33 +66,20 @@ export const PeopleView = {
 
             <div v-else>
                 <div v-if="viewMode === 'grid'" class="space-y-4">
-                    <person-card
+                    <item-card
                         v-for="person in people"
                         :key="person.personId"
-                        :person="person"
+                        :item="person"
+                        type="person"
                         :get-person-avatar-fn="getPersonAvatarFn"
                         @view-item-requested="$emit('view-item-requested', $event)"
                         @edit-item-requested="$emit('edit-item-requested', $event)"
                         @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
                         @delete-item-requested="$emit('delete-item-requested', $event)">
-                    </person-card>
+                    </item-card>
                 </div>
                 <table-view v-else :items="people" :fields="tableFields" app-data-section="people" @view-item-requested="$emit('view-item-requested', $event)"></table-view>
             </div>
         </section>
-    `,
-    mounted() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+    `
 };

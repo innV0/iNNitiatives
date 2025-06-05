@@ -1,4 +1,6 @@
 import { TableView } from './TableView.js';
+import { ItemCard } from './ItemCard.js';
+import { TableFilterControls } from './TableFilterControls.js';
 import { APP_SCHEMA } from '../appSchema.js';
 
 export const InitiativesView = {
@@ -7,13 +9,15 @@ export const InitiativesView = {
         getPersonNameFn: Function,
         currentSortField: String,
         currentSortOrder: String,
+        currentFilterField: String,
+        currentFilterValue: String,
         viewMode: {
             type: String,
             default: 'table'
         }
     },
-    components: { TableView },
-    emits: ['add-initiative-requested', 'open-ai-modal-requested', 'sort-requested', 'view-item-requested', 'edit-item-requested', 'delete-item-requested'],
+    components: { TableView, ItemCard, TableFilterControls },
+    emits: ['add-initiative-requested', 'open-ai-modal-requested', 'sort-requested', 'view-item-requested', 'edit-item-requested', 'delete-item-requested', 'filter-changed', 'clear-filter'],
     computed: {
         tableFields() { return this.$root.generateFormFields(APP_SCHEMA.definitions.initiative); }
     },
@@ -37,7 +41,18 @@ export const InitiativesView = {
                         <i :data-lucide="viewMode === 'grid' ? 'table' : 'layout-grid'" class="w-4 h-4"></i>
                     </button>
                 </div>
-            </div>
+                </div>
+
+            <table-filter-controls
+                :fields="tableFields"
+                :model-value-field="currentFilterField"
+                :model-value-value="currentFilterValue"
+                :people-list="[]"
+                :opportunities-list="[]"
+                @update:modelValueField="$emit('filter-changed', { field: $event, value: currentFilterValue })"
+                @update:modelValueValue="$emit('filter-changed', { field: currentFilterField, value: $event })"
+                @clear-filter="$emit('clear-filter')"
+            ></table-filter-controls>
 
             <div v-if="!initiatives || initiatives.length === 0" class="text-center py-12">
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -51,32 +66,20 @@ export const InitiativesView = {
                     <table-view :items="initiatives" :fields="tableFields" app-data-section="initiatives" @view-item-requested="$emit('view-item-requested', $event)"></table-view>
                 </div>
                 <div v-else class="space-y-4">
-                    <initiative-list-item
+                    <item-card
                         v-for="init in initiatives"
                         :key="init.initiativeId"
-                        :initiative="init"
+                        :item="init"
+                        type="initiative"
                         :get-person-name-fn="getPersonNameFn"
                         @view-item-requested="$emit('view-item-requested', $event)"
                         @edit-item-requested="$emit('edit-item-requested', $event)"
                         @open-ai-modal-requested="$emit('open-ai-modal-requested', $event)"
                         @delete-item-requested="$emit('delete-item-requested', $event)">
-                    </initiative-list-item>
+                    </item-card>
                 </div>
             </div>
         </section>
     `,
-    mounted() { // Added mounted and updated for Lucide icons
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+    
 };
