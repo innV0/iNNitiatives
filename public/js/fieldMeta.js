@@ -8,8 +8,7 @@ export const FIELD_ICONS = {
   opportunityStatus: 'flag',
   iNNitiativeName: 'activity',
   iNNitiativePhase: 'flag',
-  iNNitiativeType: 'tag',
-  initiativeBudget: 'euro'
+  iNNitiativeType: 'tag'
 };
 
 import { APP_SCHEMA } from './appSchema.js';
