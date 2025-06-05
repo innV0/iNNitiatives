@@ -82,7 +82,7 @@ const app = createApp({
             initiativeFilterValue: '',
             opportunitySortField: 'opportunityName',
             opportunitySortOrder: 'asc',
-            initiativeSortField: 'initiativeName',
+            initiativeSortField: 'iNNitiativeName',
             initiativeSortOrder: 'asc',
             peopleViewMode: 'grid',
             opportunitiesViewMode: 'table',
@@ -110,26 +110,32 @@ const app = createApp({
                                    (this.appData.initiatives && this.appData.initiatives.length > 0);
             return !hasNonDefaultProgram && !hasMeaningfulData;
         },
-        initiativePhasesSummaryForDashboard() {
+        iNNitiativePhasesSummaryForDashboard() {
             const phases = {};
             (this.appData.initiatives || []).forEach(init => {
-                const phase = init.initiativePhase || 'Unknown';
+                const phase = init.iNNitiativePhase || 'Unknown';
                 phases[phase] = (phases[phase] || 0) + 1;
             });
             return Object.entries(phases).map(([name, count]) => ({ name, count }));
         },
         kanbanPhases() {
-            if (this.appData.program && this.appData.program.programStages && this.appData.program.programStages.length > 0) {
+            if (
+                this.appData.program &&
+                Array.isArray(this.appData.program.programStages) &&
+                this.appData.program.programStages.length > 0
+            ) {
                 return this.appData.program.programStages;
             }
-            return APP_SCHEMA.definitions.initiative.properties.initiativePhase.enum || [];
+            const phaseSchema =
+                APP_SCHEMA?.definitions?.iNNitiative?.properties?.iNNitiativePhase;
+            return Array.isArray(phaseSchema?.enum) ? phaseSchema.enum : [];
         },
         initiativesByPhase() {
             const grouped = {};
             this.kanbanPhases.forEach(phase => { grouped[phase] = []; });
             (this.appData.initiatives || []).forEach(init => {
-                if (grouped[init.initiativePhase]) {
-                    grouped[init.initiativePhase].push(init);
+                if (grouped[init.iNNitiativePhase]) {
+                    grouped[init.iNNitiativePhase].push(init);
                 } else {
                     if (!grouped['Uncategorized']) grouped['Uncategorized'] = [];
                     grouped['Uncategorized'].push(init);
@@ -144,7 +150,7 @@ const app = createApp({
         },
         recentInitiatives() {
             return [...(this.appData.initiatives || [])]
-                .sort((a, b) => new Date(b.initiativeLastUpdated || 0) - new Date(a.initiativeLastUpdated || 0))
+                .sort((a, b) => new Date(b.iNNitiativeDateRegistered || 0) - new Date(a.iNNitiativeDateRegistered || 0))
                 .slice(0, 5);
         },
         filteredPeople() {
@@ -237,7 +243,7 @@ const app = createApp({
                 let itemIdentifier = '';
                 if (data) {
                     if (type === 'program') { itemIdentifier = data.programName || 'Program'; contextInfo = `Program: ${itemIdentifier}`; }
-                    else if (type.endsWith('Item')) { itemIdentifier = data.personName || data.opportunityName || data.initiativeName || 'Item'; const typeName = type.replace('Item', ''); contextInfo = `Item: "${itemIdentifier}" (Type: ${typeName.charAt(0).toUpperCase() + typeName.slice(1)})`; }
+                    else if (type.endsWith('Item')) { itemIdentifier = data.personName || data.opportunityName || data.iNNitiativeName || 'Item'; const typeName = type.replace('Item', ''); contextInfo = `Item: "${itemIdentifier}" (Type: ${typeName.charAt(0).toUpperCase() + typeName.slice(1)})`; }
                     else { const typeName = type.replace('List', ''); contextInfo = `List View: ${typeName.charAt(0).toUpperCase() + typeName.slice(1)}`; itemIdentifier = typeName; }
                 } else if (type) { contextInfo = `Section: ${type.charAt(0).toUpperCase() + type.slice(1)}`; itemIdentifier = type; }
                 this.aiModalContextInfo = contextInfo;
@@ -278,7 +284,7 @@ const app = createApp({
         getPerson(personId) { return (this.appData.people || []).find(p => p.personId === personId); },
         getPersonName(personId) { if (!personId) return 'Unknown'; const person = this.getPerson(personId); return person ? person.personName : personId; },
         getPersonAvatar(personId) { if (!personId) return `https://ui-avatars.com/api/?name=Unknown&background=64748b&color=fff&size=64`; const person = this.getPerson(personId); if (person && person.personImageUrl) return person.personImageUrl; const name = person ? person.personName : personId; return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3b82f6&color=fff&size=64`; },
-        getPersonInitiativeCount(personId) { return (this.appData.initiatives || []).filter(init => init.initiativeManagerId === personId).length; },
+        getPersonInitiativeCount(personId) { return (this.appData.initiatives || []).filter(init => init.iNNitiativeOwnerPersonId === personId).length; },
         getOpportunity(opportunityId) { return (this.appData.opportunities || []).find(o => o.opportunityId === opportunityId); },
         getOpportunityName(opportunityId) { if (!opportunityId) return 'No opportunity linked'; const opportunity = this.getOpportunity(opportunityId); return opportunity ? opportunity.opportunityName : opportunityId; },
         showNotification(title, message, type = 'info') { const notification = { id: ++this.notificationId, title, message, type, show: false }; this.notifications.push(notification); setTimeout(() => { notification.show = true; this.$nextTick(() => { lucide.createIcons(); }); }, 100); setTimeout(() => { this.removeNotification(notification.id); }, 10000); },
@@ -286,19 +292,19 @@ const app = createApp({
         loadDataFile(file) { if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const jsonData = JSON.parse(e.target.result); if (typeof jsonData === 'object' && jsonData !== null && 'program' in jsonData && 'people' in jsonData && 'opportunities' in jsonData && 'initiatives' in jsonData) { this.appData = jsonData; this.showNotification('Success', 'Data file loaded successfully!', 'success'); } else { this.showNotification('Error', 'Invalid data file: Missing one or more required top-level keys (program, people, opportunities, initiatives).', 'error'); } } catch (error) { this.showNotification('Error', `Error parsing JSON: ${error.message}`, 'error'); } }; reader.readAsText(file); },
         async loadSampleData() { try { const response = await fetch('./sample-data.json'); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const sampleData = await response.json(); this.appData = sampleData; this.showNotification('Success', 'Sample data loaded successfully!', 'success'); } catch (error) { this.showNotification('Error', `Error loading sample data: ${error.message}`, 'error'); } },
         exportData() { try { const now = new Date(); const timestamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0'); const dataStr = JSON.stringify(this.appData, null, 2); const dataBlob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `innit-data-${timestamp}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); this.showNotification('Success', 'Data exported successfully!', 'success'); } catch (error) { this.showNotification('Error', `Error exporting data: ${error.message}`, 'error'); } },
-        generateFormFields(schemaDefinition) { const fields = []; const properties = schemaDefinition.properties || {}; const simpleStringArrayFields = [ 'programStages', 'programDefaultOpportunityStatuses', 'programDefaultInitiativeTypes', 'initiativeGoals', 'initiativeNextSteps', 'initiativeResources', 'initiativeRisks' ]; for (const [key, prop] of Object.entries(properties)) { let effectiveEnum = prop.enum; if (this.currentEditType === 'initiative') { if (key === 'initiativeType' && this.appData.program && this.appData.program.programDefaultInitiativeTypes && this.appData.program.programDefaultInitiativeTypes.length > 0) { effectiveEnum = this.appData.program.programDefaultInitiativeTypes; } else if (key === 'initiativePhase' && this.appData.program && this.appData.program.programStages && this.appData.program.programStages.length > 0) { effectiveEnum = this.appData.program.programStages; } } else if (this.currentEditType === 'opportunity') { if (key === 'opportunityStatus' && this.appData.program && this.appData.program.programDefaultOpportunityStatuses && this.appData.program.programDefaultOpportunityStatuses.length > 0) { effectiveEnum = this.appData.program.programDefaultOpportunityStatuses; } } fields.push({ key: key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, enum: effectiveEnum, minimum: prop.minimum, maximum: prop.maximum, readonly: prop.readonly || false, relationshipType: prop.relationshipType, isSimpleStringArray: prop.type === 'array' && prop.items && prop.items.type === 'string' && simpleStringArrayFields.includes(key) }); } fields.forEach(field => { if ( (this.currentEditId && (field.key === 'personId' || field.key === 'opportunityId' || field.key === 'initiativeId')) || field.key === 'lastUpdated' || field.key === 'initiativeLastUpdated' || field.key === 'opportunityLastUpdated') { field.readonly = true; } if (!this.currentEditId && (field.key === 'personId' || field.key === 'opportunityId' || field.key === 'initiativeId') && field.key !== 'lastUpdated' && field.key !== 'initiativeLastUpdated' && field.key !== 'opportunityLastUpdated') { if (schemaDefinition.properties[field.key] && schemaDefinition.properties[field.key].readonly !== true) { } } }); return fields; },
+        generateFormFields(schemaDefinition) { const fields = []; const properties = schemaDefinition.properties || {}; const simpleStringArrayFields = [ 'programStages', 'programDefaultOpportunityStatuses', 'programDefaultInitiativeTypes', 'initiativeGoals', 'initiativeNextSteps', 'initiativeResources', 'initiativeRisks' ]; for (const [key, prop] of Object.entries(properties)) { let effectiveEnum = prop.enum; if (this.currentEditType === 'initiative') { if (key === 'iNNitiativeType' && this.appData.program && this.appData.program.programDefaultInitiativeTypes && this.appData.program.programDefaultInitiativeTypes.length > 0) { effectiveEnum = this.appData.program.programDefaultInitiativeTypes; } else if (key === 'iNNitiativePhase' && this.appData.program && this.appData.program.programStages && this.appData.program.programStages.length > 0) { effectiveEnum = this.appData.program.programStages; } } else if (this.currentEditType === 'opportunity') { if (key === 'opportunityStatus' && this.appData.program && this.appData.program.programDefaultOpportunityStatuses && this.appData.program.programDefaultOpportunityStatuses.length > 0) { effectiveEnum = this.appData.program.programDefaultOpportunityStatuses; } } fields.push({ key: key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, enum: effectiveEnum, minimum: prop.minimum, maximum: prop.maximum, readonly: prop.readonly || false, relationshipType: prop.relationshipType, isSimpleStringArray: prop.type === 'array' && prop.items && prop.items.type === 'string' && simpleStringArrayFields.includes(key) }); } fields.forEach(field => { if ( (this.currentEditId && (field.key === 'personId' || field.key === 'opportunityId' || field.key === 'iNNitiativeId')) || field.key === 'lastUpdated' || field.key === 'iNNitiativeDateRegistered' || field.key === 'opportunityLastUpdated') { field.readonly = true; } if (!this.currentEditId && (field.key === 'personId' || field.key === 'opportunityId' || field.key === 'iNNitiativeId') && field.key !== 'lastUpdated' && field.key !== 'iNNitiativeDateRegistered' && field.key !== 'opportunityLastUpdated') { if (schemaDefinition.properties[field.key] && schemaDefinition.properties[field.key].readonly !== true) { } } }); return fields; },
         prepareFormData(data, fields) { const formData = { ...data }; fields.forEach(field => { if (field.isSimpleStringArray) { if (typeof data[field.key] === 'string') { formData[field.key] = data[field.key].split('\n').map(item => item.trim()).filter(item => item !== ''); } else { formData[field.key] = Array.isArray(data[field.key]) ? [...data[field.key]] : []; } } else if (field.type === 'array') { formData[field.key + '_json'] = JSON.stringify(formData[field.key] || []); } }); return formData; },
         processFormData(formData, fields) { const processedData = { ...formData }; let parseErrorOccurred = false; fields.forEach(field => { if (field.isSimpleStringArray) { processedData[field.key] = Array.isArray(formData[field.key]) ? formData[field.key].join('\n') : ''; } else if (field.type === 'array') { try { processedData[field.key] = JSON.parse(formData[field.key + '_json'] || '[]'); } catch (e) { this.showNotification('Error', `Invalid JSON format for field: ${field.title}. Please correct it.`, 'error'); parseErrorOccurred = true; } delete processedData[field.key + '_json']; } }); return parseErrorOccurred ? null : processedData; },
         editProgram() { this.itemModalTitle = 'Edit Program Configuration'; const schema = APP_SCHEMA.definitions.programConfiguration; this.currentEditType = 'program'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); if (!this.appData.program || Object.keys(this.appData.program).length === 0) { this.appData.program = { programName: APP_SCHEMA.definitions.programConfiguration.properties.programName.default || "My Innovation Program" }; } this.itemModalFormData = this.prepareFormData(this.appData.program, this.itemModalFormFields); this.itemModalItemData = this.appData.program; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('program.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
         addPerson() { this.itemModalTitle = 'Add New Person'; const schema = APP_SCHEMA.definitions.person; this.currentEditType = 'person'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); let newPersonData = { personId: appUtils.generateUniqueId('PERSON') }; for(const key in schema.properties) { if(schema.properties[key].default !== undefined && newPersonData[key] === undefined) { newPersonData[key] = schema.properties[key].default; } } this.itemModalFormData = this.prepareFormData(newPersonData, this.itemModalFormFields); this.itemModalItemData = newPersonData; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('person.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
         editPerson(person) { this.itemModalTitle = 'Edit Person'; const schema = APP_SCHEMA.definitions.person; this.currentEditType = 'person'; this.currentEditId = person.personId; this.itemModalFormFields = this.generateFormFields(schema); this.itemModalFormData = this.prepareFormData(person, this.itemModalFormFields); this.itemModalItemData = person; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('person.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
-        deletePerson(personId) { const linkedInitiatives = (this.appData.initiatives || []).filter(init => init.initiativeManagerId === personId).length; const linkedOpportunities = (this.appData.opportunities || []).filter(opp => opp.opportunityProposerId === personId).length; let warningMessage = `Are you sure you want to delete person ID: ${personId}? This action cannot be undone.`; if (linkedInitiatives > 0 || linkedOpportunities > 0) { warningMessage = `Warning: This person is linked to ${linkedInitiatives} initiative(s) and ${linkedOpportunities} opportunity(s). Deleting them will leave these records without a valid reference. Proceed with deletion?`; } if (confirm(warningMessage)) { const index = (this.appData.people || []).findIndex(p => p.personId === personId); if (index !== -1) { this.appData.people.splice(index, 1); this.showNotification('Success', `Person ${personId} deleted successfully!`, 'success'); } else { this.showNotification('Error', `Person ${personId} not found.`, 'error'); } } },
+        deletePerson(personId) { const linkedInitiatives = (this.appData.initiatives || []).filter(init => init.iNNitiativeOwnerPersonId === personId).length; const linkedOpportunities = (this.appData.opportunities || []).filter(opp => opp.opportunityProposerId === personId).length; let warningMessage = `Are you sure you want to delete person ID: ${personId}? This action cannot be undone.`; if (linkedInitiatives > 0 || linkedOpportunities > 0) { warningMessage = `Warning: This person is linked to ${linkedInitiatives} initiative(s) and ${linkedOpportunities} opportunity(s). Deleting them will leave these records without a valid reference. Proceed with deletion?`; } if (confirm(warningMessage)) { const index = (this.appData.people || []).findIndex(p => p.personId === personId); if (index !== -1) { this.appData.people.splice(index, 1); this.showNotification('Success', `Person ${personId} deleted successfully!`, 'success'); } else { this.showNotification('Error', `Person ${personId} not found.`, 'error'); } } },
         addOpportunity() { this.itemModalTitle = 'Add New Opportunity'; const schema = APP_SCHEMA.definitions.opportunity; this.currentEditType = 'opportunity'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); const today = new Date().toISOString().split('T')[0]; let newOppData = { opportunityId: appUtils.generateUniqueId('OPP'), opportunityDateIdentified: today, opportunityLastUpdated: new Date().toISOString() }; for(const key in schema.properties) { if(schema.properties[key].default !== undefined && newOppData[key] === undefined) { newOppData[key] = schema.properties[key].default; } if(key === "opportunityPriority" && newOppData[key] === undefined) newOppData[key] = 0; if(key === "opportunityStatus" && newOppData[key] === undefined) newOppData[key] = (this.appData.program && this.appData.program.programDefaultOpportunityStatuses && this.appData.program.programDefaultOpportunityStatuses.length > 0) ? this.appData.program.programDefaultOpportunityStatuses[0] : (schema.properties.opportunityStatus.enum ? schema.properties.opportunityStatus.enum[0] : ''); } this.itemModalFormData = this.prepareFormData(newOppData, this.itemModalFormFields); this.itemModalItemData = newOppData; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('opportunity.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
         editOpportunity(opportunity) { this.itemModalTitle = 'Edit Opportunity'; const schema = APP_SCHEMA.definitions.opportunity; this.currentEditType = 'opportunity'; this.currentEditId = opportunity.opportunityId; this.itemModalFormFields = this.generateFormFields(schema); this.itemModalFormData = this.prepareFormData(opportunity, this.itemModalFormFields); this.itemModalItemData = opportunity; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('opportunity.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
-        deleteOpportunity(opportunityId) { const linkedInitiatives = (this.appData.initiatives || []).filter(init => init.initiativeOpportunityId === opportunityId).length; let warningMessage = `Are you sure you want to delete opportunity ID: ${opportunityId}? This action cannot be undone.`; if (linkedInitiatives > 0) { warningMessage = `Warning: This opportunity is linked to ${linkedInitiatives} initiative(s). Deleting it will leave these initiatives without a valid reference. Proceed with deletion?`; } if (confirm(warningMessage)) { const index = (this.appData.opportunities || []).findIndex(o => o.opportunityId === opportunityId); if (index !== -1) { this.appData.opportunities.splice(index, 1); this.showNotification('Success', `Opportunity ${opportunityId} deleted successfully!`, 'success'); } else { this.showNotification('Error', `Opportunity ${opportunityId} not found.`, 'error'); } } },
-        addInitiative() { this.itemModalTitle = 'Add New iNNitiative'; const schema = APP_SCHEMA.definitions.initiative; this.currentEditType = 'initiative'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); const today = new Date().toISOString().split('T')[0]; let newInitData = { initiativeId: appUtils.generateUniqueId('INN'), initiativeDateRegistered: today, initiativeLastUpdated: new Date().toISOString() }; for(const key in schema.properties) { if(schema.properties[key].default !== undefined && newInitData[key] === undefined) { newInitData[key] = schema.properties[key].default; } if(key === "initiativeBudget" && newInitData[key] === undefined) newInitData[key] = 0; if(key === "initiativePhase" && newInitData[key] === undefined) newInitData[key] = (this.appData.program && this.appData.program.programStages && this.appData.program.programStages.length > 0) ? this.appData.program.programStages[0] : (schema.properties.initiativePhase.enum ? schema.properties.initiativePhase.enum[0] : ''); if(key === "initiativeType" && newInitData[key] === undefined) newInitData[key] = (this.appData.program && this.appData.program.programDefaultInitiativeTypes && this.appData.program.programDefaultInitiativeTypes.length > 0) ? this.appData.program.programDefaultInitiativeTypes[0] : (schema.properties.initiativeType.enum ? schema.properties.initiativeType.enum[0] : ''); if(key === "initiativeDecision" && newInitData[key] === undefined) newInitData[key] = (schema.properties.initiativeDecision.enum ? schema.properties.initiativeDecision.enum[0] : ''); } this.itemModalFormData = this.prepareFormData(newInitData, this.itemModalFormFields); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
-        editInitiative(initiative) { this.itemModalTitle = 'Edit iNNitiative'; const schema = APP_SCHEMA.definitions.initiative; this.currentEditType = 'initiative'; this.currentEditId = initiative.initiativeId; this.itemModalFormFields = this.generateFormFields(schema); this.itemModalFormData = this.prepareFormData(initiative, this.itemModalFormFields); this.itemModalItemData = initiative; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('initiative.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
-        deleteInitiative(initiativeId) { if (confirm(`Are you sure you want to delete iNNitiative ID: ${initiativeId}? This action cannot be undone.`)) { const index = (this.appData.initiatives || []).findIndex(i => i.initiativeId === initiativeId); if (index !== -1) { this.appData.initiatives.splice(index, 1); this.showNotification('Success', `Initiative ${initiativeId} deleted successfully!`, 'success'); } else { this.showNotification('Error', `Initiative ${initiativeId} not found.`, 'error'); } } },
+        deleteOpportunity(opportunityId) { const linkedInitiatives = (this.appData.initiatives || []).filter(init => init.iNNitiativeRelatedOpportunityId === opportunityId).length; let warningMessage = `Are you sure you want to delete opportunity ID: ${opportunityId}? This action cannot be undone.`; if (linkedInitiatives > 0) { warningMessage = `Warning: This opportunity is linked to ${linkedInitiatives} initiative(s). Deleting it will leave these initiatives without a valid reference. Proceed with deletion?`; } if (confirm(warningMessage)) { const index = (this.appData.opportunities || []).findIndex(o => o.opportunityId === opportunityId); if (index !== -1) { this.appData.opportunities.splice(index, 1); this.showNotification('Success', `Opportunity ${opportunityId} deleted successfully!`, 'success'); } else { this.showNotification('Error', `Opportunity ${opportunityId} not found.`, 'error'); } } },
+        addInitiative() { this.itemModalTitle = 'Add New iNNitiative'; const schema = APP_SCHEMA.definitions.iNNitiative; this.currentEditType = 'initiative'; this.currentEditId = null; this.itemModalFormFields = this.generateFormFields(schema); const today = new Date().toISOString().split('T')[0]; let newInitData = { iNNitiativeId: appUtils.generateUniqueId('INN'), initiativeDateRegistered: today, iNNitiativeDateRegistered: new Date().toISOString() }; for(const key in schema.properties) { if(schema.properties[key].default !== undefined && newInitData[key] === undefined) { newInitData[key] = schema.properties[key].default; } if(key === "initiativeBudget" && newInitData[key] === undefined) newInitData[key] = 0; if(key === "iNNitiativePhase" && newInitData[key] === undefined) newInitData[key] = (this.appData.program && this.appData.program.programStages && this.appData.program.programStages.length > 0) ? this.appData.program.programStages[0] : (schema.properties.iNNitiativePhase.enum ? schema.properties.iNNitiativePhase.enum[0] : ''); if(key === "iNNitiativeType" && newInitData[key] === undefined) newInitData[key] = (this.appData.program && this.appData.program.programDefaultInitiativeTypes && this.appData.program.programDefaultInitiativeTypes.length > 0) ? this.appData.program.programDefaultInitiativeTypes[0] : (schema.properties.iNNitiativeType.enum ? schema.properties.iNNitiativeType.enum[0] : ''); if(key === "initiativeDecision" && newInitData[key] === undefined) newInitData[key] = (schema.properties.initiativeDecision.enum ? schema.properties.initiativeDecision.enum[0] : ''); } this.itemModalFormData = this.prepareFormData(newInitData, this.itemModalFormFields); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
+        editInitiative(initiative) { this.itemModalTitle = 'Edit iNNitiative'; const schema = APP_SCHEMA.definitions.iNNitiative; this.currentEditType = 'initiative'; this.currentEditId = initiative.iNNitiativeId; this.itemModalFormFields = this.generateFormFields(schema); this.itemModalFormData = this.prepareFormData(initiative, this.itemModalFormFields); this.itemModalItemData = initiative; this.itemModalItemFields = Object.entries(schema.properties || {}).map(([key, prop]) => { const meta = getFieldMeta('initiative.' + key); return { key, title: prop.title || appUtils.formatFieldName(key), description: prop.description || 'No description available.', type: prop.type, format: prop.format, relationshipType: prop.relationshipType, icon: meta.icon, tooltip: meta.tooltip }; }); this.showSaveAndDownload = true; this.itemModalActiveTab = 'edit'; this.showItemModal = true; },
+        deleteInitiative(iNNitiativeId) { if (confirm(`Are you sure you want to delete iNNitiative ID: ${iNNitiativeId}? This action cannot be undone.`)) { const index = (this.appData.initiatives || []).findIndex(i => i.iNNitiativeId === iNNitiativeId); if (index !== -1) { this.appData.initiatives.splice(index, 1); this.showNotification('Success', `Initiative ${iNNitiativeId} deleted successfully!`, 'success'); } else { this.showNotification('Error', `Initiative ${iNNitiativeId} not found.`, 'error'); } } },
         closeItemModal() { this.showItemModal = false; this.itemModalTitle = ''; this.itemModalFormData = {}; this.itemModalFormFields = []; this.itemModalItemData = null; this.itemModalItemFields = []; this.currentEditType = null; this.currentEditId = null; this.showSaveAndDownload = false; this.relatedItems = []; },
         saveForm(formDataFromModal) { this.performSave(formDataFromModal); },
         saveAndDownload(formDataFromModal) { this.performSave(formDataFromModal); this.$nextTick(() => { this.exportData(); }); },
@@ -315,7 +321,7 @@ const app = createApp({
                 } else if (this.currentEditType === 'opportunity') {
                     schemaDefinition = APP_SCHEMA.definitions.opportunity;
                 } else if (this.currentEditType === 'initiative') {
-                    schemaDefinition = APP_SCHEMA.definitions.initiative;
+                    schemaDefinition = APP_SCHEMA.definitions.iNNitiative;
                 }
 
                 if (schemaDefinition && schemaDefinition.required) {
@@ -338,6 +344,7 @@ const app = createApp({
                 }
 
                 if (this.currentEditType === 'program') {
+                    processedData.programLastUpdated = new Date().toISOString();
                     this.appData.program = { ...this.appData.program, ...processedData };
                 } else if (this.currentEditType === 'person') {
                     if (!this.appData.people) this.appData.people = [];
@@ -358,9 +365,9 @@ const app = createApp({
                     }
                 } else if (this.currentEditType === 'initiative') {
                     if (!this.appData.initiatives) this.appData.initiatives = [];
-                    processedData.initiativeLastUpdated = new Date().toISOString();
+                    processedData.iNNitiativeDateRegistered = new Date().toISOString();
                     if (this.currentEditId) {
-                        const index = this.appData.initiatives.findIndex(i => i.initiativeId === this.currentEditId);
+                        const index = this.appData.initiatives.findIndex(i => i.iNNitiativeId === this.currentEditId);
                         if (index !== -1) this.appData.initiatives.splice(index, 1, { ...this.appData.initiatives[index], ...processedData });
                     } else {
                         this.appData.initiatives.push(processedData);
@@ -416,17 +423,17 @@ const app = createApp({
             if (typeof item !== 'object') {
                 if (type === 'person') item = this.getPerson(item);
                 else if (type === 'opportunity') item = this.getOpportunity(item);
-                else if (type === 'initiative') item = (this.appData.initiatives || []).find(i => i.initiativeId === item);
+                else if (type === 'initiative') item = (this.appData.initiatives || []).find(i => i.iNNitiativeId === item);
                 else if (type === 'program') item = this.appData.program;
                 if (!item) return;
             }
             this.itemModalItemData = item;
-            this.itemModalTitle = `View ${type.charAt(0).toUpperCase() + type.slice(1)}: ${item.initiativeName || item.opportunityName || item.personName || item.programName}`;
+            this.itemModalTitle = `View ${type.charAt(0).toUpperCase() + type.slice(1)}: ${item.iNNitiativeName || item.opportunityName || item.personName || item.programName}`;
             let schemaDefinition;
             if (type === 'program') schemaDefinition = APP_SCHEMA.definitions.programConfiguration;
             else if (type === 'person') schemaDefinition = APP_SCHEMA.definitions.person;
             else if (type === 'opportunity') schemaDefinition = APP_SCHEMA.definitions.opportunity;
-            else if (type === 'initiative') schemaDefinition = APP_SCHEMA.definitions.initiative;
+            else if (type === 'initiative') schemaDefinition = APP_SCHEMA.definitions.iNNitiative;
             this.itemModalItemFields = Object.entries(schemaDefinition.properties || {}).map(([key, prop]) => ({
                 key: key,
                 title: prop.title || appUtils.formatFieldName(key),
@@ -456,10 +463,10 @@ const app = createApp({
                     }
                 });
                 (this.appData.initiatives || []).forEach(init => {
-                    if (init.initiativeManagerId === item.personId) {
+                    if (init.iNNitiativeOwnerPersonId === item.personId) {
                         this.relatedItems.push({
-                            id: init.initiativeId,
-                            name: init.initiativeName,
+                            id: init.iNNitiativeId,
+                            name: init.iNNitiativeName,
                             type: 'initiative',
                             item: init
                         });
@@ -467,18 +474,18 @@ const app = createApp({
                 });
             } else if (type === 'opportunity') {
                 (this.appData.initiatives || []).forEach(init => {
-                    if (init.initiativeOpportunityId === item.opportunityId) {
+                    if (init.iNNitiativeRelatedOpportunityId === item.opportunityId) {
                         this.relatedItems.push({
-                            id: init.initiativeId,
-                            name: init.initiativeName,
+                            id: init.iNNitiativeId,
+                            name: init.iNNitiativeName,
                             type: 'initiative',
                             item: init
                         });
                     }
                 });
             } else if (type === 'initiative') {
-                if (item.initiativeManagerId) {
-                    const manager = this.getPerson(item.initiativeManagerId);
+                if (item.iNNitiativeOwnerPersonId) {
+                    const manager = this.getPerson(item.iNNitiativeOwnerPersonId);
                     if (manager) {
                         this.relatedItems.push({
                             id: manager.personId,
@@ -488,8 +495,8 @@ const app = createApp({
                         });
                     }
                 }
-                if (item.initiativeOpportunityId) {
-                    const opportunity = this.getOpportunity(item.initiativeOpportunityId);
+                if (item.iNNitiativeRelatedOpportunityId) {
+                    const opportunity = this.getOpportunity(item.iNNitiativeRelatedOpportunityId);
                     if (opportunity) {
                         this.relatedItems.push({
                             id: opportunity.opportunityId,

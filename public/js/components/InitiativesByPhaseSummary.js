@@ -1,6 +1,6 @@
 export const InitiativesByPhaseSummary = {
     props: {
-        initiativePhasesSummary: {
+        iNNitiativePhasesSummary: {
             type: Array,
             default: () => []
         }
@@ -13,8 +13,8 @@ export const InitiativesByPhaseSummary = {
                 Initiatives by Phase Summary
             </h3>
             <div class="space-y-3">
-                <div v-if="initiativePhasesSummary.length === 0" class="text-sm text-gray-500">No initiative data to display.</div>
-                <div v-for="phase in initiativePhasesSummary" :key="phase.name" class="flex items-center justify-between">
+                <div v-if="iNNitiativePhasesSummary.length === 0" class="text-sm text-gray-500">No initiative data to display.</div>
+                <div v-for="phase in iNNitiativePhasesSummary" :key="phase.name" class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         <div :class="['w-3', 'h-3', 'rounded-full', $appUtils.getPhaseColor(phase.name)]"></div>
                         <span class="text-sm text-gray-700">{{ phase.name }}</span>
