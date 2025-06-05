@@ -4,6 +4,7 @@ export const DashboardView = {
         isEmptyData: Boolean,
         iNNitiativePhasesSummary: Array, // Renamed from iNNitiativePhases in main app
         kanbanPhases: Array,
+        summaryCards: Array,
         initiativesByPhase: Object,
         topOpportunities: Array,
         recentInitiatives: Array,
@@ -42,50 +43,14 @@ export const DashboardView = {
             <div v-else class="space-y-8">
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <stats-card title="Team Members" :value="appData.people.length" icon="users" color-theme="green" target-tab="people" @card-clicked="$emit('set-active-tab', $event)"></stats-card>
-                    <stats-card title="Opportunities" :value="appData.opportunities.length" icon="lightbulb" color-theme="yellow" target-tab="opportunities" @card-clicked="$emit('set-active-tab', $event)"></stats-card>
-                    <stats-card title="Active Initiatives" :value="appData.initiatives.length" icon="zap" color-theme="purple" target-tab="initiatives" @card-clicked="$emit('set-active-tab', $event)"></stats-card>
+                    <stats-card v-for="card in summaryCards" :key="card.title"
+                        :title="card.title" :value="card.value" :icon="card.icon"
+                        :color-theme="card.colorTheme" :target-tab="card.targetTab"
+                        @card-clicked="$emit('set-active-tab', $event)"></stats-card>
                 </div>
 
-                <!-- Kanban Board Section -->
-                <div class="mt-8">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                        <i data-lucide="columns" class="w-5 h-5 mr-2 text-indigo-600"></i>
-                        Initiative Progress (Kanban)
-                    </h3>
-                    <div class="flex space-x-4 overflow-x-auto pb-4">
-                        <kanban-column v-for="phase in kanbanPhases" :key="phase"
-                            :phase="phase"
-                            :initiatives="initiativesByPhase[phase] || []"
-                            :get-person-name-fn="getPersonNameFn">
-                        </kanban-column>
-                    </div>
-                </div>
-
-                <!-- Overview Sections -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <initiatives-by-phase-summary :i-n-nitiative-phases-summary="iNNitiativePhasesSummary"></initiatives-by-phase-summary>
-                    <top-opportunities-summary :top-opportunities="topOpportunities" :get-person-name-fn="getPersonNameFn"></top-opportunities-summary>
-                </div>
-
-                <team-overview-summary :team-members="appData.people.slice(0, 6)" :get-person-avatar-fn="getPersonAvatarFn" :get-person-initiative-count-fn="getPersonInitiativeCountFn"></team-overview-summary>
-                <recent-activity-summary :recent-initiatives="recentInitiatives"></recent-activity-summary>
             </div>
         </section>
     `,
-    mounted() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        // This is important to re-render icons if data changes and v-if/v-for blocks are affected
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+
 };

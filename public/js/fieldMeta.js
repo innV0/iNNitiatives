@@ -11,8 +11,6 @@ export const FIELD_ICONS = {
   iNNitiativeName: 'activity',
   iNNitiativePhase: 'flag',
   iNNitiativeType: 'tag',
-  programSponsorPersonId: 'user',
-  programManagerPersonId: 'user',
   iNNitiativeOwnerPersonId: 'user',
   iNNitiativeRelatedOpportunityId: 'lightbulb'
 };

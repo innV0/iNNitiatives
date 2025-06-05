@@ -37,20 +37,5 @@ export const TabNavigation = {
             this.$emit('update:activeTab', tabId);
         }
     },
-    mounted() {
-        // Ensure icons are rendered when the component mounts
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        // Ensure icons are rendered when the component updates
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+
 };

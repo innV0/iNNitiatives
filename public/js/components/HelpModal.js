@@ -23,19 +23,5 @@ export const HelpModal = {
             </div>
         </div>
     `,
-    mounted() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        // If contentHtml changes, icons might need to be re-rendered if they are part of the HTML
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+
 };
