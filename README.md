@@ -10,6 +10,7 @@ A comprehensive Vue.js application for managing innovation programs, opportuniti
 - **Opportunities Tracking**: Identify and track innovation opportunities
 - **Initiative Management**: Manage innovation initiatives with detailed tracking
 - **Data Export/Import**: JSON-based data management with timestamped exports
+- **Process Guide**: Detailed workflow documentation accessible via Docsify
 
 ## Getting Started
 

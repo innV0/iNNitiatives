@@ -1,3 +1,5 @@
+import { APP_CONFIG } from '../config.js';
+
 export const AiModal = {
     props: {
         show: Boolean,
@@ -9,6 +11,11 @@ export const AiModal = {
     methods: {
         closeModal() {
             this.$emit('close-modal-requested');
+        },
+        copyPromptAndOpenAssistant() {
+            navigator.clipboard.writeText(this.fullPrompt).catch(() => {}).finally(() => {
+                window.open(APP_CONFIG.assistantUrl, '_blank');
+            });
         }
     },
     template: `
@@ -35,10 +42,10 @@ export const AiModal = {
                             <div v-html="contextQuestionsHtml" class="bg-gray-50 p-2.5 rounded-md max-h-60 overflow-y-auto border border-gray-200 text-xs prose prose-sm"></div>
                         </div>
                     </div>
-                    <div class="flex flex-col sm:flex-row justify-around items-center pt-4 border-t mt-4 space-y-2 sm:space-y-0 sm:space-x-3">
-                        <a href="https://chat.openai.com" target="_blank" class="text-blue-600 hover:text-blue-700 font-semibold text-sm">ChatGPT</a>
-                        <a href="https://gemini.google.com" target="_blank" class="text-blue-600 hover:text-blue-700 font-semibold text-sm">Gemini</a>
-                        <a href="https://claude.ai" target="_blank" class="text-blue-600 hover:text-blue-700 font-semibold text-sm">Claude</a>
+                    <div class="flex flex-col sm:flex-row justify-center items-center pt-4 border-t mt-4">
+                        <button @click="copyPromptAndOpenAssistant" class="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 font-semibold text-sm rounded-md">
+                            Copy prompt in English and open AI Assistant
+                        </button>
                     </div>
                 </div>
             </div>
