@@ -64,7 +64,7 @@ export const DashboardView = {
 
                 <!-- Overview Sections -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <initiatives-by-phase-summary :initiative-phases-summary="iNNitiativePhasesSummary"></initiatives-by-phase-summary>
+                    <initiatives-by-phase-summary :i-n-nitiative-phases-summary="iNNitiativePhasesSummary"></initiatives-by-phase-summary>
                     <top-opportunities-summary :top-opportunities="topOpportunities" :get-person-name-fn="getPersonNameFn"></top-opportunities-summary>
                 </div>
 
