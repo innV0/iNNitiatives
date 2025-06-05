@@ -6,9 +6,9 @@ export const FIELD_ICONS = {
   opportunityName: 'lightbulb',
   opportunityPriority: 'star',
   opportunityStatus: 'flag',
-  initiativeName: 'activity',
-  initiativePhase: 'flag',
-  initiativeType: 'tag',
+  iNNitiativeName: 'activity',
+  iNNitiativePhase: 'flag',
+  iNNitiativeType: 'tag',
   initiativeBudget: 'euro'
 };
 
