@@ -68,7 +68,7 @@ export const InitiativesView = {
                 <div v-else class="space-y-4">
                     <item-card
                         v-for="init in initiatives"
-                        :key="init.initiativeId"
+                        :key="init.iNNitiativeId"
                         :item="init"
                         type="initiative"
                         :get-person-name-fn="getPersonNameFn"

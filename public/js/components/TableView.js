@@ -65,7 +65,7 @@ export const TableView = {
                 if (this.appDataSection === 'opportunities') {
                     updated.opportunityLastUpdated = new Date().toISOString();
                 } else if (this.appDataSection === 'initiatives') {
-                    updated.initiativeLastUpdated = new Date().toISOString();
+                    updated.iNNitiativeDateRegistered = new Date().toISOString();
                 }
                 section.splice(index, 1, updated);
             }

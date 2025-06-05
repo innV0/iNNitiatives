@@ -209,7 +209,7 @@ The `people` entity, formally titled "Person" in the schema when referring to a 
 ### personId
 **Person ID**
 *   **Summary**: A unique system-wide identifier assigned to each individual associated with the innovation program.
-*   **Detailed Description**: This field serves as the primary unique key for each person record. It is absolutely crucial that this ID is unique across all entries within the `people` array to avoid ambiguity and ensure data integrity. This ID is used extensively throughout the system to consistently reference individuals, for example, when linking a person as the proposer of an `opportunity` (`opportunityProposerId`) or as the manager of an `initiative` (`initiativeManagerId`). Organizations should establish a clear and consistent format for these IDs. This could be an existing employee ID, an email address (if guaranteed to be unique and stable and if privacy considerations allow), or a system-generated unique string (e.g., UUID or a prefixed sequential number like "EMP1001"). The choice of format should prioritize uniqueness, stability (IDs shouldn't change), and ease of management within the organization's broader systems if integration is a concern.
+*   **Detailed Description**: This field serves as the primary unique key for each person record. It is absolutely crucial that this ID is unique across all entries within the `people` array to avoid ambiguity and ensure data integrity. This ID is used extensively throughout the system to consistently reference individuals, for example, when linking a person as the proposer of an `opportunity` (`opportunityProposerId`) or as the manager of an `initiative` (`iNNitiativeOwnerPersonId`). Organizations should establish a clear and consistent format for these IDs. This could be an existing employee ID, an email address (if guaranteed to be unique and stable and if privacy considerations allow), or a system-generated unique string (e.g., UUID or a prefixed sequential number like "EMP1001"). The choice of format should prioritize uniqueness, stability (IDs shouldn't change), and ease of management within the organization's broader systems if integration is a concern.
 *   **Methodology Connection**: While not a direct output of methodologies like Design Thinking or Lean Startup, having unique identifiers for people is fundamental for **Resource Management**, **Team Formation** (common in Agile and project-based work), and **Attribution** (knowing who proposed ideas or led initiatives). In any collaborative innovation effort, knowing *who* is involved is essential.
 *   **Ghostbusters Example**: `PERSON_ELARA_SPENGLER`
 
@@ -295,7 +295,7 @@ The `opportunities` entity, formally titled "Opportunity" in the schema when ref
 ### opportunityId
 **Opportunity ID**
 *   **Summary**: A unique system-wide identifier assigned to each distinct innovation opportunity.
-*   **Detailed Description**: This field serves as the primary key for an opportunity record. It is essential that this ID is unique across all entries within the `opportunities` array to ensure that each opportunity can be unequivocally identified, tracked, and referenced throughout its lifecycle within the innovation funnel. This uniqueness is absolutely essential for data integrity, especially if the opportunity later progresses and becomes formally linked to one or more `initiative` objects (via the `initiativeOpportunityId` field in an initiative). Organizations should devise a clear and consistent naming convention or generation scheme for these IDs. For example, a prefix like "OPP-" followed by a sequential number (e.g., "OPP-00123") or a descriptive slug combined with a timestamp (e.g., "OPP-SOLARPANEL-20231027") can be effective.
+*   **Detailed Description**: This field serves as the primary key for an opportunity record. It is essential that this ID is unique across all entries within the `opportunities` array to ensure that each opportunity can be unequivocally identified, tracked, and referenced throughout its lifecycle within the innovation funnel. This uniqueness is absolutely essential for data integrity, especially if the opportunity later progresses and becomes formally linked to one or more `initiative` objects (via the `iNNitiativeRelatedOpportunityId` field in an initiative). Organizations should devise a clear and consistent naming convention or generation scheme for these IDs. For example, a prefix like "OPP-" followed by a sequential number (e.g., "OPP-00123") or a descriptive slug combined with a timestamp (e.g., "OPP-SOLARPANEL-20231027") can be effective.
 *   **Methodology Connection**: All **Idea Management Systems** and **Innovation Pipeline Management** tools rely on unique identifiers for tracking. While methodologies like Design Thinking or Lean Startup focus on the *content* of the idea/problem, a system to manage many such items needs unique IDs for operational efficiency.
 *   **Ghostbusters Example**: `OPP_CORP_SERVICE_PKG`
 
@@ -467,36 +467,24 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 
 | Field                            | Type                | Required | Short Description                    |
 | :------------------------------- | :------------------ | :------- | :----------------------------------- |
-| `initiativeId`                   | `string`            | Yes      | Initiative ID                        |
-| `initiativeName`                 | `string`            | Yes      | Initiative Name                      |
-| `initiativeType`                 | `string` (enum)     | Yes      | Initiative Type                      |
-| `initiativePhase`                | `string` (enum)     | Yes      | Initiative Phase                     |
-| `initiativeManagerId`            | `string`            | Yes      | Initiative Manager ID                |
-| `initiativeOpportunityId`        | `string`            | Yes      | Initiative Linked Opportunity ID     |
-| `initiativeUser`                 | `string`            | No       | Initiative Target User               |
-| `initiativeProblem`              | `string` (textarea) | No       | Initiative Problem                   |
-| `initiativeSolution`             | `string` (textarea) | No       | Initiative Solution                  |
-| `initiativeValueProposition`     | `string` (textarea) | No       | Initiative Value Proposition         |
-| `initiativeSolutionHypothesis`   | `string` (textarea) | Yes      | Initiative Solution Hypothesis       |
-| `initiativeGoals`                | `string` (textarea) | No       | Initiative Goals/Success Metrics     |
-| `initiativeObjective`            | `string` (textarea) | No       | Initiative Objective (Experiment)    |
-| `initiativeResults`              | `string` (textarea) | No       | Initiative Results (Experiment)      |
-| `initiativeLearnings`            | `string` (textarea) | No       | Initiative Learnings                 |
-| `initiativeDecision`             | `string` (enum)     | Yes      | Initiative Decision                  |
-| `initiativeDecisionJustification`| `string` (textarea) | No       | Initiative Decision Justification    |
-| `initiativeNextSteps`            | `string` (textarea) | No       | Initiative Next Steps                |
-| `initiativeBudget`               | `number`            | No       | Initiative Budget (€)                |
-| `initiativeResources`            | `string` (textarea) | No       | Initiative Resources Needed          |
-| `initiativeRisks`                | `string` (textarea) | No       | Initiative Risks & Mitigation        |
-| `initiativeDateRegistered`       | `string` (date)     | Yes      | Initiative Date Registered           |
-| `initiativeStartDate`            | `string` (date)     | No       | Initiative Start Date                |
-| `initiativeEndDate`              | `string` (date)     | No       | Initiative End Date                  |
-| `initiativeLastUpdated`          | `string` (date-time)| Yes      | Initiative Last Updated              |
-| `initiativeNotes`                | `string` (textarea) | No       | Initiative Additional Notes          |
+| `iNNitiativeId`                   | `string`            | Yes      | iNNitiative ID                        |
+| `iNNitiativeName`                 | `string`            | Yes      | iNNitiative Name                      |
+| `iNNitiativeType`                 | `string`            | Yes      | iNNitiative Type                      |
+| `iNNitiativePhase`                | `string`            | Yes      | iNNitiative Phase                     |
+| `iNNitiativeOwnerPersonId`        | `string`            | Yes      | Owner Person ID                       |
+| `iNNitiativeRelatedOpportunityId` | `string`            | Yes      | Related Opportunity ID                |
+| `iNNitiativeGoals`                | `string` (textarea) | No       | iNNitiative Goals                     |
+| `iNNitiativeValueProposition`     | `string` (textarea) | No       | iNNitiative Value Proposition         |
+| `iNNitiativeExpectedBenefits`     | `string` (textarea) | No       | Expected Benefits                     |
+| `iNNitiativeRisks`                | `string` (textarea) | No       | iNNitiative Risks                     |
+| `iNNitiativeValidation`           | `string` (textarea) | No       | Validation Notes                      |
+| `iNNitiativeNotes`                | `string` (textarea) | No       | Additional Notes                      |
+| `iNNitiativeStatus`               | `string`            | Yes      | iNNitiative Status                    |
+| `iNNitiativeDateRegistered`       | `string` (date)     | Yes      | Date Registered                       |
 
 ---
 
-### initiativeId
+### iNNitiativeId
 **Initiative ID**
 *   **Summary**: A unique system-wide identifier assigned to each distinct innovation initiative or project.
 *   **Detailed Description**: This field serves as the primary key for an initiative record, ensuring that every project or focused effort can be uniquely identified, tracked, managed, and reported on throughout its entire lifecycle, from inception and planning through execution, learning, and eventual completion, scaling, or termination. Similar to other ID fields (`opportunityId`, `personId`), consistency in generating unique `initiativeId` values is paramount for data integrity and for linking initiatives to other entities or data points within and outside the system. Organizations should define a clear ID generation strategy (e.g., using a prefix like "INIT-", incorporating project codes from other systems, or using sequential numbering). This ID facilitates linking initiatives to resources, team members, budgets, and performance data.
@@ -506,7 +494,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   This allows for the discrete tracking of individual units of work within the larger program, irrespective of the execution methodology.
 *   **Ghostbusters Example**: `INN_SUPER_TRAP_DEV`
 
-### initiativeName
+### iNNitiativeName
 **Initiative Name**
 *   **Summary**: A descriptive, concise, and human-readable name or title for the innovation initiative.
 *   **Detailed Description**: This is the primary textual label used to refer to the initiative in all communications, documentation, and system interfaces. The name should be clear, specific, and evocative enough to immediately convey what the initiative is about to anyone familiar with the program. A good `initiativeName` helps in distinguishing it from other ongoing initiatives and facilitates easy recall, discussion, and reporting. It could reflect the project's main goal (e.g., "Customer Onboarding Process Redesign"), the solution being developed (e.g., "Mobile-First E-commerce Platform"), or a catchy internal project codename if appropriate (e.g., "Project Phoenix"). The name should be stable throughout the initiative's life if possible, or versioned if significantly changed.
@@ -517,7 +505,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     A good name provides a shared understanding of what the team is collectively working on and striving to achieve.
 *   **Ghostbusters Example**: `Super Trap 2.0 - Advanced Containment Unit Prototype`
 
-### initiativeType
+### iNNitiativeType
 **Initiative Type**
 *   **Summary**: The specific category or nature of the innovation initiative, selected from a predefined, program-level list of types.
 *   **Detailed Description**: This field classifies the initiative based on its primary focus or the kind of innovation it represents, ensuring consistency in categorization across the program. Users must select a type from the standardized list defined in the `program.programDefaultInitiativeTypes` array (common examples include "New Product Development," "Process Improvement," "Service Innovation," "Technology Exploration," "Market Research," "Partnership Development," "Platform Enhancement," or "Sustainability Initiative"). Consistent typing of initiatives is crucial for effective **Innovation Portfolio Management**. It allows the organization to:
@@ -531,7 +519,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     This field helps in strategically managing the diverse mix of innovation efforts within the program.
 *   **Ghostbusters Example**: `Platform Enhancement` (for INN_SUPER_TRAP_DEV)
 
-### initiativePhase
+### iNNitiativePhase
 **Initiative Phase**
 *   **Summary**: The current operational phase or stage of the innovation initiative within the organization's defined innovation lifecycle or pipeline.
 *   **Detailed Description**: This field indicates the initiative's current point of progression along the structured pathway defined by the `program.programStages` array (e.g., "Idea Definition," "Concept Design," "Prototype Development," "Validation," "Pilot Testing," "Launched," "Scaling," "On Hold," "Cancelled"). It is a critical field for:
@@ -547,7 +535,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     Provides a common language for discussing progress across diverse initiatives.
 *   **Ghostbusters Example**: `Prototype Development` (for INN_SUPER_TRAP_DEV)
 
-### initiativeManagerId
+### iNNitiativeOwnerPersonId
 **Initiative Manager ID**
 *   **Summary**: The unique identifier (`personId`) of the individual from the `people` entity who is primarily responsible and accountable for leading, managing, and overseeing this specific innovation initiative on a day-to-day basis.
 *   **Detailed Description**: This field establishes a clear point of single-point accountability for the successful execution and delivery of the initiative. The person referenced here is typically the designated:
@@ -563,7 +551,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     Ensures someone is "minding the store" and is answerable for the initiative's performance.
 *   **Ghostbusters Example**: `PERSON_ELARA_SPENGLER` (for INN_SUPER_TRAP_DEV)
 
-### initiativeOpportunityId
+### iNNitiativeRelatedOpportunityId
 **Initiative Linked Opportunity ID**
 *   **Summary**: The unique identifier (`opportunityId`) of the specific innovation `opportunity` (from the `opportunities` entity) that this initiative is primarily designed to address, explore, validate, or capitalize upon.
 *   **Detailed Description**: This field creates a direct and strategically crucial link between an initial problem, identified idea, or unmet market need (the `opportunity`) and the concrete action, project, or experiment being undertaken to address it (the `initiative`). This traceability is fundamental for:
@@ -862,7 +850,6 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 *   **Summary**: The specific calendar date on which the innovation initiative was formally created, officially registered, or first logged within the iNNitiatives tracking system or innovation program.
 *   **Detailed Description**: This field records the "birth date" or formal inception date of the initiative as a recognized project or distinct endeavor within the framework of the innovation program. It marks the point at which an idea or opportunity, having passed some initial screening or approval, transitions into a formal commitment for more detailed exploration, planning, or development, even if full resources are not yet allocated or work has not yet commenced. This date is useful for several analytical and operational purposes:
     *   **Tracking Initiative Age**: Understanding how long individual initiatives have been active or in the system.
-    *   **Lifecycle Duration Analysis**: When combined with `initiativeEndDate`, it allows for calculating the total duration of initiatives from official registration to completion or termination.
     *   **Pipeline Velocity and Throughput**: Analyzing the overall speed of the innovation program in moving concepts from idea/opportunity stage into active project execution.
     *   **Historical Context**: Providing a clear timestamp for when the initiative was formally acknowledged and added to the portfolio.
     The format for this date should be a standard, machine-readable date (the schema's `format: "date"` strongly suggests YYYY-MM-DD is appropriate and preferred for consistency and sortability).
@@ -872,48 +859,6 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   In **Stage-Gate** processes, this might correspond to the date a project is formally approved to enter Stage 1 after an initial idea screening.
 *   **Ghostbusters Example**: `2024-02-01` (for INN_SUPER_TRAP_DEV)
 
-### initiativeStartDate
-**Initiative Start Date**
-*   **Summary**: The actual calendar date on which significant work on the innovation initiative formally commenced, or the officially planned and approved start date for the initiative as a whole or for its current active phase.
-*   **Detailed Description**: This field is important for tracking project timelines, enabling resource scheduling, and measuring actual progress against planned schedules. It can represent either:
-    *   The **officially planned or projected commencement date** that was set during the initiative's planning phase or at the approval of its current phase. This is useful for forward-looking planning.
-    *   The **actual date** when the core team began substantive work on the initiative's tasks, deliverables, and objectives. This is useful for historical tracking and performance analysis.
-    For initiatives that proceed through multiple distinct phases (as defined in `programStages`), this field might be updated at the beginning of each new phase to reflect the start date of that *current* active phase. Users should enter a standard date format (e.g., YYYY-MM-DD). This data, especially when used in conjunction with `initiativeEndDate` and phase changes, allows for the calculation of actual phase durations and helps in understanding adherence to schedules.
-*   **Methodology Connection**: A core data point for all forms of **Project Scheduling and Tracking**.
-    *   **Gantt Charts / Traditional Project Plans**: The start date is a fundamental data point for every task and the project overall.
-    *   **Agile (Scrum)**: Could represent the start date of the first sprint dedicated to working on a significant epic or feature that constitutes this initiative.
-    *   **Resource Management Systems**: Rely on start dates to allocate and level resources.
-    Helps in understanding actual versus planned timelines and in calculating project velocity or lead times.
-*   **Ghostbusters Example**: `2024-02-15` (for INN_SUPER_TRAP_DEV)
-
-### initiativeEndDate
-**Initiative End Date**
-*   **Summary**: The actual calendar date on which the innovation initiative (or its current active phase) was formally completed and all its objectives were met, or the officially planned/estimated end date for its completion.
-*   **Detailed Description**: This field is crucial for comprehensive project timeline management, understanding actual project durations, and evaluating on-time delivery performance against initial plans. It can represent:
-    *   An **estimated completion date** that was set during the initial planning stages of the initiative or at the beginning of its current phase. This is used for forecasting and planning.
-    *   The **actual date** when all planned work for the initiative (or its current phase) was formally concluded, all key deliverables were met, objectives were achieved (or a formal decision was made to terminate the initiative prematurely). This is used for historical analysis and performance reporting.
-    This date, when compared with the `initiativeStartDate`, allows for the precise calculation of the actual project or phase duration. It is also vital for resource forecasting (knowing when team members or other resources might become available for new assignments) and for overall innovation portfolio planning and review. A standard date format (e.g., YYYY-MM-DD) is expected.
-*   **Methodology Connection**: A core data point for all forms of **Project Scheduling, Tracking, and Closure**.
-    *   **Gantt Charts / Traditional Project Plans**: The end date is a fundamental data point for project milestones and the overall project completion.
-    *   **Agile Development**: Could represent the end date of a specific release, the date an epic is considered "Done-Done," or when a product is launched.
-    *   **Stage-Gate**: The date a project successfully exits the final stage or is otherwise formally closed.
-    Helps in performance analysis (actual vs. planned duration), resource planning, and historical reporting.
-*   **Ghostbusters Example**: `2024-09-30` (for INN_SUPER_TRAP_DEV)
-
-### initiativeLastUpdated
-**Initiative Last Updated**
-*   **Summary**: A system-generated timestamp indicating the precise date and time when any data field or information related to this specific initiative was last modified or updated within the iNNitiatives system.
-*   **Detailed Description**: This field is designated as `readonly` in the schema, signifying that its value should be automatically managed and populated by the iNNitiatives application itself, rather than being manually entered or editable by users. Every time a user edits and successfully saves any changes to an initiative's record (e.g., updating its `initiativePhase`, adding `initiativeLearnings`, changing its `initiativeBudget`, or modifying its `initiativeNotes`), this timestamp should be automatically updated to reflect the exact moment of that last modification. It serves as an essential component of an audit trail and provides valuable operational insights for:
-    *   **Data Freshness and Relevance**: Helps users quickly assess how current and up-to-date the information for a particular initiative is.
-    *   **Recent Activity Monitoring**: Allows stakeholders, program managers, and team members to easily see which initiatives are actively being worked on, discussed, or updated.
-    *   **Stagnation Detection**: Can be used to highlight initiatives that have not been touched or updated for a significant period, which might indicate they are stalled, neglected, or require urgent review and follow-up.
-    *   **Implicit Version Control Indication**: While not a full version control system, it indicates when the last snapshot of the initiative's data was saved.
-    The format for this timestamp is typically a comprehensive date-time string, often adhering to the ISO 8601 standard (e.g., "YYYY-MM-DDTHH:mm:ssZ" or similar), ensuring global consistency and precision for accurate tracking.
-*   **Methodology Connection**: Supports general **Data Governance**, **Process Monitoring**, **Auditing**, and **Active Project Management** within the innovation system.
-    *   Helps ensure that the information used for decision-making and reporting remains current, accurate, and relevant.
-    *   Can be used by the system to trigger automated workflows, notifications (e.g., "Initiative X has not been updated in 30 days"), or escalations if critical initiatives show no recent updates.
-    *   Useful for auditing changes and, if the system supports it, potentially linking back to a more detailed change history or version log for the initiative.
-*   **Ghostbusters Example**: `2024-05-22T09:15:00.000Z` (for INN_SUPER_TRAP_DEV)
 
 ### initiativeNotes
 **Initiative Additional Notes**
