@@ -119,10 +119,16 @@ const app = createApp({
             return Object.entries(phases).map(([name, count]) => ({ name, count }));
         },
         kanbanPhases() {
-            if (this.appData.program && this.appData.program.programStages && this.appData.program.programStages.length > 0) {
+            if (
+                this.appData.program &&
+                Array.isArray(this.appData.program.programStages) &&
+                this.appData.program.programStages.length > 0
+            ) {
                 return this.appData.program.programStages;
             }
-            return APP_SCHEMA.definitions.iNNitiative.properties.iNNitiativePhase.enum || [];
+            const phaseSchema =
+                APP_SCHEMA?.definitions?.iNNitiative?.properties?.iNNitiativePhase;
+            return Array.isArray(phaseSchema?.enum) ? phaseSchema.enum : [];
         },
         initiativesByPhase() {
             const grouped = {};
