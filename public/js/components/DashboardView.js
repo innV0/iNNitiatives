@@ -49,29 +49,6 @@ export const DashboardView = {
                         @card-clicked="$emit('set-active-tab', $event)"></stats-card>
                 </div>
 
-                <!-- Kanban Board Section -->
-                <div class="mt-8">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                        <i data-lucide="columns" class="w-5 h-5 mr-2 text-indigo-600"></i>
-                        Initiative Progress (Kanban)
-                    </h3>
-                    <div class="flex space-x-4 overflow-x-auto pb-4">
-                        <kanban-column v-for="phase in kanbanPhases" :key="phase"
-                            :phase="phase"
-                            :initiatives="initiativesByPhase[phase] || []"
-                            :get-person-name-fn="getPersonNameFn">
-                        </kanban-column>
-                    </div>
-                </div>
-
-                <!-- Overview Sections -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <initiatives-by-phase-summary :i-n-nitiative-phases-summary="iNNitiativePhasesSummary"></initiatives-by-phase-summary>
-                    <top-opportunities-summary :top-opportunities="topOpportunities" :get-person-name-fn="getPersonNameFn"></top-opportunities-summary>
-                </div>
-
-                <team-overview-summary :team-members="appData.people.slice(0, 6)" :get-person-avatar-fn="getPersonAvatarFn" :get-person-initiative-count-fn="getPersonInitiativeCountFn"></team-overview-summary>
-                <recent-activity-summary :recent-initiatives="recentInitiatives"></recent-activity-summary>
             </div>
         </section>
     `,
