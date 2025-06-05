@@ -63,13 +63,6 @@ export const ItemCard = {
                         type: 'opportunity'
                     });
                 }
-                if (this.item.initiativeBudget !== undefined) {
-                    b.push({
-                        kind: 'number',
-                        value: this.$appUtils.formatNumber(this.item.initiativeBudget),
-                        icon: 'euro'
-                    });
-                }
             }
             return b;
         }
