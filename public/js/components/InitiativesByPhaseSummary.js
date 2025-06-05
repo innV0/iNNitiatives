@@ -24,18 +24,5 @@ export const InitiativesByPhaseSummary = {
             </div>
         </div>
     `,
-    mounted() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+
 };

@@ -28,20 +28,5 @@ export const DataControls = {
             this.$emit('export-data-requested');
         }
     },
-    mounted() {
-        // Ensure icons are rendered when the component mounts
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    },
-    updated() {
-        // Ensure icons are rendered when the component updates (e.g. if template changes)
-        this.$nextTick(() => {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-    }
+
 };
