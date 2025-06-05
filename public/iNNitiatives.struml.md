@@ -112,7 +112,7 @@ Formally document identified innovation opportunities in the 'Opportunities' sec
 ### Preliminary Evaluation during Registration
 As part of the registration, perform an initial high-level assessment of opportunities based on apparent technical feasibility and broad strategic alignment to filter out clearly unviable suggestions early.
 
-## Steps for Registration:
+### Steps for Registration:
 1. **Register the Opportunity**: Document the opportunity comprehensively in the 'Opportunities' section of the iNNitiatives app. Ensure to include:
    - `Opportunity - ID`: A unique identifier assigned (e.g., OPP-YYYY-NNN).
    - `Opportunity - Name`: A concise and descriptive title (e.g., "Automate Invoice Processing").
@@ -128,7 +128,7 @@ As part of the registration, perform an initial high-level assessment of opportu
 
 This structured registration process creates a valuable, queryable database of potential innovations, forming the basis for more detailed evaluation.
 
-Tags: sub_phase::capture,concept::data_entry,concept::initial_assessment,updated>>Opportunity - ID,updated>>Opportunity - Name,updated>>Opportunity - Description,updated>>Opportunity - Priority,updated>>Opportunity - Proposer,next>>Opportunity Evaluation,role>>Innovation Manager,preceded_by>>Opportunity Generation,uses_object>>Opportunities module
+Tags: sub_phase::capture, concept::data_entry, concept::initial_assessment, updated>>Opportunity - ID, updated>>Opportunity - Name, updated>>Opportunity - Description, updated>>Opportunity - Priority, updated>>Opportunity - Proposer, next>>Opportunity Evaluation, role>>Innovation Manager, preceded_by>>Opportunity Generation, uses_object>>Opportunities module
 
 #### Opportunity Evaluation
 
