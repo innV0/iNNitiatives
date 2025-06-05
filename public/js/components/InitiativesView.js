@@ -19,7 +19,11 @@ export const InitiativesView = {
     components: { TableView, ItemCard, TableFilterControls },
     emits: ['add-initiative-requested', 'open-ai-modal-requested', 'sort-requested', 'view-item-requested', 'edit-item-requested', 'delete-item-requested', 'filter-changed', 'clear-filter'],
     computed: {
-        tableFields() { return this.$root.generateFormFields(APP_SCHEMA.definitions.initiative); }
+        tableFields() {
+            return this.$root.generateFormFields(
+                APP_SCHEMA.definitions.iNNitiative
+            );
+        }
     },
     template: `
         <section class="space-y-6">

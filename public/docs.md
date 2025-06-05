@@ -115,7 +115,7 @@ The `program` entity, formally titled "Program Configuration" in the schema, def
 ### programStages
 **Program Stages**
 *   **Summary**: An ordered array of strings defining the predefined stages or phases that an innovation initiative typically progresses through, from initial conception to launch or conclusion.
-*   **Detailed Description**: This field lists the distinct phases of your organization's innovation lifecycle or pipeline. These stages provide a structured pathway for managing and tracking the progress of innovation initiatives. Common examples include stages like "Ideation," "Concept Development," "Prototyping," "Validation," "Pilot," "Launch," and "Scaling." The order in the array typically represents the sequential flow, though some methodologies might allow for more fluid or iterative movement between stages. These defined stages are critical as they will be used as the standardized selection options for the `initiativePhase` field within individual `initiative` objects, ensuring consistency in how progress is reported and understood across the program. Users should tailor this list to accurately reflect their specific innovation process model, whether it's a linear Stage-Gate, an iterative Agile/Lean hybrid, or another custom approach.
+*   **Detailed Description**: This field lists the distinct phases of your organization's innovation lifecycle or pipeline. These stages provide a structured pathway for managing and tracking the progress of innovation initiatives. Common examples include stages like "Ideation," "Concept Development," "Prototyping," "Validation," "Pilot," "Launch," and "Scaling." The order in the array typically represents the sequential flow, though some methodologies might allow for more fluid or iterative movement between stages. These defined stages are critical as they will be used as the standardized selection options for the `iNNitiativePhase` field within individual `iNNitiative` objects, ensuring consistency in how progress is reported and understood across the program. Users should tailor this list to accurately reflect their specific innovation process model, whether it's a linear Stage-Gate, an iterative Agile/Lean hybrid, or another custom approach.
 *   **Methodology Connection**: This directly reflects the chosen process framework.
     *   **Stage-Gate**: This field would list the defined "Stages" of the Stage-Gate model.
     *   **Lean Startup**: While more iterative, you could define stages like "Problem/Solution Fit," "Product/Market Fit," "Scale."
@@ -169,7 +169,7 @@ The `program` entity, formally titled "Program Configuration" in the schema, def
 ### programDefaultInitiativeTypes
 **Program Default Initiative Types**
 *   **Summary**: An array of strings listing the predefined, standardized categories or classifications for innovation initiatives undertaken within the program.
-*   **Detailed Description**: This field allows for the categorization of `initiatives` based on their fundamental nature, primary focus area, or strategic intent. Common types could include "New Product Development," "Process Improvement," "Service Innovation," "Technology Exploration," "Market Expansion," "Business Model Shift," or "Cost Reduction Initiative." By defining these types at the program level, the organization ensures consistent classification across all its projects. This consistency is invaluable for portfolio analysis (e.g., "Are we investing enough in disruptive vs. incremental innovation?"), strategic resource allocation based on initiative type, and tailored reporting or governance processes (as different types of initiatives might have different risk profiles or success metrics). These values will directly populate the selectable options for the `initiativeType` field in each `initiative` object.
+*   **Detailed Description**: This field allows for the categorization of `initiatives` based on their fundamental nature, primary focus area, or strategic intent. Common types could include "New Product Development," "Process Improvement," "Service Innovation," "Technology Exploration," "Market Expansion," "Business Model Shift," or "Cost Reduction Initiative." By defining these types at the program level, the organization ensures consistent classification across all its projects. This consistency is invaluable for portfolio analysis (e.g., "Are we investing enough in disruptive vs. incremental innovation?"), strategic resource allocation based on initiative type, and tailored reporting or governance processes (as different types of initiatives might have different risk profiles or success metrics). These values will directly populate the selectable options for the `iNNitiativeType` field in each `iNNitiative` object.
 *   **Methodology Connection**: This aligns with **Innovation Portfolio Management**.
     *   Categorizing initiatives helps in balancing the portfolio across different types of innovation (e.g., incremental, radical, disruptive; core, adjacent, transformational using the "Innovation Ambition Matrix").
     *   Different methodologies might be more suitable for different initiative types. For instance, **Lean Startup** might be ideal for "New Product Development" in uncertain markets, while **Six Sigma** or **Kaizen** might be used for "Process Improvement."
@@ -487,7 +487,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 ### iNNitiativeId
 **Initiative ID**
 *   **Summary**: A unique system-wide identifier assigned to each distinct innovation initiative or project.
-*   **Detailed Description**: This field serves as the primary key for an initiative record, ensuring that every project or focused effort can be uniquely identified, tracked, managed, and reported on throughout its entire lifecycle, from inception and planning through execution, learning, and eventual completion, scaling, or termination. Similar to other ID fields (`opportunityId`, `personId`), consistency in generating unique `initiativeId` values is paramount for data integrity and for linking initiatives to other entities or data points within and outside the system. Organizations should define a clear ID generation strategy (e.g., using a prefix like "INIT-", incorporating project codes from other systems, or using sequential numbering). This ID facilitates linking initiatives to resources, team members, budgets, and performance data.
+*   **Detailed Description**: This field serves as the primary key for an initiative record, ensuring that every project or focused effort can be uniquely identified, tracked, managed, and reported on throughout its entire lifecycle, from inception and planning through execution, learning, and eventual completion, scaling, or termination. Similar to other ID fields (`opportunityId`, `personId`), consistency in generating unique `iNNitiativeId` values is paramount for data integrity and for linking initiatives to other entities or data points within and outside the system. Organizations should define a clear ID generation strategy (e.g., using a prefix like "INIT-", incorporating project codes from other systems, or using sequential numbering). This ID facilitates linking initiatives to resources, team members, budgets, and performance data.
 *   **Methodology Connection**: Foundational for **Project Management** (both traditional and Agile) and **Portfolio Management** systems.
     *   **Agile**: Each "project," "epic," or significant body of work that delivers value would have such an ID.
     *   **Stage-Gate**: Each project progressing through the gates requires a unique identifier for tracking and decision-making.
@@ -497,7 +497,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 ### iNNitiativeName
 **Initiative Name**
 *   **Summary**: A descriptive, concise, and human-readable name or title for the innovation initiative.
-*   **Detailed Description**: This is the primary textual label used to refer to the initiative in all communications, documentation, and system interfaces. The name should be clear, specific, and evocative enough to immediately convey what the initiative is about to anyone familiar with the program. A good `initiativeName` helps in distinguishing it from other ongoing initiatives and facilitates easy recall, discussion, and reporting. It could reflect the project's main goal (e.g., "Customer Onboarding Process Redesign"), the solution being developed (e.g., "Mobile-First E-commerce Platform"), or a catchy internal project codename if appropriate (e.g., "Project Phoenix"). The name should be stable throughout the initiative's life if possible, or versioned if significantly changed.
+*   **Detailed Description**: This is the primary textual label used to refer to the initiative in all communications, documentation, and system interfaces. The name should be clear, specific, and evocative enough to immediately convey what the initiative is about to anyone familiar with the program. A good `iNNitiativeName` helps in distinguishing it from other ongoing initiatives and facilitates easy recall, discussion, and reporting. It could reflect the project's main goal (e.g., "Customer Onboarding Process Redesign"), the solution being developed (e.g., "Mobile-First E-commerce Platform"), or a catchy internal project codename if appropriate (e.g., "Project Phoenix"). The name should be stable throughout the initiative's life if possible, or versioned if significantly changed.
 *   **Methodology Connection**: Similar to `opportunityName`, a clear name is vital for communication and shared understanding.
     *   **Agile**: Epics and even larger features within a product roadmap are given descriptive names.
     *   **Project Charters (Traditional Project Management)**: Always include a formal project title.
@@ -604,7 +604,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
     *   How it works from a user's perspective (user experience) and/or a technical perspective (architecture, key technologies).
     *   What makes it distinct, innovative, or superior compared to existing alternatives or the status quo (if any).
     *   The main technologies, methodologies, or approaches being utilized in its creation.
-    The level of detail in this field might evolve and increase as the initiative progresses through its `initiativePhase`s. In early conceptual stages, it might be a high-level description of the core concept; in later development or implementation stages, it could include more specific architectural details, user interface mockups (or links to them), or process flow diagrams. The description should be clear enough for diverse stakeholders (including both technical and non-technical audiences) to understand the nature of the solution and how it is intended to function and deliver value.
+    The level of detail in this field might evolve and increase as the initiative progresses through its `iNNitiativePhase`s. In early conceptual stages, it might be a high-level description of the core concept; in later development or implementation stages, it could include more specific architectural details, user interface mockups (or links to them), or process flow diagrams. The description should be clear enough for diverse stakeholders (including both technical and non-technical audiences) to understand the nature of the solution and how it is intended to function and deliver value.
 *   **Methodology Connection**: This is where the "build" and "design" aspects of innovation methodologies are articulated.
     *   **Agile (Scrum/Kanban)**: The solution evolves iteratively through sprints or continuous flow, with features defined in the Product Backlog. This field could summarize the overall solution vision or the current state of the evolving product.
     *   **Design Thinking**: The "Ideate" and "Prototype" phases are where potential solutions are conceptualized and made tangible. This field describes the output of those phases.
@@ -779,7 +779,7 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 *   **Summary**: The allocated or estimated financial resources, expressed as a numerical value (e.g., in Euros, as suggested by the "€" in the schema's original title description for this field), specifically designated for this innovation initiative.
 *   **Detailed Description**: This field captures the financial commitment or projection for the initiative. It can represent various budgeting scenarios:
     *   The **total approved budget** for the entire anticipated lifecycle of the initiative.
-    *   The **specific budget allocated** for the current `initiativePhase` (common in Stage-Gate processes where funding is released incrementally).
+    *   The **specific budget allocated** for the current `iNNitiativePhase` (common in Stage-Gate processes where funding is released incrementally).
     *   An **estimated cost** if the initiative is in very early stages (e.g., idea or concept phase) and formal budget approval is pending or being developed.
     This figure should ideally encompass all anticipated direct and indirect costs associated with executing the initiative, such as:
     *   Personnel costs (salaries, contractor fees for the core team and any dedicated support).
@@ -850,58 +850,15 @@ The `initiatives` entity, formally titled "iNNitiative" in the schema when refer
 *   **Summary**: The specific calendar date on which the innovation initiative was formally created, officially registered, or first logged within the iNNitiatives tracking system or innovation program.
 *   **Detailed Description**: This field records the "birth date" or formal inception date of the initiative as a recognized project or distinct endeavor within the framework of the innovation program. It marks the point at which an idea or opportunity, having passed some initial screening or approval, transitions into a formal commitment for more detailed exploration, planning, or development, even if full resources are not yet allocated or work has not yet commenced. This date is useful for several analytical and operational purposes:
     *   **Tracking Initiative Age**: Understanding how long individual initiatives have been active or in the system.
-    *   **Lifecycle Duration Analysis**: When combined with `initiativeEndDate`, it allows for calculating the total duration of initiatives from official registration to completion or termination.
     *   **Pipeline Velocity and Throughput**: Analyzing the overall speed of the innovation program in moving concepts from idea/opportunity stage into active project execution.
     *   **Historical Context**: Providing a clear timestamp for when the initiative was formally acknowledged and added to the portfolio.
     The format for this date should be a standard, machine-readable date (the schema's `format: "date"` strongly suggests YYYY-MM-DD is appropriate and preferred for consistency and sortability).
 *   **Methodology Connection**: Important for overall **Portfolio Management**, **Pipeline Analytics**, and **Process Monitoring** within an innovation system.
     *   Allows for tracking metrics like the "average time from opportunity approval to initiative registration" or "number of initiatives registered per quarter."
-    *   Provides a baseline date for measuring how long initiatives subsequently stay in various `initiativePhase`s.
+    *   Provides a baseline date for measuring how long initiatives subsequently stay in various `iNNitiativePhase`s.
     *   In **Stage-Gate** processes, this might correspond to the date a project is formally approved to enter Stage 1 after an initial idea screening.
 *   **Ghostbusters Example**: `2024-02-01` (for INN_SUPER_TRAP_DEV)
 
-### initiativeStartDate
-**Initiative Start Date**
-*   **Summary**: The actual calendar date on which significant work on the innovation initiative formally commenced, or the officially planned and approved start date for the initiative as a whole or for its current active phase.
-*   **Detailed Description**: This field is important for tracking project timelines, enabling resource scheduling, and measuring actual progress against planned schedules. It can represent either:
-    *   The **officially planned or projected commencement date** that was set during the initiative's planning phase or at the approval of its current phase. This is useful for forward-looking planning.
-    *   The **actual date** when the core team began substantive work on the initiative's tasks, deliverables, and objectives. This is useful for historical tracking and performance analysis.
-    For initiatives that proceed through multiple distinct phases (as defined in `programStages`), this field might be updated at the beginning of each new phase to reflect the start date of that *current* active phase. Users should enter a standard date format (e.g., YYYY-MM-DD). This data, especially when used in conjunction with `initiativeEndDate` and phase changes, allows for the calculation of actual phase durations and helps in understanding adherence to schedules.
-*   **Methodology Connection**: A core data point for all forms of **Project Scheduling and Tracking**.
-    *   **Gantt Charts / Traditional Project Plans**: The start date is a fundamental data point for every task and the project overall.
-    *   **Agile (Scrum)**: Could represent the start date of the first sprint dedicated to working on a significant epic or feature that constitutes this initiative.
-    *   **Resource Management Systems**: Rely on start dates to allocate and level resources.
-    Helps in understanding actual versus planned timelines and in calculating project velocity or lead times.
-*   **Ghostbusters Example**: `2024-02-15` (for INN_SUPER_TRAP_DEV)
-
-### initiativeEndDate
-**Initiative End Date**
-*   **Summary**: The actual calendar date on which the innovation initiative (or its current active phase) was formally completed and all its objectives were met, or the officially planned/estimated end date for its completion.
-*   **Detailed Description**: This field is crucial for comprehensive project timeline management, understanding actual project durations, and evaluating on-time delivery performance against initial plans. It can represent:
-    *   An **estimated completion date** that was set during the initial planning stages of the initiative or at the beginning of its current phase. This is used for forecasting and planning.
-    *   The **actual date** when all planned work for the initiative (or its current phase) was formally concluded, all key deliverables were met, objectives were achieved (or a formal decision was made to terminate the initiative prematurely). This is used for historical analysis and performance reporting.
-    This date, when compared with the `initiativeStartDate`, allows for the precise calculation of the actual project or phase duration. It is also vital for resource forecasting (knowing when team members or other resources might become available for new assignments) and for overall innovation portfolio planning and review. A standard date format (e.g., YYYY-MM-DD) is expected.
-*   **Methodology Connection**: A core data point for all forms of **Project Scheduling, Tracking, and Closure**.
-    *   **Gantt Charts / Traditional Project Plans**: The end date is a fundamental data point for project milestones and the overall project completion.
-    *   **Agile Development**: Could represent the end date of a specific release, the date an epic is considered "Done-Done," or when a product is launched.
-    *   **Stage-Gate**: The date a project successfully exits the final stage or is otherwise formally closed.
-    Helps in performance analysis (actual vs. planned duration), resource planning, and historical reporting.
-*   **Ghostbusters Example**: `2024-09-30` (for INN_SUPER_TRAP_DEV)
-
-### initiativeLastUpdated
-**Initiative Last Updated**
-*   **Summary**: A system-generated timestamp indicating the precise date and time when any data field or information related to this specific initiative was last modified or updated within the iNNitiatives system.
-*   **Detailed Description**: This field is designated as `readonly` in the schema, signifying that its value should be automatically managed and populated by the iNNitiatives application itself, rather than being manually entered or editable by users. Every time a user edits and successfully saves any changes to an initiative's record (e.g., updating its `initiativePhase`, adding `initiativeLearnings`, changing its `initiativeBudget`, or modifying its `initiativeNotes`), this timestamp should be automatically updated to reflect the exact moment of that last modification. It serves as an essential component of an audit trail and provides valuable operational insights for:
-    *   **Data Freshness and Relevance**: Helps users quickly assess how current and up-to-date the information for a particular initiative is.
-    *   **Recent Activity Monitoring**: Allows stakeholders, program managers, and team members to easily see which initiatives are actively being worked on, discussed, or updated.
-    *   **Stagnation Detection**: Can be used to highlight initiatives that have not been touched or updated for a significant period, which might indicate they are stalled, neglected, or require urgent review and follow-up.
-    *   **Implicit Version Control Indication**: While not a full version control system, it indicates when the last snapshot of the initiative's data was saved.
-    The format for this timestamp is typically a comprehensive date-time string, often adhering to the ISO 8601 standard (e.g., "YYYY-MM-DDTHH:mm:ssZ" or similar), ensuring global consistency and precision for accurate tracking.
-*   **Methodology Connection**: Supports general **Data Governance**, **Process Monitoring**, **Auditing**, and **Active Project Management** within the innovation system.
-    *   Helps ensure that the information used for decision-making and reporting remains current, accurate, and relevant.
-    *   Can be used by the system to trigger automated workflows, notifications (e.g., "Initiative X has not been updated in 30 days"), or escalations if critical initiatives show no recent updates.
-    *   Useful for auditing changes and, if the system supports it, potentially linking back to a more detailed change history or version log for the initiative.
-*   **Ghostbusters Example**: `2024-05-22T09:15:00.000Z` (for INN_SUPER_TRAP_DEV)
 
 ### initiativeNotes
 **Initiative Additional Notes**
