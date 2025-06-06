@@ -307,7 +307,144 @@ const app = createApp({
         removeNotification(id) { const index = this.notifications.findIndex(n => n.id === id); if (index > -1) { this.notifications[index].show = false; setTimeout(() => { this.notifications.splice(index, 1); }, 300); } },
         loadDataFile(file) { if (!file) return; const reader = new FileReader(); reader.onload = (e) => { try { const jsonData = JSON.parse(e.target.result); if (typeof jsonData === 'object' && jsonData !== null && 'program' in jsonData && 'people' in jsonData && 'opportunities' in jsonData && 'initiatives' in jsonData) { this.appData = jsonData; this.showNotification('Success', 'Data file loaded successfully!', 'success'); } else { this.showNotification('Error', 'Invalid data file: Missing one or more required top-level keys (program, people, opportunities, initiatives).', 'error'); } } catch (error) { this.showNotification('Error', `Error parsing JSON: ${error.message}`, 'error'); } }; reader.readAsText(file); },
         async loadSampleData() { try { const response = await fetch('./sample-data.json'); if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`); const sampleData = await response.json(); this.appData = sampleData; this.showNotification('Success', 'Sample data loaded successfully!', 'success'); } catch (error) { this.showNotification('Error', `Error loading sample data: ${error.message}`, 'error'); } },
-        exportData() { try { const now = new Date(); const timestamp = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + '-' + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0'); const dataStr = JSON.stringify(this.appData, null, 2); const dataBlob = new Blob([dataStr], { type: 'application/json' }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `innit-data-${timestamp}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); this.showNotification('Success', 'Data exported successfully!', 'success'); } catch (error) { this.showNotification('Error', `Error exporting data: ${error.message}`, 'error'); } },
+        exportData(format = 'json') {
+            try {
+                const now = new Date();
+                const timestamp =
+                    now.getFullYear() +
+                    '-' + String(now.getMonth() + 1).padStart(2, '0') +
+                    '-' + String(now.getDate()).padStart(2, '0') +
+                    '-' + String(now.getHours()).padStart(2, '0') +
+                    String(now.getMinutes()).padStart(2, '0') +
+                    String(now.getSeconds()).padStart(2, '0');
+
+                let dataStr = '';
+                let mime = 'application/json';
+                let extension = 'json';
+
+                if (format === 'markdown') {
+                    dataStr = this.convertToMarkdown(this.appData);
+                    mime = 'text/markdown';
+                    extension = 'md';
+                } else if (format === 'html') {
+                    dataStr = this.convertToHtml(this.appData);
+                    mime = 'text/html';
+                    extension = 'html';
+                } else {
+                    dataStr = JSON.stringify(this.appData, null, 2);
+                }
+
+                const dataBlob = new Blob([dataStr], { type: mime });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `innit-data-${timestamp}.${extension}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                this.showNotification('Success', 'Data exported successfully!', 'success');
+            } catch (error) {
+                this.showNotification('Error', `Error exporting data: ${error.message}`, 'error');
+            }
+        },
+
+        convertToMarkdown(data) {
+            const sectionHeader = (title, level) => `${'#'.repeat(level)} ${title}\n`;
+            const objectToMarkdown = (obj, level) => {
+                let md = '';
+                Object.entries(obj || {}).forEach(([key, value]) => {
+                    const header = sectionHeader(this.$appUtils.formatFieldName(key), level);
+                    if (Array.isArray(value)) {
+                        md += header;
+                        if (value.length === 0) return;
+                        if (value.every(v => typeof v !== 'object')) {
+                            value.forEach(v => { md += `- ${v}\n`; });
+                        } else {
+                            value.forEach((v, idx) => {
+                                md += sectionHeader(`Item ${idx + 1}`, level + 1);
+                                md += objectToMarkdown(v, level + 2);
+                            });
+                        }
+                    } else if (typeof value === 'object' && value !== null) {
+                        md += header;
+                        md += objectToMarkdown(value, level + 1);
+                    } else {
+                        md += header + (value ?? '') + '\n';
+                    }
+                });
+                return md;
+            };
+
+            let md = sectionHeader('Program', 1);
+            md += objectToMarkdown(data.program || {}, 2);
+
+            md += '\n' + sectionHeader('People', 1);
+            (data.people || []).forEach((p, idx) => {
+                md += sectionHeader(p.personName || `Person ${idx + 1}`, 2);
+                md += objectToMarkdown(p, 3);
+            });
+
+            md += '\n' + sectionHeader('Opportunities', 1);
+            (data.opportunities || []).forEach((o, idx) => {
+                md += sectionHeader(o.opportunityName || `Opportunity ${idx + 1}`, 2);
+                md += objectToMarkdown(o, 3);
+            });
+
+            md += '\n' + sectionHeader('Initiatives', 1);
+            (data.initiatives || []).forEach((i, idx) => {
+                md += sectionHeader(i.iNNitiativeName || `Initiative ${idx + 1}`, 2);
+                md += objectToMarkdown(i, 3);
+            });
+
+            return md;
+        },
+
+        convertToHtml(data) {
+            const md = this.convertToMarkdown(data);
+            const lines = md.split('\n');
+            let html = '';
+            const headings = [];
+            let inList = false;
+
+            const slug = text => text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+            lines.forEach(line => {
+                const hMatch = line.match(/^(#+)\s+(.*)/);
+                if (hMatch) {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    const level = hMatch[1].length;
+                    const text = hMatch[2];
+                    const id = slug(text);
+                    headings.push({ level, text, id });
+                    html += `<h${level} id="${id}">${text}</h${level}>`;
+                    return;
+                }
+
+                if (line.startsWith('- ')) {
+                    if (!inList) { html += '<ul>'; inList = true; }
+                    html += `<li>${line.substring(2)}</li>`;
+                    return;
+                }
+
+                if (line.trim() === '') {
+                    if (inList) { html += '</ul>'; inList = false; }
+                    return;
+                }
+
+                if (inList) { html += '</ul>'; inList = false; }
+                html += `<p>${line}</p>`;
+            });
+            if (inList) html += '</ul>';
+
+            let toc = '<h1>Index</h1><ul>';
+            headings.forEach(h => {
+                toc += `<li style="margin-left:${(h.level - 1) * 20}px"><a href="#${h.id}">${h.text}</a></li>`;
+            });
+            toc += '</ul>';
+
+            return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>iNNitiatives Export</title></head><body>${toc}${html}</body></html>`;
+        },
         generateFormFields(schemaDefinition) {
             const fields = [];
             const properties = schemaDefinition.properties || {};
