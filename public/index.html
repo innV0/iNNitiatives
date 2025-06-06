@@ -57,7 +57,7 @@
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <data-controls ref="dataControls" @file-selected="loadDataFile" @export-data-requested="exportData"></data-controls>
+                        <data-controls ref="dataControls" @file-selected="loadDataFile"></data-controls>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,8 @@
                 :get-field-description-fn="getFieldDescription"
                 :format-field-name-fn="$appUtils.formatFieldName"
                 @edit-program-requested="editProgram"
-                @open-ai-modal-requested="openAiModal($event.context, $event.data)">
+                @open-ai-modal-requested="openAiModal($event.context, $event.data)"
+                @export-requested="exportData">
             </program-view>
 
             <!-- People Tab -->

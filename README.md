@@ -9,7 +9,7 @@ A comprehensive Vue.js application for managing innovation programs, opportuniti
 - **Team Management**: Manage team members and their roles
 - **Opportunities Tracking**: Identify and track innovation opportunities
 - **Initiative Management**: Manage innovation initiatives with detailed tracking
-- **Data Export/Import**: JSON-based data management with timestamped exports
+- **Data Export/Import**: Export data as JSON, Markdown, or HTML with timestamped filenames
 - **Process Guide**: Detailed workflow documentation accessible via Docsify
 
 ## Getting Started
@@ -50,7 +50,7 @@ The application uses a comprehensive JSON schema for:
 
 ## Export Format
 
-Data exports use the filename format: `initiatives-YYYY-MM-DD-HH-MM-SS.json`
+Data exports can be generated in three formats: JSON, Markdown, and HTML. Files are saved with the timestamped filename `innit-data-YYYY-MM-DD-HH-MM-SS.<ext>` where `<ext>` is `json`, `md`, or `html`.
 
 ## Deployment
 
