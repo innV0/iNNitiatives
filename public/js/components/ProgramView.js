@@ -4,6 +4,10 @@ export const ProgramView = {
         getFieldDescriptionFn: Function,
         formatFieldNameFn: Function,
     },
+    emits: ['edit-program-requested', 'open-ai-modal-requested', 'export-requested'],
+    data() {
+        return { showExportMenu: false };
+    },
     template: `
         <section class="space-y-6">
             <div class="flex justify-between items-center">
@@ -11,14 +15,27 @@ export const ProgramView = {
                     <h2 class="text-2xl font-bold text-gray-900">Program Configuration</h2>
                     <p class="text-gray-600 mt-1">Manage your innovation program settings and objectives</p>
                 </div>
-                <button @click="$emit('edit-program-requested')" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                    <i data-lucide="edit" class="w-4 h-4"></i>
-                    <span>Edit Program</span>
-                </button>
-                <button @click="$emit('open-ai-modal-requested', { context: 'program', data: programData })" title="AI Assistant for Program" class="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                    <i data-lucide="bot" class="w-4 h-4"></i>
-                    <span>AI</span>
-                </button>
+                <div class="flex space-x-3 relative">
+                    <button @click="$emit('edit-program-requested')" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                        <span>Edit Program</span>
+                    </button>
+                    <button @click="$emit('open-ai-modal-requested', { context: 'program', data: programData })" title="AI Assistant for Program" class="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        <i data-lucide="bot" class="w-4 h-4"></i>
+                        <span>AI</span>
+                    </button>
+                    <div @mouseenter="showExportMenu = true" @mouseleave="showExportMenu = false" class="relative">
+                        <button @click="showExportMenu = !showExportMenu" class="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors border border-gray-300">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Export</span>
+                        </button>
+                        <div v-if="showExportMenu" class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                            <button @click="$emit('export-requested', 'json'); showExportMenu = false" class="block w-full text-left px-4 py-2 hover:bg-gray-100">JSON</button>
+                            <button @click="$emit('export-requested', 'markdown'); showExportMenu = false" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Markdown</button>
+                            <button @click="$emit('export-requested', 'html'); showExportMenu = false" class="block w-full text-left px-4 py-2 hover:bg-gray-100">HTML</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">

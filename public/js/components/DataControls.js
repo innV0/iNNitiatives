@@ -6,11 +6,6 @@ export const DataControls = {
                 <i data-lucide="upload" class="w-4 h-4"></i>
                 <span>Load Data</span>
             </button>
-
-            <button @click="requestExportData" class="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                <i data-lucide="download" class="w-4 h-4"></i>
-                <span>Export</span>
-            </button>
         </div>
     `,
     methods: {
@@ -23,9 +18,6 @@ export const DataControls = {
             }
             // Reset file input to allow selecting the same file again if needed
             event.target.value = '';
-        },
-        requestExportData() {
-            this.$emit('export-data-requested');
         }
     },
 
