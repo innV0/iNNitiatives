@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Viewer</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+<!-- ========================================= -->
+<!-- CONFIGURATION SETTINGS - EDIT HERE      -->
+<!-- ========================================= -->
+<script>
+// Application Configuration
+const APP_CONFIG = {
+    // Application Info
+    appName: 'JSON Viewer',
+    version: '1.2.0',
+    
+    // UI Components Visibility
+    showHeader: true,
+    showFooter: false,
+    showSidebar: true,
+    
+    // Default File Loading
+    defaultFile: '', // e.g., 'data.json' or 'https://example.com/data.json'
+    
+    // Logo Configuration
+    logoUrl: 'https://innv0.com/assets/innv0_logo.svg'
+};
+
+// Parse URL parameters to override config
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('showHeader') !== null) APP_CONFIG.showHeader = urlParams.get('showHeader') === 'true';
+if (urlParams.get('showFooter') !== null) APP_CONFIG.showFooter = urlParams.get('showFooter') === 'true';
+if (urlParams.get('showSidebar') !== null) APP_CONFIG.showSidebar = urlParams.get('showSidebar') === 'true';
+if (urlParams.get('defaultFile')) APP_CONFIG.defaultFile = urlParams.get('defaultFile');
+if (urlParams.get('version')) APP_CONFIG.version = urlParams.get('version');
+</script>
+<!-- ========================================= -->
+
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: '#000000',
+                    secondary: '#666666',
+                    tag: {
+                        type: '#3b82f6',       // Azul
+                        priority: '#f59e0b',    // Amarillo/Naranja
+                        status: '#10b981',      // Verde
+                        relation: '#8b5cf6',    // Morado
+                        default: '#6b7280'      // Gris
+                    }
+                }
+            }
+        }
+    }
+</script>
+<style>
+    [v-cloak] { display: none; }
+    .tree-node {
+        transition: all 0.2s ease;
+    }
+    .tree-node:hover {
+        background-color: #f5f5f5;
+    }
+    .breadcrumb-arrow::after {
+        content: '›';
+        margin: 0 8px;
+        color: #666666;
+    }
+    .breadcrumb-arrow:last-child::after {
+        display: none;
+    }
+    .array-item {
+        border-left: 2px solid #e5e7eb;
+        margin-left: 8px;
+        padding-left: 12px;
+    }
+    .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-right: 4px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+    }
+    .tag-type {
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    .tag-priority {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .tag-status {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .tag-relation {
+        background-color: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        cursor: pointer;
+    }
+    .tag-default {
+        background-color: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+        border: 1px solid rgba(107, 114, 128, 0.2);
+    }
+    .tag-relation:hover {
+        background-color: rgba(139, 92, 246, 0.2);
+    }
+    .field-heading {
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 8px;
+        margin-bottom: 16px;
+        margin-top: 24px;
+    }
+    .field-heading:first-child {
+        margin-top: 0;
+    }
+    .field-id {
+        background-color: #f3f4f6;
+        color: #6b7280;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+    }
+    .field-compact {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+    }
+    .field-compact .field-label {
+        font-weight: 500;
+        color: #374151;
+        min-width: 80px;
+    }
+    .field-compact .field-value {
+        color: #111827;
+    }
+    .markdown-content {
+        line-height: 1.6;
+    }
+    .markdown-content h1, .markdown-content h2, .markdown-content h3,
+    .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+        font-weight: 600;
+    }
+    .markdown-content h1 { font-size: 1.5em; }
+    .markdown-content h2 { font-size: 1.3em; }
+    .markdown-content h3 { font-size: 1.1em; }
+    .markdown-content p {
+        margin-bottom: 1em;
+    }
+    .markdown-content ul, .markdown-content ol {
+        margin-bottom: 1em;
+        padding-left: 1.5em;
+    }
+    .markdown-content code {
+        background-color: #f3f4f6;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 0.9em;
+    }
+    .markdown-content pre {
+        background-color: #f3f4f6;
+        padding: 12px;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin-bottom: 1em;
+    }
+    .markdown-content blockquote {
+        border-left: 4px solid #d1d5db;
+        padding-left: 1em;
+        margin: 1em 0;
+        color: #6b7280;
+    }
+    
+    /* Drag and Drop Styles */
+    .drop-zone {
+        transition: all 0.3s ease;
+    }
+    .drop-zone.drag-over {
+        border-color: #000000 !important;
+        background-color: #f9fafb;
+        transform: scale(1.02);
+    }
+    .drop-zone.drag-over .drop-content {
+        color: #000000;
+    }
+</style>
+</head>
+<body class="bg-white">
+<div id="app" class="json-explorer-app" v-cloak>
+    <!-- Header -->
+    <header id="main-header" v-if="config.showHeader" class="app-header bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 flex items-center justify-center bg-white rounded-lg p-1">
+                        <img :src="config.logoUrl" :alt="config.appName + ' Logo'" class="w-full h-full object-contain" />
+                    </div>
+                    <div class="app-title-section">
+                        <h1 class="text-xl font-semibold text-gray-900">{{ config.appName }}</h1>
+                        <span class="text-xs text-gray-500">v{{ config.version }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div id="main-container" class="main-container max-w-7xl mx-auto px-4 py-6">
+        <!-- File Upload Section -->
+        <div id="file-upload-section" v-if="!jsonData" class="file-upload-section text-center py-12">
+            <div class="max-w-md mx-auto">
+                <div 
+                    id="file-drop-zone"
+                    class="drop-zone file-drop-zone border-2 border-dashed border-gray-300 rounded-lg p-8 transition-colors cursor-pointer"
+                    :class="{ 'drag-over': isDragOver }"
+                    @click="$refs.fileInput.click()"
+                    @dragover.prevent="handleDragOver"
+                    @dragleave.prevent="handleDragLeave"
+                    @drop.prevent="handleDrop"
+                >
+                    <div class="drop-content">
+                        <div class="w-12 h-12 flex items-center justify-center bg-white rounded-lg p-1 mx-auto mb-4">
+                            <img :src="config.logoUrl" :alt="config.appName + ' Logo'" class="w-full h-full object-contain" />
+                        </div>
+                        <div v-if="!isDragOver" class="upload-instructions">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">Load JSON File</h3>
+                            <p class="text-gray-600 mb-4">Drag and drop a JSON file here, or click to select</p>
+                            <div class="flex items-center justify-center space-x-2 mb-4">
+                                <i data-lucide="upload" class="w-5 h-5 text-gray-500"></i>
+                                <span class="text-sm text-gray-500">Supports .json files</span>
+                            </div>
+                        </div>
+                        <div v-else class="drop-active-state">
+                            <h3 class="text-lg font-medium text-black mb-2">Drop your JSON file here</h3>
+                            <p class="text-gray-700 mb-4">Release to upload the file</p>
+                            <i data-lucide="file-plus" class="w-8 h-8 mx-auto text-black"></i>
+                        </div>
+                        
+                        <input 
+                            type="file" 
+                            @change="handleFileUpload" 
+                            accept=".json"
+                            class="hidden"
+                            ref="fileInput"
+                        >
+                        
+                        <button 
+                            v-if="!isDragOver"
+                            id="choose-file-btn"
+                            class="choose-file-btn px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors inline-flex items-center space-x-2"
+                            @click.stop="$refs.fileInput.click()"
+                        >
+                            <i data-lucide="folder-open" class="w-4 h-4"></i>
+                            <span>Choose File</span>
+                        </button>
+                        
+                        <div v-if="config.defaultFile && !isDragOver" class="default-file-section mt-6 pt-4 border-t border-gray-200">
+                            <p class="text-sm text-gray-500 mb-2">or</p>
+                            <button 
+                                id="load-default-btn"
+                                @click.stop="loadDefaultFile"
+                                class="load-default-btn px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm inline-flex items-center space-x-2"
+                            >
+                                <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                                <span>Load Default File</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- File Format Help -->
+                <div id="file-format-help" class="file-format-help mt-6 text-left bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2 flex items-center">
+                        <i data-lucide="info" class="w-4 h-4 mr-2"></i>
+                        Supported Format
+                    </h4>
+                    <p class="text-sm text-gray-600 mb-2">Upload valid JSON files with any structure. The viewer supports:</p>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li class="flex items-center"><i data-lucide="check" class="w-3 h-3 mr-2 text-green-600"></i>Nested objects and arrays</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-3 h-3 mr-2 text-green-600"></i>StruML tagging convention</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-3 h-3 mr-2 text-green-600"></i>Markdown content fields</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-3 h-3 mr-2 text-green-600"></i>Date and URL auto-detection</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Explorer Interface -->
+        <div id="explorer-interface" v-else class="explorer-interface" :class="config.showSidebar ? 'grid grid-cols-1 lg:grid-cols-3 gap-6' : 'grid grid-cols-1 gap-6'">
+            <!-- Tree Navigation -->
+            <div id="navigation-section" v-if="config.showSidebar" class="navigation-section lg:col-span-1 bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div id="navigation-header" class="navigation-header p-4 border-b border-gray-200 bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-medium text-gray-900 flex items-center space-x-2">
+                            <i data-lucide="folder-tree" class="w-4 h-4"></i>
+                            <span>Data Structure</span>
+                        </h2>
+                        <button 
+                            id="reset-data-btn"
+                            @click="resetData"
+                            class="reset-data-btn text-sm text-gray-500 hover:text-gray-700 flex items-center space-x-1"
+                        >
+                            <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                            <span>New File</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="data-structure-tree" class="data-structure-tree p-4 overflow-y-auto h-full">
+                    <tree-node 
+                        :node="jsonData" 
+                        :path="[]" 
+                        :level="0"
+                        @select="selectNode"
+                        :selected-path="selectedPath"
+                    ></tree-node>
+                </div>
+            </div>
+
+            <!-- Content Viewer -->
+            <div id="node-visualization" :class="config.showSidebar ? 'lg:col-span-2' : 'col-span-1'" class="node-visualization bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div id="node-header" class="node-header p-4 border-b border-gray-200 bg-gray-50">
+    <div v-if="selectedNode" class="node-header-content">
+        <!-- Breadcrumbs -->
+        <nav id="breadcrumb-nav" class="breadcrumb-nav flex flex-wrap items-center text-xs text-gray-500 mb-2">
+            <span class="breadcrumb-arrow">Home</span>
+            <span 
+                v-for="(crumb, index) in breadcrumbs" 
+                :key="index"
+                class="breadcrumb-arrow"
+            >
+                {{ crumb.name }}
+                <span v-if="crumb.caption" class="text-xs text-gray-400">
+                    ({{ crumb.caption }})
+                </span>
+            </span>
+        </nav>
+        
+        <!-- Module Type and Title -->
+        <div class="flex items-center justify-between mb-2">
+            <h2 id="node-title" class="node-title text-lg font-semibold text-gray-900">
+                {{ getNodeTitle() }}
+                <span v-if="nodeCaption" class="text-sm font-normal text-gray-500">
+                    ({{ nodeCaption }})
+                </span>
+            </h2>
+            
+            <!-- Export Icons -->
+            <div id="export-controls" class="export-controls flex items-center space-x-2">
+                <button 
+                    id="export-markdown-btn"
+                    @click="exportCurrentNode('markdown')"
+                    :disabled="!selectedNode"
+                    class="export-btn export-markdown-btn p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Export Markdown"
+                >
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+                <button 
+                    id="export-html-btn"
+                    @click="exportCurrentNode('html')"
+                    :disabled="!selectedNode"
+                    class="export-btn export-html-btn p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Export HTML"
+                >
+                    <i data-lucide="code" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Compact Metadata Row -->
+        <div id="node-metadata" class="node-metadata flex flex-wrap items-center gap-4 text-xs text-gray-500">
+            <!-- Object Type -->
+            <span class="node-type flex items-center">
+                <i :data-lucide="getNodeIcon()" class="w-3 h-3 mr-1"></i>
+                {{ getNodeType() }}
+            </span>
+            
+            <!-- Property Count -->
+            <span v-if="isObject || isArray" class="property-count">
+                {{ getPropertyCount() }} {{ isArray ? 'items' : 'properties' }}
+            </span>
+            
+            <!-- ID -->
+            <span v-if="getNodeId()" class="node-id font-mono bg-gray-100 px-2 py-0.5 rounded">
+                id: {{ getNodeId() }}
+            </span>
+            
+            <!-- Tags -->
+            <div v-if="getNodeTags().length > 0" class="node-tags flex flex-wrap gap-1">
+                <span 
+                    v-for="tag in getNodeTags().slice(0, 3)" 
+                    :key="tag.full"
+                    :class="['tag-item inline-flex items-center px-2 py-0.5 rounded-full text-xs', getTagClass(tag)]"
+                >
+                    <span v-if="tag.type === 'relation'">
+                        {{ tag.relationType }}»{{ tag.target }}
+                    </span>
+                    <span v-else>
+                        {{ tag.value }}
+                    </span>
+                </span>
+                <span v-if="getNodeTags().length > 3" class="text-gray-400">
+                    +{{ getNodeTags().length - 3 }} more
+                </span>
+            </div>
+        </div>
+    </div>
+    <div v-else class="text-gray-500">
+        Select an item from the tree to view its content
+    </div>
+</div>
+                <div id="node-content" class="node-content p-6 overflow-y-auto h-full">
+                    <div v-if="selectedNode">
+                        <content-viewer 
+                            :node="selectedNode" 
+                            :path="selectedPath"
+                            @select="selectNode"
+                            @navigate-relation="navigateToRelation"
+                        ></content-viewer>
+                    </div>
+                    <div v-else class="empty-state text-center py-12 text-gray-500">
+                        <i data-lucide="mouse-pointer-click" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                        <p>Click on any item in the tree to view its detailed information</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="main-footer" v-if="config.showFooter" class="app-footer bg-gray-50 border-t border-gray-200 mt-8">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-6 h-6 flex items-center justify-center bg-white rounded-lg p-1">
+                        <img :src="config.logoUrl" :alt="config.appName + ' Logo'" class="w-full h-full object-contain" />
+                    </div>
+                    <span class="text-sm text-gray-600">{{ config.appName }} v{{ config.version }}</span>
+                </div>
+                <div class="text-sm text-gray-500">
+                    Powered by Vue.js & Tailwind CSS
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script>
+    const { createApp } = Vue;
+
+    // Utility function to sanitize strings for CSS class names
+    function sanitizeForClass(str) {
+        if (!str) return '';
+        return String(str)
+            .toLowerCase()
+            .replace(/[^a-z0-9\-_]/g, '-')
+            .replace(/^-+|-+$/g, '')
+            .replace(/-+/g, '-')
+            .substring(0, 50); // Limit length
+    }
+
+    // Tree Node Component
+    const TreeNode = {
+        name: 'TreeNode',
+        props: ['node', 'path', 'level', 'selectedPath'],
+        emits: ['select'],
+        data() {
+            return {
+                expanded: this.level < 2
+            }
+        },
+        computed: {
+            isObject() {
+                return typeof this.node === 'object' && this.node !== null && !Array.isArray(this.node);
+            },
+            isArray() {
+                return Array.isArray(this.node);
+            },
+            hasChildren() {
+                return this.isObject || this.isArray;
+            },
+            hasNonLeafChildren() {
+                if (!this.hasChildren) return false;
+                
+                if (this.isArray) {
+                    return this.node.some(item => !this.isLeafNode(item));
+                } else {
+                    return Object.values(this.node).some(value => !this.isLeafNode(value));
+                }
+            },
+            nodeIcon() {
+                if (this.isObject) return 'folder';
+                if (typeof this.node === 'string') return 'type';
+                if (typeof this.node === 'number') return 'hash';
+                if (typeof this.node === 'boolean') return 'toggle-left';
+                return 'file';
+            },
+            isSelected() {
+                return JSON.stringify(this.path) === JSON.stringify(this.selectedPath);
+            },
+            nodeCaption() {
+                if (!this.hasChildren) return '';
+                return this.findNodeCaption(this.node);
+            },
+            displayName() {
+                if (this.path.length === 0) return 'Main Data';
+                return this.path[this.path.length - 1];
+            },
+            displayNameWithCount() {
+                let name = this.displayName;
+                
+                // Add item count for arrays and objects
+                if (this.isArray) {
+                    name += ` (${this.node.length})`;
+                } else if (this.isObject) {
+                    name += ` (${Object.keys(this.node).length})`;
+                }
+                
+                return name;
+            },
+            nodeClasses() {
+                const classes = ['tree-node-item'];
+                
+                // Add semantic classes based on node content
+                if (this.isObject && this.node) {
+                    if (this.node.id) classes.push(`node-id-${sanitizeForClass(this.node.id)}`);
+                    if (this.node.name) classes.push(`node-name-${sanitizeForClass(this.node.name)}`);
+                    if (this.node.title) classes.push(`node-title-${sanitizeForClass(this.node.title)}`);
+                    if (this.nodeCaption) classes.push(`node-caption-${sanitizeForClass(this.nodeCaption)}`);
+                }
+                
+                // Add type classes
+                if (this.isArray) classes.push('node-type-array');
+                else if (this.isObject) classes.push('node-type-object');
+                else classes.push(`node-type-${typeof this.node}`);
+                
+                return classes.join(' ');
+            },
+            childNodes() {
+                if (!this.hasChildren) return [];
+                
+                const children = [];
+                
+                if (this.isArray) {
+                    this.node.forEach((item, index) => {
+                        if (!this.isLeafNode(item)) {
+                            const itemTitle = (item && typeof item === 'object' && item.title) 
+                                ? item.title 
+                                : `Item ${index + 1}`;
+                            
+                            children.push({
+                                key: index,
+                                value: item,
+                                displayName: itemTitle,
+                                path: [...this.path, index],
+                                isArrayItem: true
+                            });
+                        }
+                    });
+                } else {
+                    Object.entries(this.node).forEach(([key, value]) => {
+                        if (key === 'items' && Array.isArray(value)) {
+                            value.forEach((item, index) => {
+                                if (!this.isLeafNode(item)) {
+                                    const itemTitle = (item && typeof item === 'object' && item.title) 
+                                        ? item.title 
+                                        : `Item ${index + 1}`;
+                                    
+                                    children.push({
+                                        key: `${key}_${index}`,
+                                        value: item,
+                                        displayName: itemTitle,
+                                        path: [...this.path, key, index],
+                                        isArrayItem: true
+                                    });
+                                }
+                            });
+                        } else if (!this.isLeafNode(value)) {
+                            children.push({
+                                key,
+                                value,
+                                displayName: key,
+                                path: [...this.path, key],
+                                isArrayItem: false
+                            });
+                        }
+                    });
+                }
+                
+                return children;
+            }
+        },
+        methods: {
+            toggle() {
+                if (this.hasChildren) {
+                    this.expanded = !this.expanded;
+                }
+            },
+            selectThis() {
+                this.$emit('select', this.node, this.path);
+            },
+            getNodePreview() {
+                if (typeof this.node === 'string') {
+                    return this.node.length > 30 ? this.node.substring(0, 30) + '...' : this.node;
+                }
+                if (typeof this.node === 'number') return this.node.toString();
+                if (typeof this.node === 'boolean') return this.node ? 'Yes' : 'No';
+                if (this.isArray) return `${this.node.length} items`;
+                if (this.isObject) return `${Object.keys(this.node).length} properties`;
+                return '';
+            },
+            findNodeCaption(node) {
+                if (!node || typeof node !== 'object' || Array.isArray(node)) {
+                    return '';
+                }
+
+                const keys = Object.keys(node);
+                
+                let nameField = keys.find(key => key.toLowerCase().endsWith('name'));
+                if (nameField && node[nameField]) {
+                    return String(node[nameField]);
+                }
+                
+                let titleField = keys.find(key => key.toLowerCase().endsWith('title'));
+                if (titleField && node[titleField]) {
+                    return String(node[titleField]);
+                }
+                
+                let idField = keys.find(key => key.toLowerCase().endsWith('id'));
+                if (idField && node[idField]) {
+                    return String(node[idField]);
+                }
+                
+                return '';
+            },
+            isLeafNode(node) {
+                if (node === null || node === undefined) return true;
+                if (typeof node !== 'object') return true;
+                if (Array.isArray(node) && node.length === 0) return true;
+                if (!Array.isArray(node) && Object.keys(node).length === 0) return true;
+                return false;
+            }
+        },
+        template: `
+            <div v-if="hasNonLeafChildren || path.length === 0" :class="nodeClasses">
+                <div 
+                    class="tree-node flex items-center py-2 px-2 rounded cursor-pointer pl-2"
+                    :class="{ 'bg-gray-100 border-l-4 border-black': isSelected }"
+                    @click="selectThis"
+                >
+                    <button 
+                        v-if="hasChildren"
+                        @click.stop="toggle"
+                        class="tree-node-toggle mr-2 p-1 hover:bg-gray-200 rounded"
+                    >
+                        <i :data-lucide="expanded ? 'chevron-down' : 'chevron-right'" class="w-3 h-3"></i>
+                    </button>
+                    <div v-else class="w-6"></div>
+                    
+                    <i :data-lucide="nodeIcon" class="tree-node-icon w-4 h-4 mr-2 text-gray-500"></i>
+                    
+                    <div class="tree-node-content flex-1 min-w-0">
+                        <div class="flex items-center space-x-2">
+                            <span class="tree-node-name font-medium text-sm text-gray-900 truncate">
+                                {{ displayNameWithCount }}
+                            </span>
+                            <span v-if="nodeCaption" class="tree-node-caption text-xs text-gray-500 truncate">
+                                ({{ nodeCaption }})
+                            </span>
+                        </div>
+                        <div v-if="!hasChildren" class="tree-node-preview text-xs text-gray-500 truncate">
+                            {{ getNodePreview() }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="hasChildren && expanded" class="tree-node-children">
+                    <div v-for="child in childNodes" :key="child.key" :class="{ 'array-item': child.isArrayItem }">
+                        <tree-node
+                            :node="child.value"
+                            :path="child.path"
+                            :level="level + 1"
+                            :selected-path="selectedPath"
+                            @select="(node, path) => $emit('select', node, path)"
+                        ></tree-node>
+                    </div>
+                </div>
+            </div>
+        `
+    };
+
+    // Content Viewer Component
+    const ContentViewer = {
+        name: 'ContentViewer',
+        props: ['node', 'path'],
+        emits: ['select', 'navigate-relation'],
+        computed: {
+            isObject() {
+                return typeof this.node === 'object' && this.node !== null && !Array.isArray(this.node);
+            },
+            isArray() {
+                return Array.isArray(this.node);
+            },
+            nodeType() {
+                if (this.isArray) return 'Array';
+                if (this.isObject) return 'Object';
+                if (typeof this.node === 'string') {
+                    if (this.isDate(this.node)) return 'Date';
+                    if (this.isEmail(this.node)) return 'Email';
+                    if (this.isUrl(this.node)) return 'URL';
+                    if (this.isMarkdown(this.node)) return 'Formatted Text';
+                    return 'Text';
+                }
+                if (typeof this.node === 'number') return 'Number';
+                if (typeof this.node === 'boolean') return 'Boolean';
+                return 'Unknown';
+            },
+            contentClasses() {
+                const classes = ['content-viewer'];
+                
+                // Add semantic classes based on node content
+                if (this.isObject && this.node) {
+                    if (this.node.id) classes.push(`content-id-${sanitizeForClass(this.node.id)}`);
+                    if (this.node.name) classes.push(`content-name-${sanitizeForClass(this.node.name)}`);
+                    if (this.node.title) classes.push(`content-title-${sanitizeForClass(this.node.title)}`);
+                    
+                    const caption = this.findNodeCaption(this.node);
+                    if (caption) classes.push(`content-caption-${sanitizeForClass(caption)}`);
+                }
+                
+                // Add type classes
+                if (this.isArray) classes.push('content-type-array');
+                else if (this.isObject) classes.push('content-type-object');
+                else classes.push(`content-type-${typeof this.node}`);
+                
+                return classes.join(' ');
+            },
+            specialFields() {
+                if (!this.isObject) return {};
+                
+                const fields = {};
+                const entries = Object.entries(this.node);
+                
+                entries.forEach(([key, value]) => {
+                    const fieldType = this.getFieldType(key, value);
+                    if (fieldType !== 'normal') {
+                        fields[key] = {
+                            type: fieldType,
+                            value: value,
+                            key: key
+                        };
+                    }
+                });
+                
+                return fields;
+            },
+            normalFields() {
+                if (!this.isObject && !this.isArray) return [];
+                
+                const fields = [];
+                
+                if (this.isArray) {
+                    this.node.forEach((item, index) => {
+                        if (this.isLeafNode(item)) {
+                            fields.push({
+                                key: index,
+                                displayName: `Item ${index + 1}`,
+                                value: item,
+                                originalKey: index,
+                                type: 'normal'
+                            });
+                        }
+                    });
+                } else {
+                    Object.entries(this.node).forEach(([key, value]) => {
+                        if (key !== 'items' && this.isLeafNode(value)) {
+                            const fieldType = this.getFieldType(key, value);
+                            if (fieldType === 'normal') {
+                                fields.push({
+                                    key,
+                                    displayName: key,
+                                    value,
+                                    originalKey: key,
+                                    type: 'normal'
+                                });
+                            }
+                        }
+                    });
+                }
+                
+                return fields;
+            },
+            nonLeafNodes() {
+                if (!this.isObject && !this.isArray) return [];
+                
+                const branches = [];
+                
+                if (this.isArray) {
+                    this.node.forEach((item, index) => {
+                        if (!this.isLeafNode(item)) {
+                            const itemTitle = (item && typeof item === 'object' && item.title) 
+                                ? item.title 
+                                : `Item ${index + 1}`;
+                            
+                            branches.push({
+                                key: index,
+                                displayName: itemTitle,
+                                value: item,
+                                caption: this.findNodeCaption(item),
+                                originalKey: index,
+                                isArrayItem: true
+                            });
+                        }
+                    });
+                } else {
+                    Object.entries(this.node).forEach(([key, value]) => {
+                        if (key !== 'items' && !this.isLeafNode(value)) {
+                            branches.push({
+                                key,
+                                displayName: key,
+                                value,
+                                caption: this.findNodeCaption(value),
+                                originalKey: key,
+                                isArrayItem: false
+                            });
+                        }
+                    });
+                }
+                
+                if (this.isObject && this.node.items && Array.isArray(this.node.items)) {
+                    this.node.items.forEach((item, index) => {
+                        if (!this.isLeafNode(item)) {
+                            const itemTitle = (item && typeof item === 'object' && item.title) 
+                                ? item.title 
+                                : `Item ${index + 1}`;
+                            
+                            branches.push({
+                                key: `items_${index}`,
+                                displayName: itemTitle,
+                                value: item,
+                                caption: this.findNodeCaption(item),
+                                originalKey: ['items', index],
+                                isArrayItem: true
+                            });
+                        }
+                    });
+                }
+                
+                return branches;
+            }
+        },
+        methods: {
+            getFieldType(key, value) {
+                const keyLower = key.toLowerCase();
+                
+                // ID fields
+                if (keyLower === 'id' || keyLower.endsWith('id')) {
+                    return 'id';
+                }
+                
+                // Title/Name fields (for headings)
+                if (keyLower === 'title' || keyLower === 'name' || 
+                    keyLower.endsWith('title') || keyLower.endsWith('name')) {
+                    return 'heading';
+                }
+                
+                // Content fields (check for markdown)
+                if (keyLower === 'content' || keyLower === 'description' || 
+                    keyLower === 'body' || keyLower === 'text') {
+                    if (typeof value === 'string' && this.isMarkdown(value)) {
+                        return 'markdown';
+                    }
+                    return 'content';
+                }
+                
+                // Date fields
+                if (typeof value === 'string' && this.isDate(value)) {
+                    return 'date';
+                }
+                
+                // Numeric fields
+                if (typeof value === 'number') {
+                    return 'number';
+                }
+                
+                // Tags
+                if (keyLower === 'tags' && typeof value === 'string') {
+                    return 'tags';
+                }
+                
+                return 'normal';
+            },
+            renderSpecialField(field) {
+                switch (field.type) {
+                    case 'id':
+                        return `<span class="field-id data-field-id">${field.value}</span>`;
+                    case 'heading':
+                        return `<h3 class="field-heading data-field-heading text-xl font-semibold text-gray-900">${field.value}</h3>`;
+                    case 'markdown':
+                        return `<div class="markdown-content data-field-markdown">${marked.parse(field.value)}</div>`;
+                    case 'content':
+                        return `<div class="data-field-content whitespace-pre-wrap">${field.value}</div>`;
+                    case 'date':
+                        return `<div class="data-field-date flex items-center space-x-2">
+                            <i data-lucide="calendar" class="w-4 h-4 text-gray-500"></i>
+                            <span>${this.formatDate(field.value)}</span>
+                            <span class="text-xs text-gray-500">(${field.value})</span>
+                        </div>`;
+                    case 'number':
+                        return `<div class="data-field-number flex items-center space-x-2">
+                            <i data-lucide="hash" class="w-4 h-4 text-gray-500"></i>
+                            <span class="font-mono">${this.formatNumber(field.value)}</span>
+                        </div>`;
+                    case 'tags':
+                        const tags = this.parseTags(field.value);
+                        return tags.map(tag => {
+                            const tagClass = this.getTagClass(tag);
+                            if (tag.type === 'relation') {
+                                return `<span class="tag data-tag data-tag-relation ${tagClass}" style="cursor: pointer;">${tag.relationType} » ${tag.target}</span>`;
+                            } else {
+                                return `<span class="tag data-tag data-tag-${tag.type} ${tagClass}">${tag.type}::${tag.value}</span>`;
+                            }
+                        }).join('');
+                    default:
+                        return String(field.value);
+                }
+            },
+            getSubItemClasses(branch) {
+                const classes = ['sub-item-card'];
+                
+                // Add semantic classes based on item content
+                if (branch.value && typeof branch.value === 'object') {
+                    if (branch.value.id) classes.push(`sub-item-id-${sanitizeForClass(branch.value.id)}`);
+                    if (branch.value.name) classes.push(`sub-item-name-${sanitizeForClass(branch.value.name)}`);
+                    if (branch.value.title) classes.push(`sub-item-title-${sanitizeForClass(branch.value.title)}`);
+                    if (branch.caption) classes.push(`sub-item-caption-${sanitizeForClass(branch.caption)}`);
+                }
+                
+                // Add type classes
+                if (Array.isArray(branch.value)) classes.push('sub-item-type-array');
+                else if (typeof branch.value === 'object') classes.push('sub-item-type-object');
+                
+                return classes.join(' ');
+            },
+            isDate(str) {
+                return !isNaN(Date.parse(str)) && /\d{4}-\d{2}-\d{2}/.test(str);
+            },
+            isEmail(str) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+            },
+            isUrl(str) {
+                try {
+                    new URL(str);
+                    return true;
+                } catch {
+                    return false;
+                }
+            },
+            isMarkdown(str) {
+                if (typeof str !== 'string' || str.length < 10) return false;
+                
+                // Check for common markdown patterns
+                const markdownPatterns = [
+                    /#{1,6}\s+.+/,           // Headers
+                    /\*\*.*?\*\*/,           // Bold
+                    /\*.*?\*/,               // Italic
+                    /`.*?`/,                 // Inline code
+                    /\`\`\`[\s\S]*?\`\`\`/,        // Code blocks
+                    /\[.*?\]$$.*?$$/,        // Links
+                    /^\s*[-*+]\s+/m,         // Unordered lists
+                    /^\s*\d+\.\s+/m,         // Ordered lists
+                    /^\s*>\s+/m              // Blockquotes
+                ];
+                
+                return markdownPatterns.some(pattern => pattern.test(str));
+            },
+            formatDate(str) {
+                return new Date(str).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            },
+            formatNumber(num) {
+                return new Intl.NumberFormat('en-US').format(num);
+            },
+            isLeafNode(node) {
+                if (node === null || node === undefined) return true;
+                if (typeof node !== 'object') return true;
+                if (Array.isArray(node) && node.length === 0) return true;
+                if (!Array.isArray(node) && Object.keys(node).length === 0) return true;
+                return false;
+            },
+            findNodeCaption(node) {
+                if (!node || typeof node !== 'object' || Array.isArray(node)) {
+                    return '';
+                }
+
+                const keys = Object.keys(node);
+                
+                let nameField = keys.find(key => key.toLowerCase().endsWith('name'));
+                if (nameField && node[nameField]) {
+                    return String(node[nameField]);
+                }
+                
+                let titleField = keys.find(key => key.toLowerCase().endsWith('title'));
+                if (titleField && node[titleField]) {
+                    return String(node[titleField]);
+                }
+                
+                let idField = keys.find(key => key.toLowerCase().endsWith('id'));
+                if (idField && node[idField]) {
+                    return String(node[idField]);
+                }
+                
+                return '';
+            },
+            navigateToChild(child) {
+                if (Array.isArray(child.originalKey)) {
+                    this.$emit('select', child.value, [...this.path, ...child.originalKey]);
+                } else {
+                    this.$emit('select', child.value, [...this.path, child.originalKey]);
+                }
+            },
+            getIdField() {
+                if (!this.isObject) return null;
+                const keys = Object.keys(this.node);
+                const idField = keys.find(key => key.toLowerCase() === 'id' || key.toLowerCase().endsWith('id'));
+                return idField ? this.node[idField] : null;
+            },
+            getChildCount(node) {
+                if (Array.isArray(node)) {
+                    return node.length;
+                } else if (typeof node === 'object' && node !== null) {
+                    return Object.keys(node).length;
+                } else {
+                    return 0;
+                }
+            },
+            parseTags(tagsString) {
+                if (!tagsString) return [];
+                
+                const tagStrings = tagsString.split(',').map(tag => tag.trim());
+                
+                return tagStrings.map(tag => {
+                    const match = tag.match(/^([^:]+)::(.+)$/);
+                    
+                    if (match) {
+                        const type = match[1].trim();
+                        const value = match[2].trim();
+                        
+                        if (type === 'relation') {
+                            const relationMatch = value.match(/^([^>]+)>>(.+)$/);
+                            if (relationMatch) {
+                                return {
+                                    type: 'relation',
+                                    relationType: relationMatch[1].trim(),
+                                    target: relationMatch[2].trim(),
+                                    full: tag
+                                };
+                            }
+                        }
+                        
+                        return {
+                            type,
+                            value,
+                            full: tag
+                        };
+                    }
+                    
+                    return {
+                        type: 'custom',
+                        value: tag,
+                        full: tag
+                    };
+                });
+            },
+
+            getTagClass(tag) {
+                const validTypes = ['type', 'priority', 'status', 'relation'];
+                return validTypes.includes(tag.type) ? `tag-${tag.type}` : 'tag-default';
+            }
+        },
+        template: `
+            <div :class="contentClasses" class="space-y-6">
+                <!-- Special Fields Rendering -->
+                <div v-if="isObject" class="special-fields space-y-4">
+                    <template v-for="(field, key) in specialFields" :key="key">
+                        <!-- ID Field (discrete) -->
+                        <div v-if="field.type === 'id'" class="field-container field-id-container flex items-center space-x-2">
+                            <span class="text-sm text-gray-600">{{ field.key }}:</span>
+                            <span v-html="renderSpecialField(field)"></span>
+                        </div>
+                        
+                        <!-- Heading Field -->
+                        <div v-else-if="field.type === 'heading'" class="field-container field-heading-container" v-html="renderSpecialField(field)"></div>
+                        
+                        <!-- Markdown Content -->
+                        <div v-else-if="field.type === 'markdown'" class="field-container field-markdown-container space-y-2">
+                            <h4 class="text-sm font-medium text-gray-700">{{ field.key }}</h4>
+                            <div v-html="renderSpecialField(field)"></div>
+                        </div>
+                        
+                        <!-- Regular Content -->
+                        <div v-else-if="field.type === 'content'" class="field-container field-content-container space-y-2">
+                            <h4 class="text-sm font-medium text-gray-700">{{ field.key }}</h4>
+                            <div v-html="renderSpecialField(field)"></div>
+                        </div>
+                        
+                        <!-- Date Field (compact) -->
+                        <div v-else-if="field.type === 'date'" class="field-container field-date-container field-compact">
+                            <span class="field-label">{{ field.key }}:</span>
+                            <div v-html="renderSpecialField(field)"></div>
+                        </div>
+                        
+                        <!-- Number Field (compact) -->
+                        <div v-else-if="field.type === 'number'" class="field-container field-number-container field-compact">
+                            <span class="field-label">{{ field.key }}:</span>
+                            <div v-html="renderSpecialField(field)"></div>
+                        </div>
+                        
+                        <!-- Tags Field -->
+                        <div v-else-if="field.type === 'tags'" class="field-container field-tags-container space-y-2">
+                            <h4 class="text-sm font-medium text-gray-700">{{ field.key }}</h4>
+                            <div class="flex flex-wrap gap-2" v-html="renderSpecialField(field)"></div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Normal Fields Section -->
+                <div v-if="normalFields.length > 0" class="normal-fields space-y-4">
+                    <h3 v-if="Object.keys(specialFields).length > 0" class="text-md font-medium text-gray-900">Other Properties</h3>
+                    <div class="normal-fields-container bg-gray-50 rounded-lg p-4">
+                        <div class="space-y-3">
+                            <div v-for="(field, index) in normalFields" :key="index" 
+                                 :class="['data-field', 'data-field-' + sanitizeForClass(field.key), 'field-compact', { 'array-item': isArray }]">
+                                <span class="field-label">{{ field.displayName }}:</span>
+                                <div class="field-value">
+                                    <!-- String Content -->
+                                    <span v-if="typeof field.value === 'string'">
+                                        <!-- Email -->
+                                        <a v-if="isEmail(field.value)" :href="'mailto:' + field.value" class="text-blue-600 hover:underline">{{ field.value }}</a>
+                                        <!-- URL -->
+                                        <a v-else-if="isUrl(field.value)" :href="field.value" target="_blank" class="text-blue-600 hover:underline">{{ field.value }}</a>
+                                        <!-- Regular Text -->
+                                        <span v-else>{{ field.value }}</span>
+                                    </span>
+                                    <!-- Boolean Content -->
+                                    <span v-else-if="typeof field.value === 'boolean'" class="font-medium">
+                                        {{ field.value ? 'True' : 'False' }}
+                                    </span>
+                                    <!-- Other types -->
+                                    <span v-else>{{ field.value }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Non-Leaf Nodes Section -->
+                <div v-if="nonLeafNodes.length > 0" class="sub-items-section space-y-4">
+                    <h3 class="text-md font-medium text-gray-900">Sub-items</h3>
+                    <div class="sub-items-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div v-for="(branch, index) in nonLeafNodes" :key="index" 
+                             :class="[getSubItemClasses(branch), 'bg-white p-4 rounded border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer', { 'array-item': branch.isArrayItem }]"
+                             @click="navigateToChild(branch)">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <i :data-lucide="Array.isArray(branch.value) ? 'folder' : 'folder'" class="w-5 h-5 text-gray-700"></i>
+                                <div class="font-medium text-gray-900">
+                                    {{ branch.displayName }}
+                                </div>
+                                <span class="text-xs text-gray-500">({{ getChildCount(branch.value) }})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Primitive Value Display -->
+                <div v-if="!isObject && !isArray" class="primitive-value bg-gray-50 rounded-lg p-4">
+                    <!-- String Content -->
+                    <div v-if="typeof node === 'string'" class="primitive-string">
+                        <!-- Date -->
+                        <div v-if="isDate(node)" class="primitive-date flex items-center space-x-3">
+                            <i data-lucide="calendar" class="w-5 h-5 text-gray-700"></i>
+                            <div>
+                                <div class="font-medium">{{ formatDate(node) }}</div>
+                                <div class="text-sm text-gray-500">{{ node }}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Email -->
+                        <div v-else-if="isEmail(node)" class="primitive-email flex items-center space-x-3">
+                            <i data-lucide="mail" class="w-5 h-5 text-gray-700"></i>
+                            <a :href="'mailto:' + node" class="text-gray-900 hover:underline">{{ node }}</a>
+                        </div>
+                        
+                        <!-- URL -->
+                        <div v-else-if="isUrl(node)" class="primitive-url flex items-center space-x-3">
+                            <i data-lucide="external-link" class="w-5 h-5 text-gray-700"></i>
+                            <a :href="node" target="_blank" class="text-gray-900 hover:underline">{{ node }}</a>
+                        </div>
+                        
+                        <!-- Markdown -->
+                        <div v-else-if="isMarkdown(node)" class="primitive-markdown markdown-content" v-html="marked.parse(node)"></div>
+                        
+                        <!-- Regular Text -->
+                        <div v-else class="primitive-text flex items-start space-x-3">
+                            <i data-lucide="type" class="w-5 h-5 text-gray-500 mt-0.5"></i>
+                            <div class="whitespace-pre-wrap">{{ node }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Number Content -->
+                    <div v-else-if="typeof node === 'number'" class="primitive-number flex items-center space-x-3">
+                        <i data-lucide="hash" class="w-5 h-5 text-gray-700"></i>
+                        <div class="text-2xl font-mono">{{ formatNumber(node) }}</div>
+                    </div>
+
+                    <!-- Boolean Content -->
+                    <div v-else-if="typeof node === 'boolean'" class="primitive-boolean flex items-center space-x-3">
+                        <i :data-lucide="node ? 'check-circle' : 'x-circle'" 
+                           class="w-5 h-5 text-gray-700"></i>
+                        <div class="text-lg font-medium">
+                            {{ node ? 'True' : 'False' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `
+    };
+
+    // Main App
+    createApp({
+        components: {
+            TreeNode,
+            ContentViewer
+        },
+        data() {
+            return {
+                config: APP_CONFIG,
+                jsonData: null,
+                selectedNode: null,
+                selectedPath: [],
+                isDragOver: false
+            }
+        },
+        computed: {
+            breadcrumbs() {
+                return this.selectedPath.map((segment, index) => {
+                    const path = this.selectedPath.slice(0, index + 1);
+                    const node = this.getNodeByPath(this.jsonData, path);
+                    const caption = this.findNodeCaption(node);
+                    
+                    return {
+                        name: typeof segment === 'number' ? 'Item ' + (segment + 1) : segment,
+                        caption: caption
+                    };
+                });
+            },
+            nodeCaption() {
+                return this.findNodeCaption(this.selectedNode);
+            }
+        },
+        methods: {
+            sanitizeForClass,
+            getNodeType() {
+                if (Array.isArray(this.selectedNode)) return 'Array';
+                if (typeof this.selectedNode === 'object' && this.selectedNode !== null) return 'Object';
+                if (typeof this.selectedNode === 'string') return 'String';
+                if (typeof this.selectedNode === 'number') return 'Number';
+                if (typeof this.selectedNode === 'boolean') return 'Boolean';
+                return 'Unknown';
+            },
+            getNodeIcon() {
+                if (Array.isArray(this.selectedNode)) return 'list';
+                if (typeof this.selectedNode === 'object' && this.selectedNode !== null) return 'folder';
+                if (typeof this.selectedNode === 'string') return 'type';
+                if (typeof this.selectedNode === 'number') return 'hash';
+                if (typeof this.selectedNode === 'boolean') return 'toggle-left';
+                return 'file';
+            },
+            getPropertyCount() {
+                if (Array.isArray(this.selectedNode)) return this.selectedNode.length;
+                if (typeof this.selectedNode === 'object' && this.selectedNode !== null) return Object.keys(this.selectedNode).length;
+                return 0;
+            },
+            getNodeId() {
+                if (typeof this.selectedNode === 'object' && this.selectedNode !== null && !Array.isArray(this.selectedNode)) {
+                    const keys = Object.keys(this.selectedNode);
+                    const idField = keys.find(key => key.toLowerCase() === 'id' || key.toLowerCase().endsWith('id'));
+                    return idField ? this.selectedNode[idField] : null;
+                }
+                return null;
+            },
+            getNodeTags() {
+                if (typeof this.selectedNode === 'object' && this.selectedNode !== null && !Array.isArray(this.selectedNode) && this.selectedNode.tags) {
+                    return this.parseTags(this.selectedNode.tags);
+                }
+                return [];
+            },
+            isObject() {
+                return typeof this.selectedNode === 'object' && this.selectedNode !== null && !Array.isArray(this.selectedNode);
+            },
+            isArray() {
+                return Array.isArray(this.selectedNode);
+            },
+            parseTags(tagsString) {
+                if (!tagsString) return [];
+                
+                const tagStrings = tagsString.split(',').map(tag => tag.trim());
+                
+                return tagStrings.map(tag => {
+                    const match = tag.match(/^([^:]+)::(.+)$/);
+                    
+                    if (match) {
+                        const type = match[1].trim();
+                        const value = match[2].trim();
+                        
+                        if (type === 'relation') {
+                            const relationMatch = value.match(/^([^>]+)>>(.+)$/);
+                            if (relationMatch) {
+                                return {
+                                    type: 'relation',
+                                    relationType: relationMatch[1].trim(),
+                                    target: relationMatch[2].trim(),
+                                    full: tag
+                                };
+                            }
+                        }
+                        
+                        return {
+                            type,
+                            value,
+                            full: tag
+                        };
+                    }
+                    
+                    return {
+                        type: 'custom',
+                        value: tag,
+                        full: tag
+                    };
+                });
+            },
+            getTagClass(tag) {
+                const validTypes = ['type', 'priority', 'status', 'relation'];
+                const baseClasses = 'bg-opacity-10 border border-opacity-20';
+                
+                switch(tag.type) {
+                    case 'type': return `${baseClasses} bg-blue-500 text-blue-600 border-blue-500`;
+                    case 'priority': return `${baseClasses} bg-yellow-500 text-yellow-600 border-yellow-500`;
+                    case 'status': return `${baseClasses} bg-green-500 text-green-600 border-green-500`;
+                    case 'relation': return `${baseClasses} bg-purple-500 text-purple-600 border-purple-500 cursor-pointer`;
+                    default: return `${baseClasses} bg-gray-500 text-gray-600 border-gray-500`;
+                }
+            },
+            async loadDefaultFile() {
+                if (!this.config.defaultFile) return;
+                
+                try {
+                    let response;
+                    if (this.config.defaultFile.startsWith('http')) {
+                        response = await fetch(this.config.defaultFile);
+                    } else {
+                        response = await fetch(this.config.defaultFile);
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const text = await response.text();
+                    this.jsonData = JSON.parse(text);
+                    this.selectedNode = this.jsonData;
+                    this.selectedPath = [];
+                } catch (error) {
+                    console.error('Error loading default file:', error);
+                    alert('Error loading default file: ' + error.message);
+                }
+            },
+            handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.processFile(file);
+                }
+            },
+            handleDragOver(event) {
+                event.preventDefault();
+                this.isDragOver = true;
+            },
+            handleDragLeave(event) {
+                event.preventDefault();
+                this.isDragOver = false;
+            },
+            handleDrop(event) {
+                event.preventDefault();
+                this.isDragOver = false;
+                
+                const files = event.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/json' || file.name.endsWith('.json')) {
+                        this.processFile(file);
+                    } else {
+                        alert('Please select a valid JSON file.');
+                    }
+                }
+            },
+            processFile(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        this.jsonData = JSON.parse(e.target.result);
+                        this.selectedNode = this.jsonData;
+                        this.selectedPath = [];
+                    } catch (error) {
+                        alert('Error reading JSON file. Please verify that the format is correct.');
+                    }
+                };
+                reader.readAsText(file);
+            },
+            selectNode(node, path) {
+                this.selectedNode = node;
+                this.selectedPath = path;
+            },
+            resetData() {
+                this.jsonData = null;
+                this.selectedNode = null;
+                this.selectedPath = [];
+            },
+            getNodeTitle() {
+                const level = this.selectedPath.length;
+                if (level === 0) return 'Main Data';
+                
+                const titles = ['Section', 'Subsection', 'Item', 'Detail', 'Information'];
+                const title = titles[Math.min(level - 1, titles.length - 1)];
+                const name = this.selectedPath[this.selectedPath.length - 1];
+                
+                return title + ': ' + (typeof name === 'number' ? 'Item ' + (name + 1) : name);
+            },
+            getNodeByPath(rootNode, path) {
+                if (!path || path.length === 0) return rootNode;
+                
+                let current = rootNode;
+                for (const segment of path) {
+                    if (current === null || current === undefined || typeof current !== 'object') {
+                        return undefined;
+                    }
+                    current = current[segment];
+                }
+                return current;
+            },
+            findNodeCaption(node) {
+                if (!node || typeof node !== 'object' || Array.isArray(node)) {
+                    return '';
+                }
+
+                const keys = Object.keys(node);
+                
+                let nameField = keys.find(key => key.toLowerCase().endsWith('name'));
+                if (nameField && node[nameField]) {
+                    return String(node[nameField]);
+                }
+                
+                let titleField = keys.find(key => key.toLowerCase().endsWith('title'));
+                if (titleField && node[titleField]) {
+                    return String(node[titleField]);
+                }
+                
+                let idField = keys.find(key => key.toLowerCase().endsWith('id'));
+                if (idField && node[idField]) {
+                    return String(node[idField]);
+                }
+                
+                return '';
+            },
+            navigateToRelation(targetName) {
+                this.findNodeByTitle(this.jsonData, [], targetName);
+            },
+            findNodeByTitle(node, path, targetName) {
+                if (!node || typeof node !== 'object') return false;
+                
+                if (typeof node === 'object' && !Array.isArray(node)) {
+                    const title = node.title || node.name;
+                    if (title === targetName) {
+                        this.selectNode(node, path);
+                        return true;
+                    }
+                }
+                
+                if (Array.isArray(node)) {
+                    for (let i = 0; i < node.length; i++) {
+                        const found = this.findNodeByTitle(node[i], [...path, i], targetName);
+                        if (found) return true;
+                    }
+                } else if (typeof node === 'object' && node !== null) {
+                    for (const [key, value] of Object.entries(node)) {
+                        const found = this.findNodeByTitle(value, [...path, key], targetName);
+                        if (found) return true;
+                    }
+                }
+                
+                return false;
+            },
+            exportCurrentNode(format) {
+                if (!this.selectedNode) return;
+                
+                const content = this.generateExportContent(this.selectedNode, this.selectedPath, format);
+                const filename = 'data-' + (this.selectedPath.join('-') || 'main') + '.' + (format === 'markdown' ? 'md' : 'html');
+                
+                const blob = new Blob([content], { 
+                    type: format === 'markdown' ? 'text/markdown' : 'text/html' 
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            generateExportContent(node, path, format) {
+                const title = this.getNodeTitle();
+                
+                if (format === 'markdown') {
+                    return this.generateMarkdown(node, title, path);
+                } else {
+                    return this.generateHTML(node, title, path);
+                }
+            },
+            generateMarkdown(node, title, level) {
+                if (typeof level === 'undefined') level = 1;
+                let content = '#'.repeat(level) + ' ' + title + '\n\n';
+                
+                if (node && typeof node === 'object' && !Array.isArray(node) && node.tags) {
+                    content += '**Tags:** ' + node.tags + '\n\n';
+                }
+                
+                if (typeof node === 'object' && node !== null) {
+                    if (Array.isArray(node)) {
+                        node.forEach((item, index) => {
+                            content += '#'.repeat(level + 1) + ' Item ' + (index + 1) + '\n\n';
+                            content += this.formatValueForMarkdown(item) + '\n\n';
+                        });
+                    } else {
+                        Object.entries(node).forEach(([key, value]) => {
+                            if (key !== 'tags') {
+                                content += '#'.repeat(level + 1) + ' ' + key + '\n\n';
+                                content += this.formatValueForMarkdown(value) + '\n\n';
+                            }
+                        });
+                    }
+                } else {
+                    content += this.formatValueForMarkdown(node) + '\n\n';
+                }
+                
+                return content;
+            },
+            generateHTML(node, title, path) {
+                let content = '<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>' + title + '</title>\n    <style>\n        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }\n        h1, h2, h3, h4, h5, h6 { color: #333; border-bottom: 1px solid #eee; padding-bottom: 5px; }\n        .value { background: #f5f5f5; padding: 10px; border-radius: 5px; margin: 10px 0; }\n        .date { color: #333; }\n        .number { color: #333; font-weight: bold; }\n        .boolean { color: #333; font-weight: bold; }\n        .tag { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-right: 4px; }\n        .tag-type { background-color: #e6f0ff; color: #3b82f6; }\n        .tag-priority { background-color: #fff7e6; color: #f59e0b; }\n        .tag-status { background-color: #e6fff0; color: #10b981; }\n        .tag-relation { background-color: #f0e6ff; color: #8b5cf6; }\n        .tag-default { background-color: #f2f2f2; color: #6b7280; }\n    </style>\n</head>\n<body>';
+                
+                content += this.generateHTMLContent(node, title, 1);
+                content += '</body></html>';
+                
+                return content;
+            },
+            generateHTMLContent(node, title, level) {
+                let content = '<h' + level + ' id="' + this.slugify(title) + '">' + title + '</h' + level + '>';
+                
+                if (node && typeof node === 'object' && !Array.isArray(node) && node.tags) {
+                    content += '<div class="tags">';
+                    const tags = this.parseTags(node.tags);
+                    tags.forEach(tag => {
+                        const tagClass = this.getTagClass(tag);
+                        content += `<span class="tag ${tagClass}">`;
+                        if (tag.type === 'relation') {
+                            content += `${tag.relationType} » ${tag.target}`;
+                        } else {
+                            content += `${tag.type}::${tag.value}`;
+                        }
+                        content += '</span>';
+                    });
+                    content += '</div>';
+                }
+                
+                if (typeof node === 'object' && node !== null) {
+                    if (Array.isArray(node)) {
+                        node.forEach((item, index) => {
+                            const itemTitle = 'Item ' + (index + 1);
+                            content += this.generateHTMLContent(item, itemTitle, level + 1);
+                        });
+                    } else {
+                        Object.entries(node).forEach(([key, value]) => {
+                            if (key !== 'tags') {
+                                content += this.generateHTMLContent(value, key, level + 1);
+                            }
+                        });
+                    }
+                } else {
+                    content += '<div class="value">' + this.formatValueForHTML(node) + '</div>';
+                }
+                
+                return content;
+            },
+            formatValueForMarkdown(value) {
+                if (typeof value === 'string') {
+                    if (this.isDate(value)) return '📅 ' + this.formatDate(value);
+                    if (this.isEmail(value)) return '📧 [' + value + '](mailto:' + value + ')';
+                    if (this.isUrl(value)) return '🔗 [' + value + '](' + value + ')';
+                    return value;
+                }
+                if (typeof value === 'number') return '🔢 ' + this.formatNumber(value);
+                if (typeof value === 'boolean') return '✓ ' + (value ? 'True' : 'False');
+                if (typeof value === 'object') return JSON.stringify(value, null, 2);
+                return String(value);
+            },
+            formatValueForHTML(value) {
+                if (typeof value === 'string') {
+                    if (this.isDate(value)) return '<span class="date">📅 ' + this.formatDate(value) + '</span>';
+                    if (this.isEmail(value)) return '📧 <a href="mailto:' + value + '">' + value + '</a>';
+                    if (this.isUrl(value)) return '🔗 <a href="' + value + '" target="_blank">' + value + '</a>';
+                    return value.replace(/\n/g, '<br>');
+                }
+                if (typeof value === 'number') return '<span class="number">🔢 ' + this.formatNumber(value) + '</span>';
+                if (typeof value === 'boolean') return '<span class="boolean">✓ ' + (value ? 'True' : 'False') + '</span>';
+                if (typeof value === 'object') return '<pre>' + JSON.stringify(value, null, 2) + '</pre>';
+                return String(value);
+            },
+            slugify(text) {
+                return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            },
+            isDate(str) {
+                return typeof str === 'string' && !isNaN(Date.parse(str)) && /\d{4}-\d{2}-\d{2}/.test(str);
+            },
+            isEmail(str) {
+                return typeof str === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str);
+            },
+            isUrl(str) {
+                if (typeof str !== 'string') return false;
+                try {
+                    new URL(str);
+                    return true;
+                } catch {
+                    return false;
+                }
+            },
+            formatDate(str) {
+                return new Date(str).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            },
+            formatNumber(num) {
+                return new Intl.NumberFormat('en-US').format(num);
+            }
+        },
+        async mounted() {
+            // Initialize Lucide icons
+            lucide.createIcons();
+            
+            // Load default file if specified
+            if (this.config.defaultFile) {
+                await this.loadDefaultFile();
+            }
+        },
+        updated() {
+            // Re-initialize icons after DOM updates
+            this.$nextTick(() => {
+                lucide.createIcons();
+            });
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
