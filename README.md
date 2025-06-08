@@ -1,4 +1,4 @@
-# iNNitiatives - Innovation Management Platform
+# iNNitiatives - Early Stage Innovation Management Platform
 
 A comprehensive Vue.js application for managing innovation programs, opportunities, and initiatives.
 
