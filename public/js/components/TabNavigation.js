@@ -24,13 +24,13 @@ export const TabNavigation = {
                         <i :data-lucide="tab.icon" class="w-4 h-4"></i>
                         <span>{{ tab.name }}</span>
                     </button>
+                    <a href="https://innv0.github.io/wiNNdow/index.html?defaultFile=https://innv0.github.io/iNNitiatives/public/process.struml.json" target="_blank" class="flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                        <i data-lucide="list" class="w-4 h-4"></i>
+                        <span>Process</span>
+                    </a>
                     <a href="https://docsify-this.net/?basePath=https://innv0.github.io/iNNitiatives/public&homepage=docs.md&sidebar=true#/" target="_blank" class="flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap text-gray-600 hover:text-gray-900 hover:bg-gray-50">
                         <i data-lucide="book" class="w-4 h-4"></i>
                         <span>Docs</span>
-                    </a>
-                    <a href="https://docsify-this.net/?basePath=https://innv0.github.io/iNNitiatives/public&homepage=iNNitiatives.struml.md&sidebar=true#/" target="_blank" class="flex items-center space-x-2 px-4 py-3 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap text-gray-600 hover:text-gray-900 hover:bg-gray-50">
-                        <i data-lucide="list" class="w-4 h-4"></i>
-                        <span>Process</span>
                     </a>
                 </div>
             </div>
